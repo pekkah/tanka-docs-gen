@@ -12,6 +12,20 @@
     <RepositoryUrl>https://github.com/pekkah/fugu-docs-gen</RepositoryUrl>
     <PackageLicenseUrl>https://github.com/pekkah/fugu-docs-gen/blob/master/LICENSE</PackageLicenseUrl>
     <PackageLicense>Apache-2.0</PackageLicense>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Markdig" Version="0.15.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.2.0" />
+    <PackageReference Include="NetEscapades.Configuration.Yaml" Version="1.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="fugu-docs.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>
