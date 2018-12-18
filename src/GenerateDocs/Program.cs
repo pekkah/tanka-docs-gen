@@ -15,28 +15,9 @@ namespace Fugu.GenerateDocs
                 .AddYamlFile("fugu-docs.yaml", true)
                 .AddCommandLine(args)
                 .Build();
-
-            if (configuration["input"] == null)
-            {
-                Console.WriteLine("Input folder missing");
-                return;
-            }
-
-            if (configuration["output"] == null)
-            {
-                Console.WriteLine("Output folder missing");
-                return;
-            }
-
-            var output = GetDirectory(configuration["output"]);
-            var input = GetDirectory(configuration["input"]);
-
-            var markdownPipeline = new MarkdownPipelineBuilder()
-                .UseAdvancedExtensions()
-                .Build();
-
-            var context = new DirectoryContext(input, output, markdownPipeline);
-            await RecursiveRenderMarkdownFiles(context);
+            
+            var pipeline = new Pipeline(configuration);
+            await pipeline.Execute();
         }
 
         private static async Task RecursiveRenderMarkdownFiles(DirectoryContext context)
@@ -55,31 +36,47 @@ namespace Fugu.GenerateDocs
                 await File.WriteAllTextAsync(targetFile, htmlContent);
             }
         }
-
-        private static DirectoryInfo GetDirectory(string folderPath)
-        {
-            return Directory.CreateDirectory(folderPath);
-        }
     }
 
-    internal class DirectoryContext
+    public static class Steps
     {
-        private readonly MarkdownPipeline _markdownPipeline;
-
-        public DirectoryInfo Input { get; }
-
-        public DirectoryInfo Output { get; }
-
-        public DirectoryContext(DirectoryInfo input, DirectoryInfo output, MarkdownPipeline markdownPipeline)
+        public static PipelineStep ReadFiles(IConfiguration configuration)
         {
-            _markdownPipeline = markdownPipeline;
-            Input = input;
-            Output = output;
+            if (configuration["input"] == null)
+            {
+                throw new InvalidOperationException($"Failed to get 'input' from configuration");
+            }
+
+            var input = Directory.CreateDirectory(configuration["input"]);
+
+            return context =>
+            {
+                var inputFiles = input.EnumerateFiles("*.md", new EnumerationOptions()
+                {
+                    RecurseSubdirectories = true,           
+                });
+
+                context.InputFiles.AddRange(inputFiles);
+                return Task.CompletedTask;
+            };
         }
 
-        public string Transform(string sourceFilePath, string targetFilePath, string content)
+        public static PipelineStep WriteFiles(IConfiguration configuration)
         {
-            return Markdown.ToHtml(content, _markdownPipeline);
+            if (configuration["output"] == null)
+            {
+                throw new InvalidOperationException($"Failed to get 'output' from configuration");
+            }
+
+            var output = Directory.CreateDirectory(configuration["output"]);
+
+            return async context =>
+            {
+                foreach (var VARIABLE in context.Output)
+                {
+                    
+                }
+            };
         }
     }
 }
