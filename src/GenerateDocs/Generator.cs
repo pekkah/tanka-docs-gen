@@ -50,6 +50,16 @@ namespace Fugu.GenerateDocs
             };
         }
 
+        public static PipelineStep GenerateToc(IConfigurationRoot configuration)
+        {
+            return context => Task.CompletedTask;
+        }
+
+        public static PipelineStep AddLayout(IConfigurationRoot configuration)
+        {
+            return context => Task.CompletedTask;
+        }
+
         public static PipelineStep WriteFiles(IConfiguration configuration)
         {
             if (configuration["output"] == null)

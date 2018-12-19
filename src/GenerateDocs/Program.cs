@@ -19,6 +19,8 @@ namespace Fugu.GenerateDocs
                 {
                     EnumerateFiles(configuration),
                     TransformInputFilesToHtmlOutputFiles(configuration),
+                    GenerateToc(configuration),
+                    AddLayout(configuration),
                     WriteFiles(configuration)
                 }
             };
