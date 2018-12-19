@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using HandlebarsDotNet;
 using Markdig;
 using Microsoft.Extensions.Configuration;
 
@@ -50,14 +52,48 @@ namespace Fugu.GenerateDocs
             };
         }
 
-        public static PipelineStep GenerateToc(IConfigurationRoot configuration)
+        public static PipelineStep GenerateToc(IConfiguration configuration)
         {
             return context => Task.CompletedTask;
         }
 
-        public static PipelineStep AddLayout(IConfigurationRoot configuration)
+        public static PipelineStep AddLayout(IConfiguration configuration)
         {
-            return context => Task.CompletedTask;
+            if (configuration["input"] == null)
+                throw new InvalidOperationException("Failed to get 'input' from configuration");
+
+            var input = Directory.CreateDirectory(configuration["input"]);
+            var templateFileName = configuration["template"] ?? "_template.html";
+
+            // check if template file exists
+            var templateFilePath = Path.Combine(input.FullName, templateFileName);
+            if (!File.Exists(templateFilePath))
+            {
+                return context => Task.CompletedTask;
+            }
+
+            var template = File.ReadAllText(templateFilePath);
+            var renderTemplate = Handlebars.Compile(template);
+
+            return context =>
+            {
+                foreach (var outputFile in context.OutputFiles.ToList())
+                {
+                    context.OutputFiles.Remove(outputFile);
+                    
+                    var content = renderTemplate(
+                        new
+                        {
+                            Context = context,
+                            Path = outputFile.path,
+                            Content = outputFile.content
+                        });
+
+                    context.OutputFiles.Add((outputFile.path, content));
+                }
+
+                return Task.CompletedTask;
+            };
         }
 
         public static PipelineStep WriteFiles(IConfiguration configuration)
