@@ -61,7 +61,8 @@ namespace Fugu.GenerateDocs
             {
                 foreach (var (path, content) in context.OutputFiles)
                 {
-                    var fullPath = Path.Combine(output.FullName, path);
+                    var fullName = Path.GetFileNameWithoutExtension(path);
+                    var fullPath = Path.Combine(output.FullName, $"{fullName}.html");
                     await File.WriteAllTextAsync(fullPath, content);
                 }
             };
