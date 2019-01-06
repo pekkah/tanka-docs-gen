@@ -17,6 +17,7 @@ namespace Fugu.GenerateDocs
             {
                 Steps =
                 {
+                    AnalyzeSolution(configuration),
                     EnumerateFiles(configuration),
                     TransformInputFilesToHtmlOutputFiles(configuration),
                     GenerateToc(configuration),

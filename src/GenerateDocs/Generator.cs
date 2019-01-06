@@ -2,6 +2,8 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Buildalyzer;
+using Fugu.GenerateDocs.Markdig;
 using HandlebarsDotNet;
 using Markdig;
 using Microsoft.Extensions.Configuration;
@@ -10,6 +12,21 @@ namespace Fugu.GenerateDocs
 {
     public static class Generator
     {
+        public static PipelineStep AnalyzeSolution(IConfiguration configuration)
+        {
+            if (configuration["solution"] == null)
+                throw new InvalidOperationException("Failed to get 'solution' from configuration");
+
+            var solution = configuration["solution"];
+            AnalyzerManager analyzerManager = new AnalyzerManager(solution);
+
+            return context =>
+            {
+                context.Solution = new SolutionContext(analyzerManager);
+                return Task.CompletedTask;
+            };
+        }
+
         public static PipelineStep EnumerateFiles(IConfiguration configuration)
         {
             if (configuration["input"] == null)
@@ -36,12 +53,13 @@ namespace Fugu.GenerateDocs
 
             var input = Directory.CreateDirectory(configuration["input"]);
 
-            var markdownPipeline = new MarkdownPipelineBuilder()
-                .UseAdvancedExtensions()
-                .Build();
-
             return async context =>
             {
+                var markdownPipeline = new MarkdownPipelineBuilder()
+                    .UseAdvancedExtensions()
+                    .Use(new CodeExtension(context))
+                    .Build();
+
                 foreach (var inputFile in context.InputFiles)
                 {
                     var markdownContent = await File.ReadAllTextAsync(inputFile.FullName);

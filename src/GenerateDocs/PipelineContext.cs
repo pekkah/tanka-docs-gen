@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Configuration;
 
 namespace Fugu.GenerateDocs
@@ -16,5 +17,7 @@ namespace Fugu.GenerateDocs
         public List<FileInfo> InputFiles { get; } = new List<FileInfo>();
 
         public List<(string path, string content)> OutputFiles { get; } = new List<(string path, string content)>();
+
+        public SolutionContext Solution { get; set; }
     }
 }

@@ -16,8 +16,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Buildalyzer" Version="2.2.0" />
+    <PackageReference Include="Buildalyzer.Workspaces" Version="2.2.0" />
     <PackageReference Include="Handlebars.Net" Version="1.9.5" />
-    <PackageReference Include="Markdig" Version="0.15.5" />
+    <PackageReference Include="Markdig" Version="0.15.6" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.2.0" />
     <PackageReference Include="NetEscapades.Configuration.Yaml" Version="1.6.0" />

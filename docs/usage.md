@@ -10,7 +10,9 @@ dotnet tool install --global Fugu.GenerateDocs
 2. Add fugu-docs.yaml configuration file to root of your repo
 
 ```yaml
-output: docs-html
+input: 'docs'
+output: 'docs-html'
+solution: 'your-solution.sln'
 ```
 
 3. Run the tool
@@ -20,3 +22,12 @@ dotnet docs-gen
 ```
 
 4. Output will be generated to `docs-html`
+
+
+## How to include code from solution
+
+## Include class
+
+[{Fugu.GenerateDocs.Generator}]
+
+### Include function
