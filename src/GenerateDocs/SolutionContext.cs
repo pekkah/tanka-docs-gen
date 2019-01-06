@@ -44,8 +44,7 @@ namespace Fugu.GenerateDocs
                     if (nodes.Count > 0)
                     {
                         var first = nodes.First();
-                        var source = first.GetText();
-                        return source.ToString();
+                        return first.ToFullString();
                     }
                 }
             }

@@ -10,6 +10,9 @@ using Microsoft.Extensions.Configuration;
 
 namespace Fugu.GenerateDocs
 {
+    /// <summary>
+    ///    Pipeline steps
+    /// </summary>
     public static class Generator
     {
         public static PipelineStep AnalyzeSolution(IConfiguration configuration)
