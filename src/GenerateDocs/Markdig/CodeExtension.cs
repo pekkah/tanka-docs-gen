@@ -44,13 +44,15 @@ namespace Fugu.GenerateDocs.Markdig
 
         protected override void Write(HtmlRenderer renderer, CodeInclude codeInclude)
         {
-            var code = _context.Solution.GetSourceText(codeInclude.TypeName);
-            renderer.Write(code);
+            var code = _context.Solution.GetSourceText(codeInclude.DisplayName);
+            renderer.Write("<pre><code class=\"language-csharp\">");
+            renderer.WriteEscape(code.Text);
+            renderer.Write("</code></pre>");
         }
     }
 
     /// <summary>
-    ///     [{TypeName}]
+    ///     [{DisplayName}]
     /// </summary>
     public class IncludeCodeParser : InlineParser
     {
@@ -93,7 +95,7 @@ namespace Fugu.GenerateDocs.Markdig
 
             processor.Inline = new CodeInclude()
             {
-                TypeName = contentBuilder.ToString(),
+                DisplayName = contentBuilder.ToString(),
                 Span = new SourceSpan(processor.GetSourcePosition(
                         start, out var line, out var column),
                     processor.GetSourcePosition(slice.End)),
@@ -107,6 +109,6 @@ namespace Fugu.GenerateDocs.Markdig
 
     public class CodeInclude : Inline
     {
-        public string TypeName { get; set; }
+        public string DisplayName { get; set; }
     }
 }

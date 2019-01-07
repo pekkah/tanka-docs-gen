@@ -26,8 +26,10 @@ dotnet docs-gen
 
 ## How to include code from solution
 
-## Include class
+### Include class
 
-[{Fugu.GenerateDocs.Generator}]
+[{Fugu.GenerateDocs.Program}]
 
 ### Include function
+
+[{Fugu.GenerateDocs.Program.Main}]
