@@ -1,18 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using Microsoft.CodeAnalysis;
-using Microsoft.Extensions.Configuration;
 
 namespace Fugu.GenerateDocs
 {
     public class PipelineContext
     {
-        public PipelineContext(IConfiguration configuration)
+        public PipelineContext(GeneratorOptions options)
         {
-            Configuration = configuration;
+            Options = options;
         }
 
-        public IConfiguration Configuration { get; }
+        public GeneratorOptions Options { get; }
 
         public List<FileInfo> InputFiles { get; } = new List<FileInfo>();
 

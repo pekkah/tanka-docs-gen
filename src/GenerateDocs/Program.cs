@@ -13,16 +13,20 @@ namespace Fugu.GenerateDocs
                 .AddCommandLine(args)
                 .Build();
 
-            var pipeline = new Pipeline(configuration)
+            var options = configuration.Get<GeneratorOptions>();
+            options.Configuration = configuration;
+
+            var pipeline = new Pipeline(options)
             {
                 Steps =
                 {
-                    AnalyzeSolution(configuration),
-                    EnumerateFiles(configuration),
-                    TransformInputFilesToHtmlOutputFiles(configuration),
-                    GenerateToc(configuration),
-                    AddLayout(configuration),
-                    WriteFiles(configuration)
+                    AnalyzeSolution(options),
+                    EnumerateFiles(options),
+                    TransformInputFilesToHtmlOutputFiles(options),
+                    GenerateToc(options),
+                    AddHtmlLayout(options),
+                    Assets(".js", ".css"),
+                    WriteFiles(options)
                 }
             };
 

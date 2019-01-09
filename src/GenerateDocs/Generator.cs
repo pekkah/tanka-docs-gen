@@ -6,22 +6,17 @@ using Buildalyzer;
 using Fugu.GenerateDocs.Markdig;
 using HandlebarsDotNet;
 using Markdig;
-using Microsoft.Extensions.Configuration;
 
 namespace Fugu.GenerateDocs
 {
     /// <summary>
-    ///    Pipeline steps
+    ///     Pipeline steps
     /// </summary>
     public static class Generator
     {
-        public static PipelineStep AnalyzeSolution(IConfiguration configuration)
+        public static PipelineStep AnalyzeSolution(GeneratorOptions options)
         {
-            if (configuration["solution"] == null)
-                throw new InvalidOperationException("Failed to get 'solution' from configuration");
-
-            var solution = configuration["solution"];
-            AnalyzerManager analyzerManager = new AnalyzerManager(solution);
+            var analyzerManager = new AnalyzerManager(options.Solution);
 
             return context =>
             {
@@ -30,16 +25,13 @@ namespace Fugu.GenerateDocs
             };
         }
 
-        public static PipelineStep EnumerateFiles(IConfiguration configuration)
+        public static PipelineStep EnumerateFiles(GeneratorOptions options)
         {
-            if (configuration["input"] == null)
-                throw new InvalidOperationException("Failed to get 'input' from configuration");
-
-            var input = Directory.CreateDirectory(configuration["input"]);
+            var input = Directory.CreateDirectory(options.Input);
 
             return context =>
             {
-                var inputFiles = input.EnumerateFiles("*.md", new EnumerationOptions
+                var inputFiles = input.EnumerateFiles("*.*", new EnumerationOptions
                 {
                     RecurseSubdirectories = true
                 });
@@ -49,12 +41,9 @@ namespace Fugu.GenerateDocs
             };
         }
 
-        public static PipelineStep TransformInputFilesToHtmlOutputFiles(IConfiguration configuration)
+        public static PipelineStep TransformInputFilesToHtmlOutputFiles(GeneratorOptions options)
         {
-            if (configuration["input"] == null)
-                throw new InvalidOperationException("Failed to get 'input' from configuration");
-
-            var input = Directory.CreateDirectory(configuration["input"]);
+            var input = Directory.CreateDirectory(options.Input);
 
             return async context =>
             {
@@ -63,45 +52,72 @@ namespace Fugu.GenerateDocs
                     .Use(new CodeExtension(context))
                     .Build();
 
-                foreach (var inputFile in context.InputFiles)
+                foreach (var inputFile in context.InputFiles
+                    .Where(filename => filename.Extension == ".md"))
                 {
                     var markdownContent = await File.ReadAllTextAsync(inputFile.FullName);
                     var htmlContent = Markdown.ToHtml(markdownContent, markdownPipeline);
+                   
+                    var filename = Path.GetRelativePath(
+                        input.FullName, 
+                        inputFile.FullName);
 
-                    context.OutputFiles.Add((Path.GetRelativePath(input.FullName, inputFile.FullName), htmlContent));
+                    filename = Path.GetFileNameWithoutExtension(filename);
+
+                    context.OutputFiles.Add((
+                        $"{filename}.html", 
+                            htmlContent));
                 }
             };
         }
 
-        public static PipelineStep GenerateToc(IConfiguration configuration)
+        public static PipelineStep Assets(params string[] extensions)
+        {
+            return async context =>
+            {
+                var input = Directory.CreateDirectory(context.Options.Input);
+
+                foreach (var inputFile in context.InputFiles
+                    .Where(filename => extensions.Contains(filename.Extension)))
+                {
+                    var content = await File.ReadAllTextAsync(inputFile.FullName);
+
+                    var filename = Path.GetRelativePath(
+                        input.FullName, 
+                        inputFile.FullName);
+
+                    context.OutputFiles.Add((
+                        filename, 
+                        content));
+                }
+            };
+        }
+
+        public static PipelineStep GenerateToc(GeneratorOptions options)
         {
             return context => Task.CompletedTask;
         }
 
-        public static PipelineStep AddLayout(IConfiguration configuration)
+        public static PipelineStep AddHtmlLayout(GeneratorOptions options)
         {
-            if (configuration["input"] == null)
-                throw new InvalidOperationException("Failed to get 'input' from configuration");
-
-            var input = Directory.CreateDirectory(configuration["input"]);
-            var templateFileName = configuration["template"] ?? "_template.html";
+            var input = Directory.CreateDirectory(options.Input);
+            var templateFileName = options.Template ?? "_template.html";
 
             // check if template file exists
             var templateFilePath = Path.Combine(input.FullName, templateFileName);
-            if (!File.Exists(templateFilePath))
-            {
-                return context => Task.CompletedTask;
-            }
+            if (!File.Exists(templateFilePath)) return context => Task.CompletedTask;
 
             var template = File.ReadAllText(templateFilePath);
             var renderTemplate = Handlebars.Compile(template);
 
             return context =>
             {
-                foreach (var outputFile in context.OutputFiles.ToList())
+                foreach (var outputFile in context.OutputFiles
+                    .Where(filename => filename.path.EndsWith(".html"))
+                    .ToList())
                 {
                     context.OutputFiles.Remove(outputFile);
-                    
+
                     var content = renderTemplate(
                         new
                         {
@@ -117,19 +133,15 @@ namespace Fugu.GenerateDocs
             };
         }
 
-        public static PipelineStep WriteFiles(IConfiguration configuration)
+        public static PipelineStep WriteFiles(GeneratorOptions options)
         {
-            if (configuration["output"] == null)
-                throw new InvalidOperationException("Failed to get 'output' from configuration");
-
-            var output = Directory.CreateDirectory(configuration["output"]);
+            var output = Directory.CreateDirectory(options.Output);
 
             return async context =>
             {
                 foreach (var (path, content) in context.OutputFiles)
                 {
-                    var fullName = Path.GetFileNameWithoutExtension(path);
-                    var fullPath = Path.Combine(output.FullName, $"{fullName}.html");
+                    var fullPath = Path.Combine(output.FullName, path);
                     await File.WriteAllTextAsync(fullPath, content);
                 }
             };

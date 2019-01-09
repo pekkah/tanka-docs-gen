@@ -1,23 +1,22 @@
 ﻿using System.Threading.Tasks;
 using Markdig.Helpers;
-using Microsoft.Extensions.Configuration;
 
 namespace Fugu.GenerateDocs
 {
     public class Pipeline
     {
-        private readonly IConfiguration _configuration;
+        private readonly GeneratorOptions _options;
 
-        public Pipeline(IConfiguration configuration)
+        public Pipeline(GeneratorOptions options)
         {
-            _configuration = configuration;
+            _options = options;
         }
 
         public OrderedList<PipelineStep> Steps { get; } = new OrderedList<PipelineStep>();
 
         public async Task Execute()
         {
-            var context = new PipelineContext(_configuration);
+            var context = new PipelineContext(_options);
 
             foreach (var pipelineStep in Steps) await pipelineStep(context);
         }
