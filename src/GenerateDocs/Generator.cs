@@ -6,6 +6,7 @@ using Buildalyzer;
 using tanka.generate.docs.Markdig;
 using HandlebarsDotNet;
 using Markdig;
+using Microsoft.Extensions.FileSystemGlobbing.Internal.PathSegments;
 
 namespace tanka.generate.docs
 {
@@ -62,7 +63,7 @@ namespace tanka.generate.docs
                         input.FullName, 
                         inputFile.FullName);
 
-                    filename = Path.GetFileNameWithoutExtension(filename);
+                    filename = Path.ChangeExtension(filename, null);
 
                     context.OutputFiles.Add((
                         $"{filename}.html", 
@@ -95,7 +96,10 @@ namespace tanka.generate.docs
 
         public static PipelineStep GenerateToc(GeneratorOptions options)
         {
-            return context => Task.CompletedTask;
+            return context =>
+            {
+                return Task.CompletedTask;
+            };
         }
 
         public static PipelineStep AddHtmlLayout(GeneratorOptions options)
@@ -112,9 +116,19 @@ namespace tanka.generate.docs
 
             return context =>
             {
-                foreach (var outputFile in context.OutputFiles
+                var htmlFiles = context.OutputFiles
                     .Where(filename => filename.path.EndsWith(".html"))
-                    .ToList())
+                    .ToList();
+
+                var groupedFiles = htmlFiles.GroupBy(file => Path.GetDirectoryName(file.path))
+                    .Select(g => new
+                    {
+                        Key = g.Key,
+                        Values = g.Select(v => v.path).ToList()
+                    })
+                    .ToList();
+
+                foreach (var outputFile in htmlFiles)
                 {
                     context.OutputFiles.Remove(outputFile);
 
@@ -123,7 +137,8 @@ namespace tanka.generate.docs
                         {
                             Context = context,
                             Path = outputFile.path,
-                            Content = outputFile.content
+                            Content = outputFile.content,
+                            Toc = groupedFiles
                         });
 
                     context.OutputFiles.Add((outputFile.path, content));
@@ -142,6 +157,12 @@ namespace tanka.generate.docs
                 foreach (var (path, content) in context.OutputFiles)
                 {
                     var fullPath = Path.Combine(output.FullName, path);
+
+                    var folder = Path.GetDirectoryName(fullPath);
+
+                    if (!Directory.Exists(folder))
+                        Directory.CreateDirectory(folder);
+
                     await File.WriteAllTextAsync(fullPath, content);
                 }
             };

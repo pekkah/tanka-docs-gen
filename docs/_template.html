@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -8,10 +8,22 @@
   <link href="prism.css" rel="stylesheet" />
 </head>
 <body>
-    <article>
-        {{{Content}}}
-    </article>
-  <!--<script src="js/scripts.js"></script>-->
-  <script src="prism.js"></script>
+    <div>
+        {{#each Toc}}
+        <div>
+            <div>{{Key}}</div>
+            <div>
+                {{#each Values}}
+                    <a href="{{this}}">{{this}}</a>
+                {{/each}}
+            </div>
+        </div>
+        {{/each}}
+    </div>
+<article>
+    {{{Content}}}
+</article>
+<!--<script src="js/scripts.js"></script>-->
+<script src="prism.js"></script>
 </body>
 </html>
