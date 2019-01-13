@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Fugu.GenerateDocs
+namespace tanka.generate.docs
 {
     public delegate Task PipelineStep(PipelineContext context);
 }

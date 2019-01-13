@@ -4,10 +4,10 @@ Usage
 1. Install the global tool
 
 ```
-dotnet tool install --global Fugu.GenerateDocs
+dotnet tool install --global tanka.generate.docs
 ```
 
-2. Add fugu-docs.yaml configuration file to root of your repo
+2. Add tanka-docs.yaml configuration file to root of your repo
 
 ```yaml
 input: 'docs'
@@ -21,15 +21,15 @@ solution: 'your-solution.sln'
 dotnet docs-gen
 ```
 
-4. Output will be generated to `docs-html`
+4. Output will be generated to output (example: `docs-html`)
 
 
 ## How to include code from solution
 
 ### Include class
 
-[{Fugu.GenerateDocs.Program}]
+[{tanka.generate.docs.Program}]
 
 ### Include function
 
-[{Fugu.GenerateDocs.Program.Main}]
+[{tanka.generate.docs.Program.Main}]

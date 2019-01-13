@@ -1,2 +1,2 @@
-# fugu-docs-gen
+# tanka-docs-gen
 Documentation generator

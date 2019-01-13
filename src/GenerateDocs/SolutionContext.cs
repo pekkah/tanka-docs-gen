@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.FindSymbols;
 
-namespace Fugu.GenerateDocs
+namespace tanka.generate.docs
 {
     public class SolutionContext
     {

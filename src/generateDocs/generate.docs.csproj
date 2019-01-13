@@ -3,14 +3,14 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <AssemblyName>Fugu.GenerateDocs</AssemblyName>
-    <RootNamespace>Fugu.GenerateDocs</RootNamespace>
+    <AssemblyName>tanka.generate.docs</AssemblyName>
+    <RootNamespace>tanka.generate.docs</RootNamespace>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>gen-docs</ToolCommandName>
     <Authors>Pekka Heikura &lt;pekkah@gmail.com&gt;</Authors>
-    <PackageProjectUrl>https://github.com/pekkah/fugu-docs-gen</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/pekkah/fugu-docs-gen</RepositoryUrl>
-    <PackageLicenseUrl>https://github.com/pekkah/fugu-docs-gen/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/pekkah/tanka-docs-gen</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/pekkah/tanka-docs-gen</RepositoryUrl>
+    <PackageLicenseUrl>https://github.com/pekkah/tanka-docs-gen/blob/master/LICENSE</PackageLicenseUrl>
     <PackageLicense>Apache-2.0</PackageLicense>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="fugu-docs.yaml">
+    <None Update="tanka-docs.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

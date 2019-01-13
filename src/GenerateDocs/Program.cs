@@ -1,15 +1,15 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using static Fugu.GenerateDocs.Generator;
+using static tanka.generate.docs.Generator;
 
-namespace Fugu.GenerateDocs
+namespace tanka.generate.docs
 {
     public class Program
     {
         public static async Task Main(string[] args)
         {
             var configuration = new ConfigurationBuilder()
-                .AddYamlFile("fugu-docs.yaml", true)
+                .AddYamlFile("tanka-docs.yaml", true)
                 .AddCommandLine(args)
                 .Build();
 

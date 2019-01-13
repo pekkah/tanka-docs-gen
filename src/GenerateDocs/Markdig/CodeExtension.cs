@@ -8,7 +8,7 @@ using Markdig.Renderers.Html;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 
-namespace Fugu.GenerateDocs.Markdig
+namespace tanka.generate.docs.Markdig
 {
     public class CodeExtension : IMarkdownExtension
     {

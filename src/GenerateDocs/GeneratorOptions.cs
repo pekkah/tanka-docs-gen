@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace Fugu.GenerateDocs
+namespace tanka.generate.docs
 {
     public class GeneratorOptions
     {

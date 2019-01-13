@@ -3,11 +3,11 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Buildalyzer;
-using Fugu.GenerateDocs.Markdig;
+using tanka.generate.docs.Markdig;
 using HandlebarsDotNet;
 using Markdig;
 
-namespace Fugu.GenerateDocs
+namespace tanka.generate.docs
 {
     /// <summary>
     ///     Pipeline steps

@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Markdig.Helpers;
 
-namespace Fugu.GenerateDocs
+namespace tanka.generate.docs
 {
     public class Pipeline
     {
