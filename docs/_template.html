@@ -11,10 +11,10 @@
     <div>
         {{#each Toc}}
         <div>
-            <div>{{Key}}</div>
+            <div>{{DisplayName}}</div>
             <div>
-                {{#each Values}}
-                    <a href="{{this}}">{{this}}</a>
+                {{#each Pages}}
+                    <a href="{{Href}}">{{DisplayName}}</a>
                 {{/each}}
             </div>
         </div>

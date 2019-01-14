@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Buildalyzer;
-using tanka.generate.docs.Markdig;
 using HandlebarsDotNet;
 using Markdig;
-using Microsoft.Extensions.FileSystemGlobbing.Internal.PathSegments;
+using tanka.generate.docs.Markdig;
 
 namespace tanka.generate.docs
 {
@@ -58,16 +58,16 @@ namespace tanka.generate.docs
                 {
                     var markdownContent = await File.ReadAllTextAsync(inputFile.FullName);
                     var htmlContent = Markdown.ToHtml(markdownContent, markdownPipeline);
-                   
+
                     var filename = Path.GetRelativePath(
-                        input.FullName, 
+                        input.FullName,
                         inputFile.FullName);
 
                     filename = Path.ChangeExtension(filename, null);
 
                     context.OutputFiles.Add((
-                        $"{filename}.html", 
-                            htmlContent));
+                        $"{filename}.html",
+                        htmlContent));
                 }
             };
         }
@@ -84,11 +84,11 @@ namespace tanka.generate.docs
                     var content = await File.ReadAllTextAsync(inputFile.FullName);
 
                     var filename = Path.GetRelativePath(
-                        input.FullName, 
+                        input.FullName,
                         inputFile.FullName);
 
                     context.OutputFiles.Add((
-                        filename, 
+                        filename,
                         content));
                 }
             };
@@ -96,10 +96,7 @@ namespace tanka.generate.docs
 
         public static PipelineStep GenerateToc(GeneratorOptions options)
         {
-            return context =>
-            {
-                return Task.CompletedTask;
-            };
+            return context => { return Task.CompletedTask; };
         }
 
         public static PipelineStep AddHtmlLayout(GeneratorOptions options)
@@ -120,14 +117,6 @@ namespace tanka.generate.docs
                     .Where(filename => filename.path.EndsWith(".html"))
                     .ToList();
 
-                var groupedFiles = htmlFiles.GroupBy(file => Path.GetDirectoryName(file.path))
-                    .Select(g => new
-                    {
-                        Key = g.Key,
-                        Values = g.Select(v => v.path).ToList()
-                    })
-                    .ToList();
-
                 foreach (var outputFile in htmlFiles)
                 {
                     context.OutputFiles.Remove(outputFile);
@@ -138,7 +127,7 @@ namespace tanka.generate.docs
                             Context = context,
                             Path = outputFile.path,
                             Content = outputFile.content,
-                            Toc = groupedFiles
+                            Toc = CreateToc(htmlFiles)
                         });
 
                     context.OutputFiles.Add((outputFile.path, content));
@@ -166,6 +155,76 @@ namespace tanka.generate.docs
                     await File.WriteAllTextAsync(fullPath, content);
                 }
             };
+        }
+
+        private static IEnumerable<PageCategory> CreateToc(List<(string path, string content)> htmlFiles)
+        {
+            var toc = htmlFiles.GroupBy(file => Path.GetDirectoryName(file.path))
+                .Select(g => new PageCategory(g.Key, g.Select(page => new PageInfo(page.path))))
+                .ToList();
+
+            return toc;
+        }
+    }
+
+    internal class PageCategory
+    {
+        public PageCategory(string category, IEnumerable<PageInfo> pages)
+        {
+            Category = category ?? throw new ArgumentNullException(nameof(category));
+            Pages = pages ?? throw new ArgumentNullException(nameof(pages));
+        }
+
+        public string Category { get; }
+
+        public IEnumerable<PageInfo> Pages { get; }
+
+        public string DisplayName
+        {
+            get
+            {
+                var displayName = Category.Replace('-', ' ');
+
+                if (string.IsNullOrEmpty(displayName))
+                    return string.Empty;
+
+                displayName = displayName.Substring(0, 1).ToUpperInvariant() + displayName.Substring(1);
+                return displayName;
+            }
+        }
+    }
+
+    internal class PageInfo
+    {
+        public PageInfo(string path)
+        {
+            Path = path ?? throw new ArgumentNullException(nameof(path));
+        }
+
+        public string Path { get; }
+
+        public string Href
+        {
+            get
+            {
+                var href = Path.Replace('\\', '/');
+                return href;
+            }
+        }
+
+        public string DisplayName
+        {
+            get
+            {
+                var displayName = Path.Replace('-', ' ');
+
+                if (string.IsNullOrEmpty(displayName))
+                    return string.Empty;
+
+                displayName = System.IO.Path.GetFileNameWithoutExtension(displayName);
+                displayName = displayName.Substring(0, 1).ToUpperInvariant() + displayName.Substring(1);
+                return displayName;
+            }
         }
     }
 }
