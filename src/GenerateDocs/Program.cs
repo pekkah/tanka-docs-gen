@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using static tanka.generate.docs.Generator;
 
@@ -20,17 +22,24 @@ namespace tanka.generate.docs
             {
                 Steps =
                 {
+                    CleanOutput(options),
                     AnalyzeSolution(options),
                     EnumerateFiles(options),
                     TransformInputFilesToHtmlOutputFiles(options),
-                    GenerateToc(options),
                     AddHtmlLayout(options),
                     Assets(".js", ".css"),
                     WriteFiles(options)
                 }
             };
 
-            await pipeline.Execute();
+            try
+            {
+                await pipeline.Execute();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }   
         }
     }
 }

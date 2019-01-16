@@ -1,9 +1,8 @@
-Usage
-=============================================================
+## Install
 
 1. Install the global tool
 
-```
+```bash
 dotnet tool install --global tanka.generate.docs
 ```
 
@@ -17,19 +16,18 @@ solution: 'your-solution.sln'
 
 3. Run the tool
 
-```
+```bash
 dotnet generate-docs
 ```
 
 4. Output will be generated to output (example: `docs-html`)
 
 
-## How to include code from solution
+## Serve
 
-### Include class
+1. Install dotnet-serve https://github.com/natemcmaster/dotnet-serve
+2. Run dotnet serve in the output folder
 
-[{tanka.generate.docs.Program}]
-
-### Include function
-
-[{tanka.generate.docs.Program.Main}]
+```bash
+dotnet serve
+```

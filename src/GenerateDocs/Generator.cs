@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Buildalyzer;
 using HandlebarsDotNet;
 using Markdig;
+using Microsoft.DocAsCode.MarkdigEngine.Extensions;
 using tanka.generate.docs.Markdig;
 
 namespace tanka.generate.docs
@@ -15,6 +16,26 @@ namespace tanka.generate.docs
     /// </summary>
     public static class Generator
     {
+        public static PipelineStep CleanOutput(GeneratorOptions options)
+        {
+            var output = Directory.CreateDirectory(options.Output);
+
+            return context =>
+            {
+                foreach (var directory in output.EnumerateDirectories())
+                {
+                    directory.Delete(true);
+                }
+
+                foreach (var file in output.EnumerateFiles())
+                {
+                    file.Delete();
+                }
+
+                return Task.CompletedTask;
+            };
+        }
+
         public static PipelineStep AnalyzeSolution(GeneratorOptions options)
         {
             var analyzerManager = new AnalyzerManager(options.Solution);
@@ -48,26 +69,32 @@ namespace tanka.generate.docs
 
             return async context =>
             {
+                var dfmContext = new MarkdownContext();
                 var markdownPipeline = new MarkdownPipelineBuilder()
                     .UseAdvancedExtensions()
                     .Use(new CodeExtension(context))
+                    .UseDocfxExtensions(dfmContext)
                     .Build();
 
                 foreach (var inputFile in context.InputFiles
                     .Where(filename => filename.Extension == ".md"))
                 {
-                    var markdownContent = await File.ReadAllTextAsync(inputFile.FullName);
-                    var htmlContent = Markdown.ToHtml(markdownContent, markdownPipeline);
-
                     var filename = Path.GetRelativePath(
                         input.FullName,
                         inputFile.FullName);
 
-                    filename = Path.ChangeExtension(filename, null);
+                    var markdownContent = await File.ReadAllTextAsync(inputFile.FullName);
 
-                    context.OutputFiles.Add((
-                        $"{filename}.html",
-                        htmlContent));
+                    using (InclusionContext.PushFile(filename))
+                    {
+                        var htmlContent = Markdown.ToHtml(markdownContent, markdownPipeline);
+
+                        filename = Path.ChangeExtension(filename, null);
+
+                        context.OutputFiles.Add((
+                            $"{filename}.html",
+                            htmlContent));
+                    }
                 }
             };
         }
@@ -92,11 +119,6 @@ namespace tanka.generate.docs
                         content));
                 }
             };
-        }
-
-        public static PipelineStep GenerateToc(GeneratorOptions options)
-        {
-            return context => { return Task.CompletedTask; };
         }
 
         public static PipelineStep AddHtmlLayout(GeneratorOptions options)
