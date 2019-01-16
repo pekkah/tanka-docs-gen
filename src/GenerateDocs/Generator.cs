@@ -193,7 +193,7 @@ namespace tanka.generate.docs
     {
         public PageCategory(string category, IEnumerable<PageInfo> pages)
         {
-            Category = category ?? throw new ArgumentNullException(nameof(category));
+            Category = string.IsNullOrEmpty(category) ? "Home" : category;
             Pages = pages ?? throw new ArgumentNullException(nameof(pages));
         }
 
