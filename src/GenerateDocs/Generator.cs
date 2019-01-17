@@ -23,7 +23,7 @@ namespace tanka.generate.docs
             {
                 foreach (var directory in output.EnumerateDirectories())
                 {
-                    if  (directory.FullName.StartsWith("."))
+                    if  (directory.Name.StartsWith("."))
                         continue;
 
                     directory.Delete(true);
@@ -31,7 +31,7 @@ namespace tanka.generate.docs
 
                 foreach (var file in output.EnumerateFiles())
                 {
-                    if (file.FullName.StartsWith("."))
+                    if (file.Name.StartsWith("."))
                         continue;
 
                     file.Delete();
