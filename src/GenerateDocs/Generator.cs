@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -186,67 +185,6 @@ namespace tanka.generate.docs
                 .ToList();
 
             return toc;
-        }
-    }
-
-    internal class PageCategory
-    {
-        public PageCategory(string category, IEnumerable<PageInfo> pages)
-        {
-            Category = string.IsNullOrEmpty(category) ? "Home" : category;
-            Pages = pages ?? throw new ArgumentNullException(nameof(pages));
-        }
-
-        public string Category { get; }
-
-        public IEnumerable<PageInfo> Pages { get; }
-
-        public string DisplayName
-        {
-            get
-            {
-                var displayName = Category.Replace('-', ' ');
-
-                if (string.IsNullOrEmpty(displayName))
-                    return string.Empty;
-
-                displayName = displayName.Substring(0, 1).ToUpperInvariant() + displayName.Substring(1);
-                return displayName;
-            }
-        }
-    }
-
-    internal class PageInfo
-    {
-        public PageInfo(string path)
-        {
-            Path = path ?? throw new ArgumentNullException(nameof(path));
-        }
-
-        public string Path { get; }
-
-        public string Href
-        {
-            get
-            {
-                var href = Path.Replace('\\', '/');
-                return href;
-            }
-        }
-
-        public string DisplayName
-        {
-            get
-            {
-                var displayName = Path.Replace('-', ' ');
-
-                if (string.IsNullOrEmpty(displayName))
-                    return string.Empty;
-
-                displayName = System.IO.Path.GetFileNameWithoutExtension(displayName);
-                displayName = displayName.Substring(0, 1).ToUpperInvariant() + displayName.Substring(1);
-                return displayName;
-            }
         }
     }
 }
