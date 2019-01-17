@@ -142,13 +142,15 @@ namespace tanka.generate.docs
                 {
                     context.OutputFiles.Remove(outputFile);
 
+                    var current = new PageInfo(outputFile.path);
                     var content = renderTemplate(
                         new
                         {
                             Context = context,
                             Path = outputFile.path,
                             Content = outputFile.content,
-                            Toc = CreateToc(htmlFiles)
+                            Toc = CreateToc(htmlFiles, current),
+                            Current = current
                         });
 
                     context.OutputFiles.Add((outputFile.path, content));
@@ -178,10 +180,19 @@ namespace tanka.generate.docs
             };
         }
 
-        private static IEnumerable<PageCategory> CreateToc(List<(string path, string content)> htmlFiles)
+        private static IEnumerable<PageCategory> CreateToc(List<(string path, string content)> htmlFiles,
+            PageInfo current)
         {
             var toc = htmlFiles.GroupBy(file => Path.GetDirectoryName(file.path))
-                .Select(g => new PageCategory(g.Key, g.Select(page => new PageInfo(page.path))))
+                .Select(g => new PageCategory(g.Key, g.Select(page =>
+                {
+                    var pageInfo = new PageInfo(page.path);
+
+                    if (pageInfo == current)
+                        return new PageInfo(page.path, true);
+
+                    return pageInfo;
+                })))
                 .ToList();
 
             return toc;
