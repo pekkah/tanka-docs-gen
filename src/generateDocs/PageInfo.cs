@@ -19,7 +19,7 @@ namespace tanka.generate.docs
             get
             {
                 var href = Path.Replace('\\', '/');
-                return href;
+                return $"{href}";
             }
         }
 

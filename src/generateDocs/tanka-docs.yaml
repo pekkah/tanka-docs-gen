@@ -1,3 +1,4 @@
 ﻿input: '../../../../../docs'
 output: '../../../../../docs-html'
 solution: '../../../../../tanka-docs-gen.sln'
+basepath: '/'

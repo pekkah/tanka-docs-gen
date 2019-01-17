@@ -10,6 +10,8 @@ namespace tanka.generate.docs
 
         public string Solution { get; set; }
 
+        public string BasePath { get; set; } = "/";
+
         public IConfiguration Configuration { get; set; }
 
         public string Template { get; set; }

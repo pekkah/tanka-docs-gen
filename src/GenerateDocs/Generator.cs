@@ -130,6 +130,7 @@ namespace tanka.generate.docs
         {
             var input = Directory.CreateDirectory(options.Input);
             var templateFileName = options.Template ?? "_template.html";
+            var basePath = options.BasePath;
 
             // check if template file exists
             var templateFilePath = Path.Combine(input.FullName, templateFileName);
@@ -156,7 +157,8 @@ namespace tanka.generate.docs
                             Path = outputFile.path,
                             Content = outputFile.content,
                             Toc = CreateToc(htmlFiles, current),
-                            Current = current
+                            Current = current,
+                            BasePath = basePath
                         });
 
                     context.OutputFiles.Add((outputFile.path, content));
