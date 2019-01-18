@@ -13,7 +13,7 @@
 
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Index - tanka-docs-gen</title>
+    <title>3 Publishing - tanka-docs-gen</title>
 </head>
 
 <body>
@@ -23,7 +23,7 @@
                 <li class="collection-header">
                     <h6>Home</h6>
                 </li>
-                        <a class="collection-item active" href="index.html">Index</a>
+                        <a class="collection-item" href="index.html">Index</a>
             </ul>
             <ul class="collection with-header">
                 <li class="collection-header">
@@ -31,38 +31,52 @@
                 </li>
                         <a class="collection-item" href="getting-started/1-Usage.html">1 Usage</a>
                         <a class="collection-item" href="getting-started/2-Folders.html">2 Folders</a>
-                        <a class="collection-item" href="getting-started/3-Publishing.html">3 Publishing</a>
+                        <a class="collection-item active" href="getting-started/3-Publishing.html">3 Publishing</a>
             </ul>
         </div>
         <div class="col s12 m8 l9">
             <article class="flow-text">
-                <h2 id="install">Install</h2>
+                <h2 id="publishing-to-github-pages">Publishing to GitHub Pages</h2>
+<p>As the generated document site is static it only requires
+a web server capable of serving static file content. This
+makes publishing the site to GitHub Pages easy.</p>
+<p>Following is the recommended approach allowing you to keep
+your main branch clean of the generated static content. In
+this approach the static content is generated into a dedicated
+<code>gh-pages</code> branch by creating a orphaned branch from master.</p>
 <ol>
-<li>Install the global tool</li>
+<li>Create branch</li>
 </ol>
-<pre><code class="lang-bash">dotnet tool install --global tanka.generate.docs
+<p>Create <code>gh-pages</code> branch orphaned from master</p>
+<blockquote>
+<p>Create a new orphan branch, named &lt;new_branch&gt;, started from
+&lt;start_point&gt; and switch to it. The first commit made on this
+new branch will have no parents and it will be the root of a new
+history totally disconnected from all the other branches and commits.</p>
+</blockquote>
+<pre><code class="lang-bash">git checkout --orphan gh-pages
+git reset --hard
+# If there's any Git ignored content in the folder you might
+# want to clean it up before continuing.
+git commit --allow-empty -m &quot;Initialize&quot;
+git push origin gh-pages
+git checkout master
 </code></pre>
 <ol start="2">
-<li>Add tanka-docs.yaml configuration file to root of your repo</li>
+<li>Checkout <code>gh-pages</code> branch as worktree into output folder</li>
 </ol>
-<pre><code class="lang-yaml">input: 'docs'
-output: 'docs-html'
-solution: 'your-solution.sln'
+<pre><code class="lang-bash">git worktree add -B gh-pages docs-html origin/gh-pages
 </code></pre>
 <ol start="3">
-<li>Run the tool</li>
+<li>Generate docs to output folder</li>
 </ol>
 <pre><code class="lang-bash">dotnet generate-docs
 </code></pre>
 <ol start="4">
-<li>Output will be generated to output (example: <code>docs-html</code>)</li>
+<li>Push your output folder to gh-pages branch</li>
 </ol>
-<h2 id="serve">Serve</h2>
-<ol>
-<li>Install dotnet-serve <a href="https://github.com/natemcmaster/dotnet-serve">https://github.com/natemcmaster/dotnet-serve</a></li>
-<li>Run dotnet serve in the output folder</li>
-</ol>
-<pre><code class="lang-bash">dotnet serve
+<pre><code class="lang-bash">cd docs-html
+git push
 </code></pre>
 
             </article>
