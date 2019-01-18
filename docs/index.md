@@ -17,7 +17,7 @@ solution: 'your-solution.sln'
 3. Run the tool
 
 ```bash
-dotnet generate-docs
+generate-docs
 ```
 
 4. Output will be generated to output (example: `docs-html`)
