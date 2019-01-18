@@ -45,8 +45,9 @@
     {
         public static async Task Main(string[] args)
         {
+            string currentPath = Directory.GetCurrentDirectory();
             var configuration = new ConfigurationBuilder()
-                .AddYamlFile(&quot;tanka-docs.yaml&quot;, true)
+                .AddYamlFile(Path.Combine(currentPath, &quot;tanka-docs.yaml&quot;), true)
                 .AddCommandLine(args)
                 .Build();
 
@@ -83,8 +84,9 @@
 </code></pre>
 <p><pre><code class="language-csharp">        public static async Task Main(string[] args)
         {
+            string currentPath = Directory.GetCurrentDirectory();
             var configuration = new ConfigurationBuilder()
-                .AddYamlFile(&quot;tanka-docs.yaml&quot;, true)
+                .AddYamlFile(Path.Combine(currentPath, &quot;tanka-docs.yaml&quot;), true)
                 .AddCommandLine(args)
                 .Build();
 
