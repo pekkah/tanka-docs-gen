@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -10,8 +11,9 @@ namespace tanka.generate.docs
     {
         public static async Task Main(string[] args)
         {
+            string currentPath = Directory.GetCurrentDirectory();
             var configuration = new ConfigurationBuilder()
-                .AddYamlFile("tanka-docs.yaml", true)
+                .AddYamlFile(Path.Combine(currentPath, "tanka-docs.yaml"), true)
                 .AddCommandLine(args)
                 .Build();
 
