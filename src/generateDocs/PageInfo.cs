@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace tanka.generate.docs
 {
@@ -27,12 +28,26 @@ namespace tanka.generate.docs
         {
             get
             {
-                var displayName = Path.Replace('-', ' ');
-
-                if (string.IsNullOrEmpty(displayName))
+                if (string.IsNullOrEmpty(Path))
                     return string.Empty;
 
+                var displayName = Path;
+
                 displayName = System.IO.Path.GetFileNameWithoutExtension(displayName);
+
+                if (displayName.Contains("-"))
+                {
+                    var maybeSection = displayName.Substring(0, displayName.IndexOf('-') + 1);
+                    var hasSection = float.TryParse(maybeSection, NumberStyles.Any, NumberFormatInfo.InvariantInfo,
+                        out _);
+
+                    if (hasSection)
+                    {
+                        displayName = displayName.Replace(maybeSection, string.Empty);
+                    }
+                }
+
+                displayName = displayName.Replace('-', ' ');
                 displayName = displayName.Substring(0, 1).ToUpperInvariant() + displayName.Substring(1);
                 return displayName;
             }
