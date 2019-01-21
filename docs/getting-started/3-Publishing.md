@@ -38,7 +38,7 @@ git worktree add -B gh-pages docs-html origin/gh-pages
 3. Generate docs to output folder
 
 ```bash
-dotnet generate-docs
+generate-docs
 ```
 
 4. Push your output folder to gh-pages branch

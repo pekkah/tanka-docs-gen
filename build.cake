@@ -1,5 +1,7 @@
 #tool "nuget:?package=GitVersion.CommandLine&version=4.0.0-beta0014&prerelease"
 #addin "Cake.Npm"
+#addin nuget:?package=Cake.DoInDirectory
+#addin nuget:?package=Cake.Git
 
 var target = Argument<string>("target", "Default");
 var configuration = Argument<string>("configuration", "Release");
@@ -7,13 +9,17 @@ var artifactsDir = Directory(Argument<string>("artifactsDir", "./artifacts"));
 var publishDir = Directory(Argument<string>("publishDir", "./publish"));
 var runtime = Argument<string>("runtime", "win-x64");
 var sln = Argument<string>("sln", "./tanka-docs-gen.sln");
+var gitName = Argument<string>("gitName");
+var gitEmail = Argument<string>("gitEmail");
+var gitCommit = Argument<bool>("gitCommit", false);
 
 var projectFiles = GetFiles("./src/**/*.csproj").Select(f => f.FullPath);
 var version = "0.0.0-dev";
 
 Task("Default")
   .IsDependentOn("SetVersion")
-  .IsDependentOn("Pack");
+  .IsDependentOn("Pack")
+  .IsDependentOn("Docs");
 
 Task("Publish")
   .IsDependentOn("Build")
@@ -112,6 +118,54 @@ Task("Test")
       {
           DotNetCoreTest(file.FullPath, settings);
       }
+    });
+
+Task("Docs")
+    .IsDependentOn("SetVersion")
+    .Does(()=> {
+        Information("Cleaning gh-pages directory");
+        DeleteDirectory("./gh-pages", new DeleteDirectorySettings {
+            Recursive = true,
+            Force = true
+        });
+            
+        Information("Pruning worktrees");
+        var exitCode = StartProcess("git", new ProcessSettings{ Arguments = "worktree prune" });
+        if (exitCode != 0) {
+            throw new InvalidOperationException("Failed to prune worktrees");
+        }
+
+        Information("Adding worktree gh-pages");
+        exitCode = StartProcess("git", new ProcessSettings{ Arguments = "worktree add -B gh-pages gh-pages origin/gh-pages" });
+        if (exitCode != 0) {
+            throw new InvalidOperationException("Failed to add worktree for gh-pages");
+        }
+
+        Information("Generate docs");
+        var settings = new DotNetCoreRunSettings
+        {
+            Framework = "netcoreapp2.2",
+            Configuration = "Release"
+        };
+
+        DotNetCoreRun("./src/generateDocs", "", settings);
+
+        if (gitCommit) 
+        {
+            Information("Committing and pushing gh-pages");
+            DoInDirectory("./gh-pages", () =>
+            {
+                GitAddAll(".");
+                GitCommit(".", gitName, gitEmail, $"docs: build {version}");
+                exitCode = StartProcess("git", new ProcessSettings{ Arguments = "push" });
+                if (exitCode != 0) {
+                    throw new InvalidOperationException("Failed to push changes");
+                }
+            });  
+        } else 
+        {
+            Information("Skipping committing to Git");
+        }
     });
 
 RunTarget(target);
