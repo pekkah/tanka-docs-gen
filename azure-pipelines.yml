@@ -35,7 +35,7 @@ steps:
   displayName: Build.cake
   inputs:
     filename: 'dotnet-tools\dotnet-cake.exe'
-    arguments: 'build.cake -artifactsDir=$(Build.ArtifactStagingDirectory) -configuration=$(buildConfiguration) -gitName=$(gitName) -gitEmail=$(gitEmail)'
+    arguments: 'build.cake -artifactsDir=$(Build.ArtifactStagingDirectory) -configuration=$(buildConfiguration) -gitName="$(gitName)" -gitEmail="$(gitEmail)"'
 
 #- task: CmdLine@1
 #  displayName: Benchmarks
