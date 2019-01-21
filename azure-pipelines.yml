@@ -1,8 +1,3 @@
-# ASP.NET Core
-# Build and test ASP.NET Core web applications targeting .NET Core.
-# Add steps that run tests, create a NuGet package, deploy, and more:
-# https://docs.microsoft.com/vsts/pipelines/languages/dotnet-core
-
 name: 'docs-gen'
 
 trigger:
@@ -35,7 +30,7 @@ steps:
   displayName: Build.cake
   inputs:
     filename: 'dotnet-tools\dotnet-cake.exe'
-    arguments: 'build.cake -artifactsDir=$(Build.ArtifactStagingDirectory) -configuration=$(buildConfiguration) -gitName="$(gitName)" -gitEmail="$(gitEmail)" -gitCommit=true'
+    arguments: 'build.cake -artifactsDir=$(Build.ArtifactStagingDirectory) -configuration=$(buildConfiguration)'
 
 #- task: CmdLine@1
 #  displayName: Benchmarks
