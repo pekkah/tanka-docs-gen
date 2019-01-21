@@ -123,11 +123,14 @@ Task("Test")
 Task("Docs")
     .IsDependentOn("SetVersion")
     .Does(()=> {
-        Information("Cleaning gh-pages directory");
-        DeleteDirectory("./gh-pages", new DeleteDirectorySettings {
-            Recursive = true,
-            Force = true
-        });
+        if (DirectoryExists("./gh-pages"))
+        {
+            Information("Cleaning gh-pages directory");
+            DeleteDirectory("./gh-pages", new DeleteDirectorySettings {
+                Recursive = true,
+                Force = true
+            });
+        }
             
         Information("Pruning worktrees");
         var exitCode = StartProcess("git", new ProcessSettings{ Arguments = "worktree prune" });
