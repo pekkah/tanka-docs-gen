@@ -8,11 +8,7 @@ dotnet tool install --global tanka.generate.docs
 
 2. Add tanka-docs.yaml configuration file to root of your repo
 
-```yaml
-input: 'docs'
-output: 'docs-html'
-solution: 'your-solution.sln'
-```
+[!code-yaml[tanka-docs](tanka-docs.yaml)]
 
 3. Run the tool
 
