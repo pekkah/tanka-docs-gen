@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using static tanka.generate.docs.Generator;
@@ -11,7 +10,8 @@ namespace tanka.generate.docs
     {
         public static async Task Main(string[] args)
         {
-            string currentPath = Directory.GetCurrentDirectory();
+            var currentPath = Directory.GetCurrentDirectory();
+            Console.WriteLine($"Working on {currentPath}");
             var configuration = new ConfigurationBuilder()
                 .AddYamlFile(Path.Combine(currentPath, "tanka-docs.yaml"), true)
                 .AddCommandLine(args)
@@ -24,6 +24,7 @@ namespace tanka.generate.docs
             {
                 Steps =
                 {
+                    WriteConfigurationToConsole(),
                     CleanOutput(options),
                     AnalyzeSolution(options),
                     EnumerateFiles(options),
@@ -37,11 +38,13 @@ namespace tanka.generate.docs
             try
             {
                 await pipeline.Execute();
+                Console.WriteLine("Completed");
             }
             catch (Exception e)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(e);
-            }   
+            }
         }
     }
 }
