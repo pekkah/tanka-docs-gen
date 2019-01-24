@@ -21,13 +21,12 @@
         <div class="col s12 m4 l3">
             <ul class="collection with-header">
                 <li class="collection-header">
-                    <h6>Home</h6>
+                    <a href="index.html"><h6>Home</h6></a>
                 </li>
-                        <a class="collection-item" href="index.html">Index</a>
             </ul>
             <ul class="collection with-header">
                 <li class="collection-header">
-                    <h6>Getting started</h6>
+                    <a href="getting-started/1-Usage.html"><h6>Getting started</h6></a>
                 </li>
                         <a class="collection-item active" href="getting-started/1-Usage.html">Usage</a>
                         <a class="collection-item" href="getting-started/2-Folders.html">Folders</a>
@@ -45,33 +44,33 @@
     {
         public static async Task Main(string[] args)
         {
-            var currentPath = Directory.GetCurrentDirectory();
-            Console.WriteLine($&quot;Working on {currentPath}&quot;);
-            var configuration = new ConfigurationBuilder()
-                .AddYamlFile(Path.Combine(currentPath, &quot;tanka-docs.yaml&quot;), true)
-                .AddCommandLine(args)
-                .Build();
-
-            var options = configuration.Get&lt;GeneratorOptions&gt;();
-            options.Configuration = configuration;
-
-            var pipeline = new Pipeline(options)
-            {
-                Steps =
-                {
-                    WriteConfigurationToConsole(),
-                    CleanOutput(options),
-                    AnalyzeSolution(options),
-                    EnumerateFiles(options),
-                    TransformInputFilesToHtmlOutputFiles(options),
-                    AddHtmlLayout(options),
-                    Assets(&quot;.js&quot;, &quot;.css&quot;),
-                    WriteFiles(options)
-                }
-            };
-
             try
             {
+                var currentPath = Directory.GetCurrentDirectory();
+                Console.WriteLine($&quot;Working on {currentPath}&quot;);
+                var configuration = new ConfigurationBuilder()
+                    .AddYamlFile(Path.Combine(currentPath, &quot;tanka-docs.yaml&quot;), true)
+                    .AddCommandLine(args)
+                    .Build();
+
+                var options = configuration.Get&lt;GeneratorOptions&gt;();
+                options.Configuration = configuration;
+
+                var pipeline = new Pipeline(options)
+                {
+                    Steps =
+                    {
+                        WriteConfigurationToConsole(),
+                        CleanOutput(options),
+                        AnalyzeSolution(options),
+                        EnumerateFiles(options),
+                        TransformInputFilesToHtmlOutputFiles(options),
+                        AddHtmlLayout(options),
+                        Assets(&quot;.js&quot;, &quot;.css&quot;),
+                        WriteFiles(options)
+                    }
+                };
+
                 await pipeline.Execute();
                 Console.WriteLine(&quot;Completed&quot;);
             }
@@ -88,33 +87,33 @@
 </code></pre>
 <p><pre><code class="language-csharp">        public static async Task Main(string[] args)
         {
-            var currentPath = Directory.GetCurrentDirectory();
-            Console.WriteLine($&quot;Working on {currentPath}&quot;);
-            var configuration = new ConfigurationBuilder()
-                .AddYamlFile(Path.Combine(currentPath, &quot;tanka-docs.yaml&quot;), true)
-                .AddCommandLine(args)
-                .Build();
-
-            var options = configuration.Get&lt;GeneratorOptions&gt;();
-            options.Configuration = configuration;
-
-            var pipeline = new Pipeline(options)
-            {
-                Steps =
-                {
-                    WriteConfigurationToConsole(),
-                    CleanOutput(options),
-                    AnalyzeSolution(options),
-                    EnumerateFiles(options),
-                    TransformInputFilesToHtmlOutputFiles(options),
-                    AddHtmlLayout(options),
-                    Assets(&quot;.js&quot;, &quot;.css&quot;),
-                    WriteFiles(options)
-                }
-            };
-
             try
             {
+                var currentPath = Directory.GetCurrentDirectory();
+                Console.WriteLine($&quot;Working on {currentPath}&quot;);
+                var configuration = new ConfigurationBuilder()
+                    .AddYamlFile(Path.Combine(currentPath, &quot;tanka-docs.yaml&quot;), true)
+                    .AddCommandLine(args)
+                    .Build();
+
+                var options = configuration.Get&lt;GeneratorOptions&gt;();
+                options.Configuration = configuration;
+
+                var pipeline = new Pipeline(options)
+                {
+                    Steps =
+                    {
+                        WriteConfigurationToConsole(),
+                        CleanOutput(options),
+                        AnalyzeSolution(options),
+                        EnumerateFiles(options),
+                        TransformInputFilesToHtmlOutputFiles(options),
+                        AddHtmlLayout(options),
+                        Assets(&quot;.js&quot;, &quot;.css&quot;),
+                        WriteFiles(options)
+                    }
+                };
+
                 await pipeline.Execute();
                 Console.WriteLine(&quot;Completed&quot;);
             }
