@@ -16,7 +16,7 @@ dotnet tool install --global tanka.generate.docs
 generate-docs
 ```
 
-4. Output will be generated to output (example: `docs-html`)
+4. Output will be generated to output (example: `gh-pages`)
 
 
 ## Serve
