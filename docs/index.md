@@ -1,3 +1,8 @@
+## Versions
+
+[beta](/beta)
+[release](/)
+
 ## Install
 
 1. Install the global tool
