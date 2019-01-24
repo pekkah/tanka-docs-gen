@@ -1,4 +1,4 @@
 ﻿input: '../../../../../docs'
-output: '../../../../../docs-html'
+output: '../../../../../gh-pages'
 solution: '../../../../../tanka-docs-gen.sln'
-basepath: '/tanka-docs-gen/'
+basepath: '/'

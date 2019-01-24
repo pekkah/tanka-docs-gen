@@ -268,3 +268,4 @@ dist/
 coverage/
 BenchmarkDotNet.Artifacts/
 docs-html/
+gh-pages/

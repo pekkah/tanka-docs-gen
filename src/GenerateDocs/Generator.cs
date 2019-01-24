@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,6 +7,7 @@ using Buildalyzer;
 using HandlebarsDotNet;
 using Markdig;
 using Microsoft.DocAsCode.MarkdigEngine.Extensions;
+using Microsoft.Extensions.Configuration;
 using tanka.generate.docs.Markdig;
 
 namespace tanka.generate.docs
@@ -15,12 +17,32 @@ namespace tanka.generate.docs
     /// </summary>
     public static class Generator
     {
+        public static PipelineStep WriteConfigurationToConsole()
+        {
+            return context =>
+            {
+                var configuration = context.Options.Configuration;
+
+                Console.WriteLine("Configuration");
+
+                foreach (var section in configuration.AsEnumerable())
+                {
+                    Console.Write(section.Key);
+                    Console.Write("=");
+                    Console.WriteLine(section.Value);
+                }
+
+                return Task.CompletedTask;
+            };
+        }
+
         public static PipelineStep CleanOutput(GeneratorOptions options)
         {
             var output = Directory.CreateDirectory(options.Output);
-
+            
             return context =>
             {
+                Console.WriteLine($"Clean output folder {output}");
                 foreach (var directory in output.EnumerateDirectories())
                 {
                     if  (directory.Name.StartsWith("."))
@@ -43,10 +65,15 @@ namespace tanka.generate.docs
 
         public static PipelineStep AnalyzeSolution(GeneratorOptions options)
         {
-            var analyzerManager = new AnalyzerManager(options.Solution);
+            if (string.IsNullOrEmpty(options.Solution))
+                return context => Task.CompletedTask;
 
             return context =>
             {
+                if (!File.Exists(options.Solution))
+                    throw new FileNotFoundException("Could not find solution file", options.Solution);
+
+                var analyzerManager = new AnalyzerManager(options.Solution);
                 context.Solution = new SolutionContext(analyzerManager);
                 return Task.CompletedTask;
             };
@@ -58,12 +85,14 @@ namespace tanka.generate.docs
 
             return context =>
             {
+                Console.WriteLine($"Enumerating input files from {input}");
                 var inputFiles = input.EnumerateFiles("*.*", new EnumerationOptions
                 {
                     RecurseSubdirectories = true
                 });
 
                 context.InputFiles.AddRange(inputFiles);
+                Console.WriteLine($"Found {context.InputFiles.Count} input files");
                 return Task.CompletedTask;
             };
         }
@@ -110,8 +139,14 @@ namespace tanka.generate.docs
             {
                 var input = Directory.CreateDirectory(context.Options.Input);
 
-                foreach (var inputFile in context.InputFiles
-                    .Where(filename => extensions.Contains(filename.Extension)))
+                Console.WriteLine($"Enumerating asset files ({string.Join(',', extensions)}) from {input}");
+
+                var assetFiles = context.InputFiles
+                    .Where(filename => extensions.Contains(filename.Extension))
+                    .ToList();
+
+                Console.WriteLine($"Found {assetFiles.Count} asset files");
+                foreach (var inputFile in assetFiles)
                 {
                     var content = await File.ReadAllTextAsync(inputFile.FullName);
 
@@ -123,6 +158,7 @@ namespace tanka.generate.docs
                         filename,
                         content));
                 }
+
             };
         }
 
@@ -184,6 +220,7 @@ namespace tanka.generate.docs
                         Directory.CreateDirectory(folder);
 
                     await File.WriteAllTextAsync(fullPath, content);
+                    Console.WriteLine($"Out: {fullPath}");
                 }
             };
         }
