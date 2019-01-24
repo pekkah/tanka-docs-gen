@@ -39,9 +39,10 @@ namespace tanka.generate.docs
         public static PipelineStep CleanOutput(GeneratorOptions options)
         {
             var output = Directory.CreateDirectory(options.Output);
-
+            
             return context =>
             {
+                Console.WriteLine($"Clean output folder {output}");
                 foreach (var directory in output.EnumerateDirectories())
                 {
                     if  (directory.Name.StartsWith("."))
