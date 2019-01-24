@@ -1,7 +1,5 @@
 #tool "nuget:?package=GitVersion.CommandLine&version=4.0.0-beta0014&prerelease"
 #addin "Cake.Npm"
-#addin nuget:?package=Cake.DoInDirectory
-#addin nuget:?package=Cake.Git
 
 var target = Argument<string>("target", "Default");
 var configuration = Argument<string>("configuration", "Release");
