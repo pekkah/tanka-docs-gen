@@ -132,7 +132,7 @@ Task("Docs")
         if (preRelease)
         {
             targetFolder += "\\beta";
-            basepath += "/beta/";
+            basepath += "beta/";
         }
 
         DotNetCoreRun(
