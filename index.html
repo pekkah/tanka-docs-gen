@@ -45,9 +45,10 @@
 <ol start="2">
 <li>Add tanka-docs.yaml configuration file to root of your repo</li>
 </ol>
-<pre><code class="lang-yaml">input: 'docs'
-output: 'docs-html'
-solution: 'your-solution.sln'
+<pre><code class="lang-yaml" name="tanka-docs">input: 'docs'
+output: 'gh-pages'
+solution: 'tanka-docs-gen.sln'
+basepath: '/tanka-docs-gen/'
 </code></pre>
 <ol start="3">
 <li>Run the tool</li>
