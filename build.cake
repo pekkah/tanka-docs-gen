@@ -130,10 +130,17 @@ Task("Docs")
         };
 
         var targetFolder = $"{artifactsDir}\\gh-pages";
+        var basepath = "/tanka-docs-gen/";
         if (preRelease)
+        {
             targetFolder += "\\beta";
+            basepath += "/beta/";
+        }
 
-        DotNetCoreRun("./src/generateDocs", $"--output=\"{targetFolder}\"", settings);
+        DotNetCoreRun(
+            "./src/generateDocs", 
+            $"--output=\"{targetFolder}\" --basepath=\"{basepath}\"", 
+            settings);
     });
 
 RunTarget(target);
