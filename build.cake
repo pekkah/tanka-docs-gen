@@ -12,6 +12,7 @@ var sln = Argument<string>("sln", "./tanka-docs-gen.sln");
 
 var projectFiles = GetFiles("./src/**/*.csproj").Select(f => f.FullPath);
 var version = "0.0.0-dev";
+var preRelease = true;
 
 Task("Default")
   .IsDependentOn("SetVersion")
@@ -97,7 +98,8 @@ Task("SetVersion")
         var result = GitVersion();
         
         version = result.SemVer;
-        Information($"Version: {version}, FullSemVer: {result.FullSemVer}");
+        preRelease = result.PreReleaseNumber.HasValue;
+        Information($"Version: {version}, FullSemVer: {result.FullSemVer}, PreRelease: {preRelease}");
         Information($"##vso[build.updatebuildnumber]{version}");
     });
 
@@ -127,7 +129,11 @@ Task("Docs")
             Configuration = "Release"
         };
 
-        DotNetCoreRun("./src/generateDocs", $"--output=\"{artifactsDir}\"\\gh-pages", settings);
+        var targetFolder = $"{artifactsDir}\\gh-pages";
+        if (preRelease)
+            targetFolder += "\\beta";
+
+        DotNetCoreRun("./src/generateDocs", $"--output=\"{targetFolder}\"", settings);
     });
 
 RunTarget(target);
