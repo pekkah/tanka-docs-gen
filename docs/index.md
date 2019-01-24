@@ -1,7 +1,8 @@
-## Versions
+## Documentation
 
-[beta](/beta)
-[release](/)
+* [Release docs](https://pekkah.github.io/tanka-docs-gen/)
+* [Beta docs](https://pekkah.github.io/tanka-docs-gen/beta/)
+
 
 ## Install
 
