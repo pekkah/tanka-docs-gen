@@ -11,7 +11,7 @@
     <PackageProjectUrl>https://github.com/pekkah/tanka-docs-gen</PackageProjectUrl>
     <RepositoryUrl>https://github.com/pekkah/tanka-docs-gen</RepositoryUrl>
     <PackageLicenseUrl>https://github.com/pekkah/tanka-docs-gen/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageLicense>Apache-2.0</PackageLicense>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
