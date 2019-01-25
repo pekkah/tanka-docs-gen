@@ -136,7 +136,7 @@ Task("Docs")
         }
 
         DotNetCoreRun(
-            "./src/generateDocs", 
+            "./src/generate.docs", 
             $"--output=\"{targetFolder}\" --basepath=\"{basepath}\"", 
             settings);
     });
