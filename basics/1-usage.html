@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <base href="/tanka-docs-gen/">
+    <title>Usage - tanka-docs-gen</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="prism.css" />
+    <style>
+        body {
+            height: 100%;
+            width: 100%;         
+        }
+
+        a {
+            color: rgba(0,0,0,.65);
+        }
+
+        a:hover {
+            color: rgba(8, 8, 8, 0.65);
+        }
+
+        blockquote {
+            border: 1px solid rgba(94, 94, 94, 0.65);
+            border-left: 5px solid rgba(94, 94, 94, 0.65);
+            padding: 0.75rem 1.5rem;
+            margin-top: 1rem;
+            margin-bottom: 1rem;            
+        }
+
+        .sidebar .nav-link {
+            display: block;
+            padding: .25rem 1.5rem;
+            font-size: 90%;
+            color: rgba(0,0,0,.65);
+        }
+
+        .sidebar .nav-link:hover {
+            text-decoration: underline;
+        }
+
+        .content h1,
+        .content h2,
+        .content h3,
+        .content h4,
+        .content h5,
+        .content h6 {
+            font-weight: 300;
+        }
+
+        
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Tanka Documentation Generator</a>
+        <ul class="navbar-nav px-3">
+            <li class="nav-item text-nowrap">
+                <a class="nav-link" href="https://github.com/pekkah/tanka-docs-gen">GitHub</a>
+            </li>
+        </ul>
+    </nav>
+    <div class="container-fluid">
+        <div class="row flex-xl-nowrap">
+            <nav class="col-12 col-md-3 col-xl-2 sidebar">
+                <div class="sidebar-sticky">
+                        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                            <a class="d-flex align-items-center text-muted" href="index.html">Home</a>
+                        </h6>
+                        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                            <a class="d-flex align-items-center text-muted" href="basics/1-usage.html">Basics</a>
+                        </h6>
+                            <ul class="nav flex-column">
+                                <li class="nav-item">
+                                    <a class="nav-link active bg-light" href="basics/1-usage.html">Usage</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="basics/2-publishing.html">Publishing</a>
+                                </li>
+                            </ul>
+                </div>
+            </nav>
+            <main role="main" class="col-12 col-md-8 col-xl-6 py-sm-1 py-md-3 pl-md-5 content">
+                <h2 id="extensions-to-markdig">Extensions to Markdig</h2>
+<h3 id="c-code-inclusion-support-using-roslyn">C# Code inclusion support using Roslyn</h3>
+<h4 id="include-class">Include class</h4>
+<pre><code class="lang-markdown">[{tanka.generate.docs.Program}]
+</code></pre>
+<p><pre><code class="language-csharp">    public class Program
+    {
+        public static async Task Main(string[] args)
+        {
+            try
+            {
+                var currentPath = Directory.GetCurrentDirectory();
+                Console.WriteLine($&quot;Working on {currentPath}&quot;);
+                var configuration = new ConfigurationBuilder()
+                    .AddYamlFile(Path.Combine(currentPath, &quot;tanka-docs.yaml&quot;), true)
+                    .AddCommandLine(args)
+                    .Build();
+
+                var options = configuration.Get&lt;GeneratorOptions&gt;();
+                options.Configuration = configuration;
+
+                var pipeline = new Pipeline(options)
+                {
+                    Steps =
+                    {
+                        WriteConfigurationToConsole(),
+                        CleanOutput(options),
+                        AnalyzeSolution(options),
+                        EnumerateFiles(options),
+                        TransformInputFilesToHtmlOutputFiles(options),
+                        AddHtmlLayout(options),
+                        Assets(&quot;.js&quot;, &quot;.css&quot;),
+                        WriteFiles(options)
+                    }
+                };
+
+                await pipeline.Execute();
+                Console.WriteLine(&quot;Completed&quot;);
+            }
+            catch (Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(e);
+            }
+        }
+    }
+</code></pre></p>
+<h4 id="include-function">Include function</h4>
+<pre><code class="lang-markdown">[{tanka.generate.docs.Program.Main}]
+</code></pre>
+<p><pre><code class="language-csharp">        public static async Task Main(string[] args)
+        {
+            try
+            {
+                var currentPath = Directory.GetCurrentDirectory();
+                Console.WriteLine($&quot;Working on {currentPath}&quot;);
+                var configuration = new ConfigurationBuilder()
+                    .AddYamlFile(Path.Combine(currentPath, &quot;tanka-docs.yaml&quot;), true)
+                    .AddCommandLine(args)
+                    .Build();
+
+                var options = configuration.Get&lt;GeneratorOptions&gt;();
+                options.Configuration = configuration;
+
+                var pipeline = new Pipeline(options)
+                {
+                    Steps =
+                    {
+                        WriteConfigurationToConsole(),
+                        CleanOutput(options),
+                        AnalyzeSolution(options),
+                        EnumerateFiles(options),
+                        TransformInputFilesToHtmlOutputFiles(options),
+                        AddHtmlLayout(options),
+                        Assets(&quot;.js&quot;, &quot;.css&quot;),
+                        WriteFiles(options)
+                    }
+                };
+
+                await pipeline.Execute();
+                Console.WriteLine(&quot;Completed&quot;);
+            }
+            catch (Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(e);
+            }
+        }
+</code></pre></p>
+<h3 id="include-code-snippet-using-dfm-extension">Include code snippet using DFM extension</h3>
+<pre><code class="lang-markdown">[!code-yaml[tanka-docs](tanka-docs.yaml)]
+</code></pre>
+<pre><code class="lang-yaml" name="tanka-docs">input: 'docs'
+output: 'gh-pages'
+solution: 'tanka-docs-gen.sln'
+basepath: '/'
+</code></pre>
+<blockquote>
+<p>More about DFM <a href="https://dotnet.github.io/docfx/spec/docfx_flavored_markdown.html?tabs=tabid-1%2Ctabid-a">https://dotnet.github.io/docfx/spec/docfx_flavored_markdown.html?tabs=tabid-1%2Ctabid-a</a></p>
+</blockquote>
+                    
+            </main>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <script type="text/javascript" src="prism.js"></script>
+</body>
+</html>
