@@ -17,6 +17,8 @@ namespace tanka.generate.docs
 
         public string Category { get; }
 
+        public bool HasPages => Pages.Any();
+
         public IEnumerable<PageInfo> Pages
         {
             get
