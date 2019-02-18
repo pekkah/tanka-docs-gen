@@ -70,6 +70,7 @@ namespace tanka.generate.docs
 
             return context =>
             {
+                Console.WriteLine($"Analyzing solution {options.Solution}");
                 if (!File.Exists(options.Solution))
                     throw new FileNotFoundException("Could not find solution file", options.Solution);
 
@@ -103,6 +104,7 @@ namespace tanka.generate.docs
 
             return async context =>
             {
+                Console.WriteLine($"Transforming md to html");
                 var dfmContext = new MarkdownContext();
                 var markdownPipeline = new MarkdownPipelineBuilder()
                     .UseAdvancedExtensions()
@@ -111,7 +113,7 @@ namespace tanka.generate.docs
                     .Build();
 
                 foreach (var inputFile in context.InputFiles
-                    .Where(filename => filename.Extension == ".md"))
+                    .Where(filename => filename.Extension == ".md" && !filename.FullName.Contains("assets")))
                 {
                     var filename = Path.GetRelativePath(
                         input.FullName,
@@ -177,6 +179,7 @@ namespace tanka.generate.docs
 
             return context =>
             {
+                Console.WriteLine($"Applying html layout");
                 var htmlFiles = context.OutputFiles
                     .Where(filename => filename.path.EndsWith(".html"))
                     .ToList();
@@ -186,13 +189,15 @@ namespace tanka.generate.docs
                     context.OutputFiles.Remove(outputFile);
 
                     var current = new PageInfo(outputFile.path);
+                    var toc = CreateToc(htmlFiles, current);
+
                     var content = renderTemplate(
                         new
                         {
                             Context = context,
                             Path = outputFile.path,
                             Content = outputFile.content,
-                            Toc = CreateToc(htmlFiles, current),
+                            Toc = toc,
                             Current = current,
                             BasePath = basePath
                         });
@@ -210,6 +215,7 @@ namespace tanka.generate.docs
 
             return async context =>
             {
+                Console.WriteLine("Writing output files");
                 foreach (var (path, content) in context.OutputFiles)
                 {
                     var fullPath = Path.Combine(output.FullName, path);
