@@ -32,6 +32,10 @@
             margin-bottom: 1rem;            
         }
 
+        .sidebar {
+            margin-bottom: 20px;
+        }
+
         .sidebar .nav-link {
             display: block;
             padding: .25rem 1.5rem;
@@ -99,6 +103,7 @@
             {
                 var currentPath = Directory.GetCurrentDirectory();
                 Console.WriteLine($&quot;Working on {currentPath}&quot;);
+                Console.WriteLine();
                 var configuration = new ConfigurationBuilder()
                     .AddYamlFile(Path.Combine(currentPath, &quot;tanka-docs.yaml&quot;), true)
                     .AddCommandLine(args)
@@ -142,6 +147,7 @@
             {
                 var currentPath = Directory.GetCurrentDirectory();
                 Console.WriteLine($&quot;Working on {currentPath}&quot;);
+                Console.WriteLine();
                 var configuration = new ConfigurationBuilder()
                     .AddYamlFile(Path.Combine(currentPath, &quot;tanka-docs.yaml&quot;), true)
                     .AddCommandLine(args)
