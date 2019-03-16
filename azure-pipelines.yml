@@ -4,6 +4,7 @@ trigger:
   branches:
     include:
     - master
+    - refs/tags/*
     
 pool:
   vmImage: 'windows-2019'
