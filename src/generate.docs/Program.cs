@@ -14,6 +14,7 @@ namespace tanka.generate.docs
             {
                 var currentPath = Directory.GetCurrentDirectory();
                 Console.WriteLine($"Working on {currentPath}");
+                Console.WriteLine();
                 var configuration = new ConfigurationBuilder()
                     .AddYamlFile(Path.Combine(currentPath, "tanka-docs.yaml"), true)
                     .AddCommandLine(args)

@@ -17,9 +17,9 @@ namespace tanka.generate.docs
     /// </summary>
     public static class Generator
     {
-        public static PipelineStep WriteConfigurationToConsole()
+        public static (string Name, PipelineStep Step) WriteConfigurationToConsole()
         {
-            return context =>
+            return (nameof(WriteConfigurationToConsole), context =>
             {
                 var configuration = context.Options.Configuration;
 
@@ -33,14 +33,14 @@ namespace tanka.generate.docs
                 }
 
                 return Task.CompletedTask;
-            };
+            });
         }
 
-        public static PipelineStep CleanOutput(GeneratorOptions options)
+        public static (string Name, PipelineStep Step) CleanOutput(GeneratorOptions options)
         {
             var output = Directory.CreateDirectory(options.Output);
             
-            return context =>
+            return (nameof(CleanOutput), context =>
             {
                 Console.WriteLine($"Clean output folder {output}");
                 foreach (var directory in output.EnumerateDirectories())
@@ -60,31 +60,32 @@ namespace tanka.generate.docs
                 }
 
                 return Task.CompletedTask;
-            };
+            });
         }
 
-        public static PipelineStep AnalyzeSolution(GeneratorOptions options)
+        public static (string Name, PipelineStep Step) AnalyzeSolution(GeneratorOptions options)
         {
             if (string.IsNullOrEmpty(options.Solution))
-                return context => Task.CompletedTask;
+                return (nameof(AnalyzeSolution), context => Task.CompletedTask);
 
-            return context =>
+            var analyzerManager = new AnalyzerManager(options.Solution);
+
+            return (nameof(AnalyzeSolution), async context =>
             {
                 Console.WriteLine($"Analyzing solution {options.Solution}");
                 if (!File.Exists(options.Solution))
                     throw new FileNotFoundException("Could not find solution file", options.Solution);
 
-                var analyzerManager = new AnalyzerManager(options.Solution);
-                context.Solution = new SolutionContext(analyzerManager);
-                return Task.CompletedTask;
-            };
+                context.Solution = await new SolutionContext(analyzerManager)
+                    .Initialize();
+            });
         }
 
-        public static PipelineStep EnumerateFiles(GeneratorOptions options)
+        public static (string Name, PipelineStep Step) EnumerateFiles(GeneratorOptions options)
         {
             var input = Directory.CreateDirectory(options.Input);
 
-            return context =>
+            return (nameof(EnumerateFiles), context =>
             {
                 Console.WriteLine($"Enumerating input files from {input}");
                 var inputFiles = input.EnumerateFiles("*.*", new EnumerationOptions
@@ -95,14 +96,14 @@ namespace tanka.generate.docs
                 context.InputFiles.AddRange(inputFiles);
                 Console.WriteLine($"Found {context.InputFiles.Count} input files");
                 return Task.CompletedTask;
-            };
+            });
         }
 
-        public static PipelineStep TransformInputFilesToHtmlOutputFiles(GeneratorOptions options)
+        public static (string Name, PipelineStep Step) TransformInputFilesToHtmlOutputFiles(GeneratorOptions options)
         {
             var input = Directory.CreateDirectory(options.Input);
 
-            return async context =>
+            return (nameof(TransformInputFilesToHtmlOutputFiles), async context =>
             {
                 Console.WriteLine($"Transforming md to html");
                 var dfmContext = new MarkdownContext();
@@ -132,12 +133,12 @@ namespace tanka.generate.docs
                             htmlContent));
                     }
                 }
-            };
+            });
         }
 
-        public static PipelineStep Assets(params string[] extensions)
+        public static (string Name, PipelineStep Step) Assets(params string[] extensions)
         {
-            return async context =>
+            return (nameof(Assets), async context =>
             {
                 var input = Directory.CreateDirectory(context.Options.Input);
 
@@ -161,10 +162,10 @@ namespace tanka.generate.docs
                         content));
                 }
 
-            };
+            });
         }
 
-        public static PipelineStep AddHtmlLayout(GeneratorOptions options)
+        public static (string Name, PipelineStep Step) AddHtmlLayout(GeneratorOptions options)
         {
             var input = Directory.CreateDirectory(options.Input);
             var templateFileName = options.Template ?? "_template.html";
@@ -172,12 +173,13 @@ namespace tanka.generate.docs
 
             // check if template file exists
             var templateFilePath = Path.Combine(input.FullName, templateFileName);
-            if (!File.Exists(templateFilePath)) return context => Task.CompletedTask;
+            if (!File.Exists(templateFilePath)) 
+                return (nameof(AddHtmlLayout), context => Task.CompletedTask);
 
             var template = File.ReadAllText(templateFilePath);
             var renderTemplate = Handlebars.Compile(template);
 
-            return context =>
+            return (nameof(AddHtmlLayout), context =>
             {
                 Console.WriteLine($"Applying html layout");
                 var htmlFiles = context.OutputFiles
@@ -206,14 +208,14 @@ namespace tanka.generate.docs
                 }
 
                 return Task.CompletedTask;
-            };
+            });
         }
 
-        public static PipelineStep WriteFiles(GeneratorOptions options)
+        public static (string Name, PipelineStep Step) WriteFiles(GeneratorOptions options)
         {
             var output = Directory.CreateDirectory(options.Output);
 
-            return async context =>
+            return (nameof(WriteFiles), async context =>
             {
                 Console.WriteLine("Writing output files");
                 foreach (var (path, content) in context.OutputFiles)
@@ -228,7 +230,7 @@ namespace tanka.generate.docs
                     await File.WriteAllTextAsync(fullPath, content);
                     Console.WriteLine($"Out: {fullPath}");
                 }
-            };
+            });
         }
 
         private static IEnumerable<PageCategory> CreateToc(List<(string path, string content)> htmlFiles,

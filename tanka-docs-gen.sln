@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.168
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28711.60
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "generate.docs", "src\generate.docs\generate.docs.csproj", "{FD9CD3FF-33FA-4291-BB88-DE767790101F}"
 EndProject
@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		docs\_template.html = docs\_template.html
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "generate.docs.facts", "tests\generate.docs.facts\generate.docs.facts.csproj", "{B9CCF197-A23B-41AC-94C8-2DF2691B901A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,6 +22,10 @@ Global
 		{FD9CD3FF-33FA-4291-BB88-DE767790101F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD9CD3FF-33FA-4291-BB88-DE767790101F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD9CD3FF-33FA-4291-BB88-DE767790101F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9CCF197-A23B-41AC-94C8-2DF2691B901A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9CCF197-A23B-41AC-94C8-2DF2691B901A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9CCF197-A23B-41AC-94C8-2DF2691B901A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9CCF197-A23B-41AC-94C8-2DF2691B901A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
