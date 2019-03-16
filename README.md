@@ -1,12 +1,13 @@
 ## Tanka Documentation Generator
 
+* [![master](https://dev.azure.com/tanka-ops/docs-gen/_apis/build/status/docs-gen?branchName=master)](https://dev.azure.com/tanka-ops/docs-gen/_build/latest?definitionId=2&branchName=master)
+
 Beta
-* [Beta docs](https://pekkah.github.io/tanka-docs-gen/beta/)
-* [![develop](https://dev.azure.com/tanka-ops/docs-gen/_apis/build/status/docs-gen?branchName=develop)](https://dev.azure.com/tanka-ops/docs-gen/_build/latest?definitionId=2&branchName=develop)
+* [Documentation](https://pekkah.github.io/tanka-docs-gen/beta/)
 
 Release
-* [Release docs](https://pekkah.github.io/tanka-docs-gen/)
-* [![master](https://dev.azure.com/tanka-ops/docs-gen/_apis/build/status/docs-gen?branchName=master)](https://dev.azure.com/tanka-ops/docs-gen/_build/latest?definitionId=2&branchName=master)
+* [Documentation](https://pekkah.github.io/tanka-docs-gen/)
+
 
 
 ## Install
