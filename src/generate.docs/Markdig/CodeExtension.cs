@@ -45,6 +45,12 @@ namespace tanka.generate.docs.Markdig
         protected override void Write(HtmlRenderer renderer, CodeInclude codeInclude)
         {
             var code = _context.Solution.GetSourceText(codeInclude.DisplayName);
+
+            if (code.NotFound)
+            {
+                _context.Warning($"Code: {codeInclude.DisplayName} not found");
+            }
+
             renderer.Write("<pre><code class=\"language-csharp\">");
             renderer.WriteEscape(code.Text);
             renderer.Write("</code></pre>");
