@@ -5,6 +5,8 @@ namespace tanka.generate.docs
 {
     public class PipelineContext
     {
+        private readonly List<string> _warnings = new List<string>();
+
         public PipelineContext(GeneratorOptions options)
         {
             Options = options;
@@ -17,5 +19,12 @@ namespace tanka.generate.docs
         public List<(string path, string content)> OutputFiles { get; } = new List<(string path, string content)>();
 
         public SolutionContext Solution { get; set; }
+
+        public IEnumerable<string> Warnings => _warnings;
+
+        public void Warning(string message)
+        {
+            _warnings.Add(message);
+        }
     }
 }

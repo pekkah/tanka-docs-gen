@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Markdig.Helpers;
 
@@ -32,6 +33,22 @@ namespace tanka.generate.docs
                 Console.WriteLine();
             }
             Console.WriteLine($"Total: {timer.Elapsed.TotalSeconds}s");
+            Console.WriteLine();
+
+            if (context.Warnings.Any())
+            {
+                var color = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Warnings");
+                Console.WriteLine("-----------------------------------------");
+                foreach (var warning in context.Warnings)
+                {
+                    Console.WriteLine(warning);
+                }
+
+                Console.ForegroundColor = color;
+            }
+            Console.WriteLine();
         }
     }
 }

@@ -68,7 +68,8 @@ namespace tanka.generate.docs
             return new SourceCode
             {
                 Text = displayName,
-                FileName = string.Empty
+                FileName = string.Empty,
+                NotFound = true
             };
         }
 
