@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,8 +23,6 @@ namespace tanka.generate.docs
             return (nameof(WriteConfigurationToConsole), context =>
             {
                 var configuration = context.Options.Configuration;
-
-                Console.WriteLine("Configuration");
 
                 foreach (var section in configuration.AsEnumerable())
                 {
@@ -169,6 +168,7 @@ namespace tanka.generate.docs
         {
             var input = Directory.CreateDirectory(options.Input);
             var templateFileName = options.Template ?? "_template.html";
+            var categoryTemplateFileName = options.CategoryTemplate ?? "_category.html";
             var basePath = options.BasePath;
 
             // check if template file exists
@@ -176,7 +176,15 @@ namespace tanka.generate.docs
             if (!File.Exists(templateFilePath)) 
                 return (nameof(AddHtmlLayout), context => Task.CompletedTask);
 
+            // check if category template file exists
+            var categoryTemplateFilePath = Path.Combine(input.FullName, categoryTemplateFileName);
+            if (!File.Exists(categoryTemplateFilePath)) 
+                return (nameof(AddHtmlLayout), context => Task.CompletedTask);
+
             var template = File.ReadAllText(templateFilePath);
+            var categoryTemplate = File.ReadAllText(categoryTemplateFilePath);
+
+            Handlebars.RegisterTemplate("category", categoryTemplate);
             var renderTemplate = Handlebars.Compile(template);
 
             return (nameof(AddHtmlLayout), context =>
@@ -190,7 +198,7 @@ namespace tanka.generate.docs
                 {
                     context.OutputFiles.Remove(outputFile);
 
-                    var current = new PageInfo(outputFile.path);
+                    var current = new PageInfo(outputFile.path, true);
                     var toc = CreateToc(htmlFiles, current);
 
                     var content = renderTemplate(
@@ -233,22 +241,85 @@ namespace tanka.generate.docs
             });
         }
 
-        private static IEnumerable<PageCategory> CreateToc(List<(string path, string content)> htmlFiles,
+        private static IEnumerable<PageCategory> CreateToc(List<(string Path, string Content)> htmlFiles,
             PageInfo current)
         {
-            var toc = htmlFiles.GroupBy(file => Path.GetDirectoryName(file.path))
-                .Select(g => new PageCategory(g.Key, g.Select(page =>
-                {
-                    var pageInfo = new PageInfo(page.path);
-
-                    if (pageInfo == current)
-                        return new PageInfo(page.path, true);
-
-                    return pageInfo;
-                })))
+            var paths = htmlFiles
+                .Select(file => Path.GetDirectoryName(file.Path))
+                .Distinct()
+                .Where(path => path.Length > 0)
+                .OrderBy(path => path.Count(c => c == Path.DirectorySeparatorChar))
                 .ToList();
 
+
+            var toc = new List<PageCategory>();
+            var categories = new Stack<PageCategory>();
+
+            // hardcoded root is the root of the file paths
+            categories.Push(new PageCategory(string.Empty, string.Empty));
+            
+            toc.Add(categories.Peek());
+
+            do
+            {
+                var category = categories.Pop();
+                var pages =  htmlFiles
+                    .Where(file => Path.GetDirectoryName(file.Path) == category.Path)
+                    .OrderByDescending(file => file.Path)
+                    .Select(file =>
+                    {
+                        var page = new PageInfo(file.Path);
+
+                        if (page == current)
+                            return current;
+
+                        return page;
+                    })
+                    .ToList();
+
+                category.Add(pages);
+
+                var subPaths = paths
+                    .Where(path => IsDirectSubPathOf(category.Path, path))
+                    .OrderByDescending(path => path)
+                    .ToList();
+
+                foreach(var subPath in subPaths)
+                {
+                    var name = subPath;
+                    if (name.Contains(Path.DirectorySeparatorChar))
+                    {
+                        name = name.Substring(name.LastIndexOf(Path.DirectorySeparatorChar)+1);
+                    }
+
+                    var sub = category.Add(name, subPath);
+                    categories.Push(sub);
+                    paths.Remove(sub.Path);
+                }
+            } while (categories.Count > 0);
+            
             return toc;
+        }
+
+        private static bool IsDirectSubPathOf(string path, string subPath)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                if (subPath.Contains(Path.DirectorySeparatorChar))
+                    return false;
+                else
+                {
+                    return true;
+                }
+            }
+
+            var difference = subPath.Replace(path, string.Empty);
+            difference = difference.TrimStart(Path.DirectorySeparatorChar);
+
+            if (difference.Contains(Path.DirectorySeparatorChar))
+                return false;
+
+            return true;
         }
     }
 }

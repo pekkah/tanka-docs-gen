@@ -28,7 +28,7 @@ namespace tanka.generate.docs
                 Console.WriteLine("-----------------------------------------");
                 var stepStart = timer.Elapsed;
                 await pipelineStep(context);
-                Console.WriteLine($"End: {(timer.Elapsed - stepStart).TotalSeconds}s Elapsed: {timer.Elapsed.TotalSeconds}s");
+                Console.WriteLine($"Total: {(timer.Elapsed - stepStart).TotalSeconds}s Step: {timer.Elapsed.TotalSeconds}s");
                 Console.WriteLine();
                 Console.WriteLine();
             }

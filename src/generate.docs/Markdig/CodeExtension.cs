@@ -1,5 +1,4 @@
-﻿using System;
-using Markdig;
+﻿using Markdig;
 using Markdig.Helpers;
 using Markdig.Parsers;
 using Markdig.Parsers.Inlines;
@@ -21,19 +20,19 @@ namespace tanka.generate.docs.Markdig
 
         public void Setup(MarkdownPipelineBuilder pipeline)
         {
-            pipeline.InlineParsers.InsertBefore<LinkInlineParser>(new IncludeCodeParser(_context));
+            if (_context.Solution != null)
+                pipeline.InlineParsers.InsertBefore<LinkInlineParser>(new IncludeCodeParser(_context));
         }
 
         public void Setup(MarkdownPipeline pipeline, IMarkdownRenderer renderer)
         {
-            if (renderer is HtmlRenderer)
-            {
-                renderer.ObjectRenderers.AddIfNotAlready(new IncludeCodeRenderer(_context));
-            }
+            if (_context.Solution != null)
+                if (renderer is HtmlRenderer)
+                    renderer.ObjectRenderers.AddIfNotAlready(new IncludeCodeRenderer(_context));
         }
     }
 
-    public class IncludeCodeRenderer: HtmlObjectRenderer<CodeInclude>
+    public class IncludeCodeRenderer : HtmlObjectRenderer<CodeInclude>
     {
         private readonly PipelineContext _context;
 
@@ -46,10 +45,7 @@ namespace tanka.generate.docs.Markdig
         {
             var code = _context.Solution.GetSourceText(codeInclude.DisplayName);
 
-            if (code.NotFound)
-            {
-                _context.Warning($"Code: {codeInclude.DisplayName} not found");
-            }
+            if (code.NotFound) _context.Warning($"Code: {codeInclude.DisplayName} not found");
 
             renderer.Write("<pre><code class=\"language-csharp\">");
             renderer.WriteEscape(code.Text);
@@ -74,10 +70,7 @@ namespace tanka.generate.docs.Markdig
         {
             var nextChar = slice.PeekChar();
 
-            if (nextChar != '{')
-            {
-                return false;
-            }
+            if (nextChar != '{') return false;
 
             var start = slice.Start;
             slice.NextChar();
@@ -89,7 +82,7 @@ namespace tanka.generate.docs.Markdig
                 contentBuilder.Append(nextChar);
                 nextChar = slice.NextChar();
             }
-  
+
             if (slice.PeekChar() != ']')
             {
                 processor.StringBuilders.Release(contentBuilder);
@@ -99,7 +92,7 @@ namespace tanka.generate.docs.Markdig
             slice.NextChar();
             slice.NextChar();
 
-            processor.Inline = new CodeInclude()
+            processor.Inline = new CodeInclude
             {
                 DisplayName = contentBuilder.ToString(),
                 Span = new SourceSpan(processor.GetSourcePosition(
