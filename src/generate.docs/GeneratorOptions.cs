@@ -15,5 +15,7 @@ namespace tanka.generate.docs
         public IConfiguration Configuration { get; set; }
 
         public string Template { get; set; }
+
+        public string CategoryTemplate { get; set; }
     }
 }

@@ -1,21 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 
 namespace tanka.generate.docs
 {
+    [DebuggerDisplay("{" + nameof(Category) + "}")]
     internal class PageCategory
     {
-        private readonly List<PageInfo> _pages;
+        private List<PageInfo> _pages = new List<PageInfo>();
 
-        public PageCategory(string category, IEnumerable<PageInfo> pages)
+        public PageCategory(string category, string path)
         {
-            Category = string.IsNullOrEmpty(category) ? "Home" : category;
-            _pages = pages?.ToList() ?? throw new ArgumentNullException(nameof(pages));
+            Category = category ?? path;
+            Path = path;
         }
 
+        public List<PageCategory> Categories { get; } = new List<PageCategory>();
+
         public string Category { get; }
+        public string Path { get; }
 
         public bool HasPages => Pages.Any();
 
@@ -23,27 +27,9 @@ namespace tanka.generate.docs
         {
             get
             {
-                if (!_pages.Any())
-                    return Enumerable.Empty<PageInfo>();
-
                 var indexPage = _pages.SingleOrDefault(page => page.Path.EndsWith("index.html"));
-
-                if (_pages.Count == 1)
-                {
-                    if (indexPage != null)
-                    {
-                        return Enumerable.Empty<PageInfo>();
-                    }
-                }
-
-                var pages = new List<PageInfo>(_pages);
-
-                if (indexPage != null)
-                {
-                    pages.Remove(indexPage);
-                }
-
-                return pages;
+                return _pages.Except(new[] {indexPage}).ToList();
+                return _pages;
             }
         }
 
@@ -63,6 +49,8 @@ namespace tanka.generate.docs
             }
         }
 
+        public bool HasDisplayName => !string.IsNullOrEmpty(DisplayName);
+
         public string DisplayName
         {
             get
@@ -71,7 +59,7 @@ namespace tanka.generate.docs
                     return string.Empty;
 
                 var displayName = Category;
-
+                
                 if (displayName.Contains("-"))
                 {
                     var maybeSection = displayName.Substring(0, displayName.IndexOf('-') + 1);
@@ -85,6 +73,24 @@ namespace tanka.generate.docs
                 displayName = displayName.Substring(0, 1).ToUpperInvariant() + displayName.Substring(1);
                 return displayName;
             }
+        }
+
+        public PageCategory Add(string name, string path)
+        {
+            var category = new PageCategory(name, path);
+            Categories.Add(category);
+            return category;
+        }
+
+        public void Add(PageInfo page)
+        {
+            _pages.Add(page);
+        }
+
+        public void Add(IEnumerable<PageInfo> pages)
+        {
+            foreach (var page in pages)
+                Add(page);
         }
     }
 }

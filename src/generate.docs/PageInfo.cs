@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 
 namespace tanka.generate.docs
 {
+    [DebuggerDisplay("{" + nameof(DisplayName) + "}")]
     internal class PageInfo : IEquatable<PageInfo>
     {
         public PageInfo(string path, bool isActive = false)
