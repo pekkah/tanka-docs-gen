@@ -3,7 +3,7 @@
 
 <head>
     <base href="/tanka-docs-gen/beta/">
-    <title>Index - tanka-docs-gen</title>
+    <title>Usage - tanka-docs-gen</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
@@ -79,7 +79,7 @@
 </h6>
     <ul class="nav flex-column">
         <li class="nav-item">
-            <a class="nav-link" href="1-instructions/1-usage.html">Usage</a>
+            <a class="nav-link active bg-light" href="1-instructions/1-usage.html">Usage</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="1-instructions/2-publishing.html">Publishing</a>
@@ -122,47 +122,108 @@
 </ul></ul></ul></ul>                </div>
             </nav>
             <main role="main" class="col-12 col-md-8 col-xl-6 py-sm-1 py-md-3 pl-md-5 content">
-                <h2 id="tanka-documentation-generator">Tanka Documentation Generator</h2>
-<ul>
-<li><a href="https://dev.azure.com/tanka-ops/docs-gen/_build/latest?definitionId=2&amp;branchName=master"><img src="https://dev.azure.com/tanka-ops/docs-gen/_apis/build/status/docs-gen?branchName=master" alt="master" /></a></li>
-</ul>
-<p>Beta</p>
-<ul>
-<li><a href="https://pekkah.github.io/tanka-docs-gen/beta/">Documentation</a></li>
-</ul>
-<p>Release</p>
-<ul>
-<li><a href="https://pekkah.github.io/tanka-docs-gen/">Documentation</a></li>
-</ul>
-<h2 id="install">Install</h2>
-<ol>
-<li>Install the global tool</li>
-</ol>
-<pre><code class="lang-bash">dotnet tool install --global tanka.generate.docs
+                <h2 id="extensions-to-markdig">Extensions to Markdig</h2>
+<h3 id="c-code-inclusion-support-using-roslyn">C# Code inclusion support using Roslyn</h3>
+<h4 id="include-class">Include class</h4>
+<pre><code class="lang-markdown">[{tanka.generate.docs.Program}]
 </code></pre>
-<ol start="2">
-<li>Add tanka-docs.yaml configuration file to root of your repo</li>
-</ol>
-<pre><code class="lang-yaml">input: 'docs'
+<p><pre><code class="language-csharp">    public class Program
+    {
+        public static async Task Main(string[] args)
+        {
+            try
+            {
+                var currentPath = Directory.GetCurrentDirectory();
+                Console.WriteLine($&quot;Working on {currentPath}&quot;);
+                Console.WriteLine();
+                var configuration = new ConfigurationBuilder()
+                    .AddYamlFile(Path.Combine(currentPath, &quot;tanka-docs.yaml&quot;), true)
+                    .AddCommandLine(args)
+                    .Build();
+
+                var options = configuration.Get&lt;GeneratorOptions&gt;();
+                options.Configuration = configuration;
+
+                var pipeline = new Pipeline(options)
+                {
+                    Steps =
+                    {
+                        WriteConfigurationToConsole(),
+                        CleanOutput(options),
+                        AnalyzeSolution(options),
+                        EnumerateFiles(options),
+                        TransformInputFilesToHtmlOutputFiles(options),
+                        AddHtmlLayout(options),
+                        Assets(&quot;.js&quot;, &quot;.css&quot;),
+                        WriteFiles(options)
+                    }
+                };
+
+                await pipeline.Execute();
+                Console.WriteLine(&quot;Completed&quot;);
+            }
+            catch (Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(e);
+            }
+        }
+    }
+</code></pre></p>
+<h4 id="include-function">Include function</h4>
+<pre><code class="lang-markdown">[{tanka.generate.docs.Program.Main}]
+</code></pre>
+<p><pre><code class="language-csharp">        public static async Task Main(string[] args)
+        {
+            try
+            {
+                var currentPath = Directory.GetCurrentDirectory();
+                Console.WriteLine($&quot;Working on {currentPath}&quot;);
+                Console.WriteLine();
+                var configuration = new ConfigurationBuilder()
+                    .AddYamlFile(Path.Combine(currentPath, &quot;tanka-docs.yaml&quot;), true)
+                    .AddCommandLine(args)
+                    .Build();
+
+                var options = configuration.Get&lt;GeneratorOptions&gt;();
+                options.Configuration = configuration;
+
+                var pipeline = new Pipeline(options)
+                {
+                    Steps =
+                    {
+                        WriteConfigurationToConsole(),
+                        CleanOutput(options),
+                        AnalyzeSolution(options),
+                        EnumerateFiles(options),
+                        TransformInputFilesToHtmlOutputFiles(options),
+                        AddHtmlLayout(options),
+                        Assets(&quot;.js&quot;, &quot;.css&quot;),
+                        WriteFiles(options)
+                    }
+                };
+
+                await pipeline.Execute();
+                Console.WriteLine(&quot;Completed&quot;);
+            }
+            catch (Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(e);
+            }
+        }
+</code></pre></p>
+<h3 id="include-code-snippet-using-dfm-extension">Include code snippet using DFM extension</h3>
+<pre><code class="lang-markdown">[!code-yaml[tanka-docs](tanka-docs.yaml)]
+</code></pre>
+<pre><code class="lang-yaml" name="tanka-docs">input: 'docs'
 output: 'gh-pages'
 solution: 'tanka-docs-gen.sln'
 basepath: '/'
 </code></pre>
-<ol start="3">
-<li>Run the tool</li>
-</ol>
-<pre><code class="lang-bash">generate-docs
-</code></pre>
-<ol start="4">
-<li>Output will be generated to output (example: <code>gh-pages</code>)</li>
-</ol>
-<h2 id="serve">Serve</h2>
-<ol>
-<li>Install dotnet-serve <a href="https://github.com/natemcmaster/dotnet-serve">https://github.com/natemcmaster/dotnet-serve</a></li>
-<li>Run dotnet serve in the output folder</li>
-</ol>
-<pre><code class="lang-bash">dotnet serve
-</code></pre>
+<blockquote>
+<p>More about DFM <a href="https://dotnet.github.io/docfx/spec/docfx_flavored_markdown.html?tabs=tabid-1%2Ctabid-a">https://dotnet.github.io/docfx/spec/docfx_flavored_markdown.html?tabs=tabid-1%2Ctabid-a</a></p>
+</blockquote>
                     
             </main>
         </div>
