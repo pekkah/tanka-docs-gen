@@ -248,7 +248,6 @@ namespace tanka.generate.docs
                 .Select(file => Path.GetDirectoryName(file.Path))
                 .Distinct()
                 .Where(path => path.Length > 0)
-                .OrderBy(path => path.Count(c => c == Path.DirectorySeparatorChar))
                 .ToList();
 
 
@@ -265,7 +264,6 @@ namespace tanka.generate.docs
                 var category = categories.Pop();
                 var pages =  htmlFiles
                     .Where(file => Path.GetDirectoryName(file.Path) == category.Path)
-                    .OrderByDescending(file => file.Path)
                     .Select(file =>
                     {
                         var page = new PageInfo(file.Path);
@@ -281,7 +279,6 @@ namespace tanka.generate.docs
 
                 var subPaths = paths
                     .Where(path => IsDirectSubPathOf(category.Path, path))
-                    .OrderByDescending(path => path)
                     .ToList();
 
                 foreach(var subPath in subPaths)
