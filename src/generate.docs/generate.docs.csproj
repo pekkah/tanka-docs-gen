@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <AssemblyName>tanka.generate.docs</AssemblyName>
     <RootNamespace>tanka.generate.docs</RootNamespace>
     <PackAsTool>true</PackAsTool>
@@ -15,13 +15,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Buildalyzer" Version="2.2.0" />
-    <PackageReference Include="Buildalyzer.Workspaces" Version="2.2.0" />
-    <PackageReference Include="Handlebars.Net" Version="1.9.5" />
+    <PackageReference Include="Buildalyzer" Version="2.3.0" />
+    <PackageReference Include="Buildalyzer.Workspaces" Version="2.3.0" />
+    <PackageReference Include="Handlebars.Net" Version="1.10.1" />
     <PackageReference Include="Markdig" Version="0.16.0" />
-    <PackageReference Include="Microsoft.DocAsCode.MarkdigEngine.Extensions" Version="2.40.12" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.2.0" />
+    <PackageReference Include="Microsoft.DocAsCode.MarkdigEngine.Extensions" Version="2.45.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="3.0.0" />
     <PackageReference Include="NetEscapades.Configuration.Yaml" Version="1.6.0" />
   </ItemGroup>
 

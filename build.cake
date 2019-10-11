@@ -123,7 +123,7 @@ Task("Docs")
         Information("Generate docs");
         var settings = new DotNetCoreRunSettings
         {
-            Framework = "netcoreapp2.2",
+            Framework = "netcoreapp3.0",
             Configuration = "Release"
         };
 
