@@ -7,7 +7,7 @@ trigger:
     - refs/tags/*
     
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'windows-latest'
 
 variables:
   buildConfiguration: 'Release'
