@@ -7,7 +7,7 @@ trigger:
     - refs/tags/*
     
 pool:
-  vmImage: 'windows-2019'
+  vmImage: 'ubuntu-latest'
 
 variables:
   buildConfiguration: 'Release'
@@ -15,10 +15,10 @@ variables:
 
 steps:
 - task: UseDotNet@2
-  displayName: Install SDK	  
+  displayName: Use dotnet core SDK
   inputs:
-    version: '3.x'
     packageType: 'sdk'
+    version: '3.x'
 
 - task: DotNetCoreCLI@2
   displayName: Install cake.tool
