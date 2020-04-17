@@ -12,5 +12,6 @@ namespace FileSystem
         PipeReader OpenRead(File file);
 
         PipeWriter OpenWrite(File file);
+        Directory GetOrCreateDirectory(Path path);
     }
 }
