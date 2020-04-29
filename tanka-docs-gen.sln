@@ -10,14 +10,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		docs\_template.html = docs\_template.html
 		azure-pipelines.yml = azure-pipelines.yml
 		build.cake = build.cake
+		Directory.Build.props = Directory.Build.props
 		GitVersion.yml = GitVersion.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "generate.docs.facts", "tests\generate.docs.facts\generate.docs.facts.csproj", "{B9CCF197-A23B-41AC-94C8-2DF2691B901A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem", "src\FileSystem\FileSystem.csproj", "{989EBE00-A742-4BA2-AF28-BEC2BFDE8ABC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileSystem", "src\FileSystem\FileSystem.csproj", "{989EBE00-A742-4BA2-AF28-BEC2BFDE8ABC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileSystem.Tests", "tests\FileSystem.Tests\FileSystem.Tests.csproj", "{ED16AD7B-7E50-4925-BE5E-AFEAA797E16B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileSystem.Tests", "tests\FileSystem.Tests\FileSystem.Tests.csproj", "{ED16AD7B-7E50-4925-BE5E-AFEAA797E16B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catalog", "src\Catalog\Catalog.csproj", "{7B870313-6B12-4E31-B216-98C825D610CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocsTool", "src\DocsTool\DocsTool.csproj", "{DEC1E6D1-11AA-4EC2-A281-F06B6CFEA01B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +46,14 @@ Global
 		{ED16AD7B-7E50-4925-BE5E-AFEAA797E16B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED16AD7B-7E50-4925-BE5E-AFEAA797E16B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED16AD7B-7E50-4925-BE5E-AFEAA797E16B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B870313-6B12-4E31-B216-98C825D610CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B870313-6B12-4E31-B216-98C825D610CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B870313-6B12-4E31-B216-98C825D610CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B870313-6B12-4E31-B216-98C825D610CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEC1E6D1-11AA-4EC2-A281-F06B6CFEA01B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEC1E6D1-11AA-4EC2-A281-F06B6CFEA01B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEC1E6D1-11AA-4EC2-A281-F06B6CFEA01B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEC1E6D1-11AA-4EC2-A281-F06B6CFEA01B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

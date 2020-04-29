@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FileSystem
+namespace Tanka.FileSystem
 {
     internal static class PathHelpers
     {

@@ -1,6 +1,6 @@
 ﻿using System.IO.Pipelines;
 
-namespace FileSystem
+namespace Tanka.FileSystem
 {
     public class File : IFileSystemNode
     {

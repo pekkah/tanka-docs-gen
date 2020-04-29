@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>Tanka.FileSystem</AssemblyName>
+    <RootNamespace>Tanka.FileSystem</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

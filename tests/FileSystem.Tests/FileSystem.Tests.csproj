@@ -4,6 +4,10 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
 
     <IsPackable>false</IsPackable>
+
+    <AssemblyName>Tanka.FileSystem.Tests</AssemblyName>
+
+    <RootNamespace>Tanka.FileSystem.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

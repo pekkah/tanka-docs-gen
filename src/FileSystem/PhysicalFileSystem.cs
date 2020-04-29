@@ -2,7 +2,7 @@
 using System.IO.Pipelines;
 using System.Threading.Tasks;
 
-namespace FileSystem
+namespace Tanka.FileSystem
 {
     public class PhysicalFileSystem : IFileSystem
     {

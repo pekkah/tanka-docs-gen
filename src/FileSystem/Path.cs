@@ -1,4 +1,4 @@
-﻿namespace FileSystem
+﻿namespace Tanka.FileSystem
 {
     public readonly struct Path
     {

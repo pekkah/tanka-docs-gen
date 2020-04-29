@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace FileSystem
+namespace Tanka.FileSystem
 {
     public class Directory : IFileSystemNode
     {

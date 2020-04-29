@@ -7,11 +7,6 @@
     <RootNamespace>tanka.generate.docs</RootNamespace>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-tanka-docs</ToolCommandName>
-    <Authors>Pekka Heikura &lt;pekkah@gmail.com&gt;</Authors>
-    <PackageProjectUrl>https://github.com/pekkah/tanka-docs-gen</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/pekkah/tanka-docs-gen</RepositoryUrl>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
