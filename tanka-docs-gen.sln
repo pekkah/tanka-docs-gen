@@ -22,7 +22,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileSystem.Tests", "tests\F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Catalog", "src\Catalog\Catalog.csproj", "{7B870313-6B12-4E31-B216-98C825D610CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocsTool", "src\DocsTool\DocsTool.csproj", "{DEC1E6D1-11AA-4EC2-A281-F06B6CFEA01B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocsTool", "src\DocsTool\DocsTool.csproj", "{DEC1E6D1-11AA-4EC2-A281-F06B6CFEA01B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocsTool.Tests", "tests\DocsTool.Tests\DocsTool.Tests.csproj", "{AAD3FEFA-A4D5-4520-A522-6518F66526BB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -54,6 +56,10 @@ Global
 		{DEC1E6D1-11AA-4EC2-A281-F06B6CFEA01B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DEC1E6D1-11AA-4EC2-A281-F06B6CFEA01B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DEC1E6D1-11AA-4EC2-A281-F06B6CFEA01B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAD3FEFA-A4D5-4520-A522-6518F66526BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAD3FEFA-A4D5-4520-A522-6518F66526BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAD3FEFA-A4D5-4520-A522-6518F66526BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAD3FEFA-A4D5-4520-A522-6518F66526BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

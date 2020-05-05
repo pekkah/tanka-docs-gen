@@ -8,7 +8,7 @@ namespace Tanka.FileSystem
     {
         public PhysicalFileSystem(Path root)
         {
-            Root = new Directory(this, root);
+            Root = GetOrCreateDirectory(root);
         }
 
         public Directory Root { get; }
