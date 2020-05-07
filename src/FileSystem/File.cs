@@ -23,5 +23,10 @@ namespace Tanka.FileSystem
         {
             return _fileSystem.OpenWrite(this);
         }
+
+        public override string ToString()
+        {
+            return Path.ToString();
+        }
     }
 }

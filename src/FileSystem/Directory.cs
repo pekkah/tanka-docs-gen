@@ -18,5 +18,10 @@ namespace Tanka.FileSystem
         {
             return _fileSystem.EnumerateDirectory(this);
         }
+
+        public override string ToString()
+        {
+            return Path.ToString();
+        }
     }
 }

@@ -29,46 +29,45 @@ namespace Tanka.FileSystem.Git
         public async IAsyncEnumerable<IFileSystemNode> EnumerateDirectory(Directory directory)
         {
             await Task.Delay(0);
-            var queue = new Queue<Tree>();
+            var queue = new Queue<TreeEntry>();
             var gitPath = GetGitPath(directory.Path);
 
-            Tree tree;
             if (string.IsNullOrEmpty(gitPath))
             {
-                tree = _branch.Tip.Tree;
+                foreach (var entry in _branch.Tip.Tree)
+                {
+                    queue.Enqueue(entry);
+                }
             }
             else
             {
-                var entry = _branch[gitPath];
-                tree = _repo.Lookup<Tree>(entry.Target.Id);
-            }
-            
-            queue.Enqueue(tree);
-
-            do
-            {
-                tree = queue.Dequeue();
+                TreeEntry treeEntry = _branch.Tip.Tree[gitPath];
+                Tree tree = _repo.Lookup<Tree>(treeEntry.Target.Id);
 
                 foreach (var entry in tree)
                 {
-                    switch (entry.TargetType)
-                    {
-                        case TreeEntryTargetType.Tree:
-                            tree = _repo.Lookup<Tree>(entry.Target.Id);
-                            queue.Enqueue(tree);
-                            yield return new Directory(this, entry.Path);
-                            break;
-                        case TreeEntryTargetType.Blob:
-                            yield return new File(this, entry.Path);
-                            break;
-                    }
+                    queue.Enqueue(entry);
                 }
+            }
+
+            do
+            {
+                var entry = queue.Dequeue();
                 
-                
+                switch (entry.TargetType)
+                {
+                    case TreeEntryTargetType.Tree:
+                        yield return new Directory(this, gitPath / entry.Path);
+                        break;
+                    case TreeEntryTargetType.Blob:
+                        yield return new File(this, gitPath / entry.Path);
+                        break;
+                }
+
             } while (queue.Count > 0);
         }
 
-        private string GetGitPath(in Path path)
+        private Path GetGitPath(in Path path)
         {
             if (path == ".")
                 return "";

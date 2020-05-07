@@ -33,5 +33,10 @@
         {
             return System.IO.Path.GetRelativePath(relativeTo, _path);
         }
+
+        public override string ToString()
+        {
+            return _path;
+        }
     }
 }

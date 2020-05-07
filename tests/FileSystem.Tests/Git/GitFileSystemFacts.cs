@@ -8,16 +8,16 @@ namespace Tanka.FileSystem.Tests.Git
     {
         public GitFileSystemFacts()
         {
-            Root = System.IO.Path.GetFullPath("../../../../../");  
+            RepoRoot = System.IO.Path.GetFullPath("../../../../../");  
         }
 
-        public string Root { get; set; }
+        public string RepoRoot { get; set; }
 
         [Fact]
         public async Task EnumerateRoot()
         {
             /* Given */
-            var fs = new GitFileSystem(Root, "master");
+            var fs = new GitFileSystem(RepoRoot, "master");
             var canEnumerate = false;
             
             /* When */
@@ -34,13 +34,14 @@ namespace Tanka.FileSystem.Tests.Git
         public async Task Enumerate_known_folder()
         {
             /* Given */
-            var fs = new GitFileSystem(Root, "master");
+            var fs = new GitFileSystem(RepoRoot, "master");
             var canEnumerate = false;
 
             /* When */
             var docsDir = fs.GetOrCreateDirectory("docs");
             await foreach (var node in docsDir.Enumerate())
             {
+                Assert.StartsWith("docs/", node.Path);
                 canEnumerate = true;
             }
 
