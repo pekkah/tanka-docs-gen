@@ -4,9 +4,9 @@ namespace Tanka.FileSystem
 {
     public class Directory : IFileSystemNode
     {
-        private readonly IFileSystem _fileSystem;
+        private readonly IReadOnlyFileSystem _fileSystem;
 
-        public Directory(IFileSystem fileSystem, Path path)
+        public Directory(IReadOnlyFileSystem fileSystem, Path path)
         {
             _fileSystem = fileSystem;
             Path = path;

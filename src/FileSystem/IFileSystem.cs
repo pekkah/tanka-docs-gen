@@ -3,7 +3,7 @@ using System.IO.Pipelines;
 
 namespace Tanka.FileSystem
 {
-    public interface IFileSystem
+    public interface IReadOnlyFileSystem
     {
         IAsyncEnumerable<IFileSystemNode> EnumerateDirectory(Directory directory);
 
@@ -11,7 +11,13 @@ namespace Tanka.FileSystem
 
         PipeReader OpenRead(File file);
 
+        Directory GetDirectory(Path path);
+
+        File GetFile(Path path);
+    }
+
+    public interface IFileSystem : IReadOnlyFileSystem
+    {
         PipeWriter OpenWrite(File file);
-        Directory GetOrCreateDirectory(Path path);
     }
 }

@@ -6,25 +6,31 @@ using LibGit2Sharp;
 
 namespace Tanka.FileSystem.Git
 {
-    public class GitFileSystem: IFileSystem
+    public class GitFileSystem : IReadOnlyFileSystem, IDisposable
     {
-        private Branch _branch;
         private readonly Repository _repo;
-        private Path _absoluteRootPath;
+        private readonly Path _absoluteRootPath;
+        private readonly Branch _branch;
 
         public GitFileSystem(Path path, string branch)
         {
             _absoluteRootPath = path;
             _repo = new Repository(_absoluteRootPath);
             _branch = _repo.Branches[branch];
-            
+
             Root = new Directory(this, path.GetRelative(_absoluteRootPath));
 
             if (_branch == null)
-                throw new ArgumentOutOfRangeException($"Branch '{branch}' does not exists in repository: {_repo.Info.Path}");
+                throw new ArgumentOutOfRangeException(
+                    $"Branch '{branch}' does not exists in repository: {_repo.Info.Path}");
         }
 
         public Directory Root { get; }
+
+        public void Dispose()
+        {
+            _repo?.Dispose();
+        }
 
         public async IAsyncEnumerable<IFileSystemNode> EnumerateDirectory(Directory directory)
         {
@@ -34,26 +40,20 @@ namespace Tanka.FileSystem.Git
 
             if (string.IsNullOrEmpty(gitPath))
             {
-                foreach (var entry in _branch.Tip.Tree)
-                {
-                    queue.Enqueue(entry);
-                }
+                foreach (var entry in _branch.Tip.Tree) queue.Enqueue(entry);
             }
             else
             {
-                TreeEntry treeEntry = _branch.Tip.Tree[gitPath];
-                Tree tree = _repo.Lookup<Tree>(treeEntry.Target.Id);
+                var treeEntry = _branch.Tip.Tree[gitPath];
+                var tree = _repo.Lookup<Tree>(treeEntry.Target.Id);
 
-                foreach (var entry in tree)
-                {
-                    queue.Enqueue(entry);
-                }
+                foreach (var entry in tree) queue.Enqueue(entry);
             }
 
             do
             {
                 var entry = queue.Dequeue();
-                
+
                 switch (entry.TargetType)
                 {
                     case TreeEntryTargetType.Tree:
@@ -63,8 +63,35 @@ namespace Tanka.FileSystem.Git
                         yield return new File(this, gitPath / entry.Path);
                         break;
                 }
-
             } while (queue.Count > 0);
+        }
+
+        public IAsyncEnumerable<IFileSystemNode> EnumerateRoot()
+        {
+            return EnumerateDirectory(Root);
+        }
+
+        public PipeReader OpenRead(File file)
+        {
+            var entry = _branch[file.Path];
+            if (entry.TargetType != TreeEntryTargetType.Blob)
+                throw new InvalidOperationException(
+                    $"Entry '{entry.Target.Id}' at path '{file}' is not a blob");
+
+            var blob = (Blob) entry.Target;
+            var contentStream = blob.GetContentStream();
+
+            return PipeReader.Create(contentStream);
+        }
+
+        public PipeWriter OpenWrite(File file)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Directory GetDirectory(Path path)
+        {
+            return new Directory(this, GetGitPath(path));
         }
 
         private Path GetGitPath(in Path path)
@@ -75,24 +102,9 @@ namespace Tanka.FileSystem.Git
             return path;
         }
 
-        public IAsyncEnumerable<IFileSystemNode> EnumerateRoot()
+        public File GetFile(Path path)
         {
-            return EnumerateDirectory(Root);
-        }
-
-        public PipeReader OpenRead(File file)
-        {
-            throw new NotImplementedException();
-        }
-
-        public PipeWriter OpenWrite(File file)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Directory GetOrCreateDirectory(Path path)
-        {
-            return new Directory(this, path);
+            return new File(this, GetGitPath(path));
         }
     }
 }

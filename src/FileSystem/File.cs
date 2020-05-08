@@ -4,9 +4,9 @@ namespace Tanka.FileSystem
 {
     public class File : IFileSystemNode
     {
-        private readonly IFileSystem _fileSystem;
+        private readonly IReadOnlyFileSystem _fileSystem;
 
-        public File(IFileSystem fileSystem, Path path)
+        public File(IReadOnlyFileSystem fileSystem, Path path)
         {
             _fileSystem = fileSystem;
             Path = path;
@@ -17,11 +17,6 @@ namespace Tanka.FileSystem
         public PipeReader OpenRead()
         {
             return _fileSystem.OpenRead(this);
-        }
-
-        public PipeWriter OpenWrite()
-        {
-            return _fileSystem.OpenWrite(this);
         }
 
         public override string ToString()

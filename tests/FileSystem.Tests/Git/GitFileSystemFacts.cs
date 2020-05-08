@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.IO;
+using System.Threading.Tasks;
 using Tanka.FileSystem.Git;
 using Xunit;
 
@@ -17,7 +18,7 @@ namespace Tanka.FileSystem.Tests.Git
         public async Task EnumerateRoot()
         {
             /* Given */
-            var fs = new GitFileSystem(RepoRoot, "master");
+            using var fs = new GitFileSystem(RepoRoot, "master");
             var canEnumerate = false;
             
             /* When */
@@ -34,11 +35,11 @@ namespace Tanka.FileSystem.Tests.Git
         public async Task Enumerate_known_folder()
         {
             /* Given */
-            var fs = new GitFileSystem(RepoRoot, "master");
+            using var fs = new GitFileSystem(RepoRoot, "master");
             var canEnumerate = false;
 
             /* When */
-            var docsDir = fs.GetOrCreateDirectory("docs");
+            var docsDir = fs.GetDirectory("docs");
             await foreach (var node in docsDir.Enumerate())
             {
                 Assert.StartsWith("docs/", node.Path);
@@ -47,6 +48,24 @@ namespace Tanka.FileSystem.Tests.Git
 
             /* Then */
             Assert.True(canEnumerate);
+        }
+
+        [Fact]
+        public void Open_file_for_reading()
+        {
+            /* Given */
+            using var fs = new GitFileSystem(RepoRoot, "master");
+            var filename = "README.md";
+
+            /* When */
+            var file = fs.GetFile(filename);
+            var reader = file.OpenRead();
+            using var streamReader = new StreamReader(reader.AsStream());
+            var contents = streamReader.ReadToEnd();
+            reader.Complete();
+
+            /* Then */
+            Assert.NotNull(contents);
         }
     }
 }

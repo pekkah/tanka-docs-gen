@@ -6,27 +6,27 @@ namespace Tanka.FileSystem
 {
     public class PhysicalFileSystem : IFileSystem
     {
-        public PhysicalFileSystem(Path root)
+        public PhysicalFileSystem(string root)
         {
-            Root = GetOrCreateDirectory(root);
+            Root = root;
         }
 
-        public Directory Root { get; }
+        public string Root { get; }
 
         public async IAsyncEnumerable<IFileSystemNode> EnumerateDirectory(Directory directory)
         {
             await Task.Yield();
             var path = GetFullPath(directory.Path);
             foreach (var entry in System.IO.Directory.EnumerateFiles(path))
-                yield return new File(this, entry);
+                yield return new File(this, System.IO.Path.GetRelativePath(Root, entry));
 
             foreach (var entry in System.IO.Directory.EnumerateDirectories(path))
-                yield return new Directory(this, entry);
+                yield return new Directory(this, System.IO.Path.GetRelativePath(Root, entry));
         }
 
         public IAsyncEnumerable<IFileSystemNode> EnumerateRoot()
         {
-            return EnumerateDirectory(Root);
+            return EnumerateDirectory(new Directory(this, "."));
         }
 
         public PipeReader OpenRead(File file)
@@ -41,16 +41,19 @@ namespace Tanka.FileSystem
             return PipeWriter.Create(fileStream);
         }
 
-        public Directory GetOrCreateDirectory(Path path)
+        public Directory GetDirectory(Path path)
         {
-            var fullPath = GetFullPath(path);
-            System.IO.Directory.CreateDirectory(fullPath);
             return new Directory(this, path);
+        }
+
+        public File GetFile(Path path)
+        {
+            return new File(this, path);
         }
 
         protected Path GetFullPath(Path path)
         {
-            return Root.Path / path;
+            return System.IO.Path.GetFullPath(path, Root);
         }
     }
 }
