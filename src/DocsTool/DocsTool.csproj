@@ -7,4 +7,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>tanka-docs</ToolCommandName>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FileSystem\FileSystem.csproj" />
+  </ItemGroup>
 </Project>
