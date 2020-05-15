@@ -9,23 +9,17 @@ namespace Tanka.FileSystem.Git
     public class GitFileSystem : IReadOnlyFileSystem, IDisposable
     {
         private readonly Repository _repo;
-        private readonly Path _absoluteRootPath;
         private readonly Branch _branch;
 
         public GitFileSystem(Path path, string branch)
         {
-            _absoluteRootPath = path;
-            _repo = new Repository(_absoluteRootPath);
+            _repo = new Repository(path);
             _branch = _repo.Branches[branch];
-
-            Root = new Directory(this, path.GetRelative(_absoluteRootPath));
 
             if (_branch == null)
                 throw new ArgumentOutOfRangeException(
                     $"Branch '{branch}' does not exists in repository: {_repo.Info.Path}");
         }
-
-        public Directory Root { get; }
 
         public void Dispose()
         {
@@ -68,7 +62,7 @@ namespace Tanka.FileSystem.Git
 
         public IAsyncEnumerable<IFileSystemNode> EnumerateRoot()
         {
-            return EnumerateDirectory(Root);
+            return EnumerateDirectory(GetDirectory(""));
         }
 
         public PipeReader OpenRead(File file)

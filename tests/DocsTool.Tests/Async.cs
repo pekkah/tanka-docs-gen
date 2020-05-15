@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Tanka.DocsTool.Tests.Catalogs
+namespace Tanka.DocsTool.Tests
 {
     internal static class Async
     {
