@@ -5,22 +5,9 @@ namespace Tanka.DocsTool.Tests.Navigation
 {
     public class LinkParserFacts
     {
-        public const string ExternalLink = "[title](https://link.invalid)";
-        public const string XrefLink = "[title](xref://link.md)";
-        public const string XrefWithSectionIdLink = "[title](xref://section:link.md)";
-
-        [Fact]
-        public void ParseTitle()
-        {
-            /* Given */
-            var link = ExternalLink;
-            
-            /* When */
-            var definition = LinkParser.Parse(link);
-
-            /* Then */
-            Assert.Equal("title", definition.Title);
-        }
+        public const string ExternalLink = "https://link.invalid";
+        public const string XrefLink = "xref://link.md";
+        public const string XrefWithSectionIdLink = "xref://section:link.md";
 
         [Fact]
         public void ParseUri()

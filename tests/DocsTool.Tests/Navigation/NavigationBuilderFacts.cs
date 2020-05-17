@@ -1,30 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using NSubstitute;
-using Tanka.DocsTool.Navigation;
-using Tanka.FileSystem;
+﻿using Tanka.DocsTool.Navigation;
 using Xunit;
 
 namespace Tanka.DocsTool.Tests.Navigation
 {
     public class NavigationBuilderFacts
     {
-        private IReadOnlyFileSystem _fileSystem;
-        private NavigationBuilder _sut;
-
         public NavigationBuilderFacts()
         {
-            _fileSystem = Substitute.For<IReadOnlyFileSystem>();
             _sut = new NavigationBuilder();
         }
 
+        private readonly NavigationBuilder _sut;
+
         [Fact]
-        public void Add_Links()
+        public void Add_DisplayLink()
         {
             /* Given */
-            var links = new string[]
+            var link = "[title](xref://nav.md)";
+
+
+            /* When */
+            var linkDefinitions = _sut
+                .AddLink(link)
+                .Build();
+
+            /* Then */
+            var definition = Assert.Single(linkDefinitions);
+            Assert.Equal("title", definition.Title);
+            Assert.True(definition.Link.IsXref);
+        }
+
+        [Fact]
+        public void Add_DisplayLinks()
+        {
+            /* Given */
+            var links = new[]
             {
                 "[title](xref://nav.md)"
             };
@@ -36,9 +46,9 @@ namespace Tanka.DocsTool.Tests.Navigation
                 .Build();
 
             /* Then */
-            var definition  = Assert.Single(linkDefinitions);
+            var definition = Assert.Single(linkDefinitions);
             Assert.Equal("title", definition.Title);
-            Assert.True(definition.IsXref);
+            Assert.True(definition.Link.IsXref);
         }
     }
 }

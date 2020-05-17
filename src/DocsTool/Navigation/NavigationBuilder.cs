@@ -1,20 +1,36 @@
-﻿namespace Tanka.DocsTool.Navigation
+﻿using System.Collections.Generic;
+
+namespace Tanka.DocsTool.Navigation
 {
     public class NavigationBuilder
     {
-        public NavigationBuilder AddLinks(string[] links)
+        private readonly List<DisplayLink> _displayLinks = new List<DisplayLink>();
+
+        public NavigationBuilder AddLinks(string[] displayLinks)
         {
+            foreach (var displayLink in displayLinks)
+            {
+                AddLink(displayLink);
+            }
+
             return this;
         }
 
-        public NavigationBuilder AddLink(string link)
+        public NavigationBuilder AddLink(string displayLink)
         {
+            var link = DisplayLinkParser.Parse(displayLink);
+            return AddLink(link);
+        }
+
+        private NavigationBuilder AddLink(in DisplayLink displayLink)
+        {
+            _displayLinks.Add(displayLink);
             return this;
         }
 
-        public Link[] Build()
+        public IReadOnlyCollection<DisplayLink> Build()
         {
-            return new Link[0];
+            return _displayLinks;
         }
     }
 }

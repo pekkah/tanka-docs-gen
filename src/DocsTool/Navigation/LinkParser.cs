@@ -4,15 +4,15 @@ namespace Tanka.DocsTool.Navigation
 {
     public ref struct LinkParser
     {
-        private static readonly char[] SchemeDelimiter =  {':', '/', '/'};
+        private static readonly char[] SchemeDelimiter = {':', '/', '/'};
         private static readonly char[] Http = {'h', 't', 't', 'p'};
         private static readonly char[] Https = {'h', 't', 't', 'p', 's'};
-        private static readonly char[] Xref = { 'x', 'r', 'e', 'f' };
+        private static readonly char[] Xref = {'x', 'r', 'e', 'f'};
 
         private readonly ReadOnlySpan<char> _link;
         private int _position;
 
-        private LinkParser(in ReadOnlySpan<char> link)
+        public LinkParser(in ReadOnlySpan<char> link)
         {
             _link = link;
             _position = 0;
@@ -20,17 +20,13 @@ namespace Tanka.DocsTool.Navigation
 
         public Link Parse()
         {
-            var title = ParseTitle();
-            
-            /* (https://uri.invalid) */
-            Skip('(');
-            var indexOfClose = Unread.IndexOf(')');
-
-            if (indexOfClose == -1)
-                throw TokenNotFound(')');
+            /* https://uri.invalid */
+            /* xref://page.md */
+            /* xref://section:page.md */
+            var indexOfClose = Unread.Length;
 
             var span = Unread.Slice(0, indexOfClose);
-            
+
             // xref | http | https | etc
             string uriOrPath;
             string? sectionId = null;
@@ -38,8 +34,7 @@ namespace Tanka.DocsTool.Navigation
 
             if (IsXref(scheme))
             {
-                var maybeSectionIdAndPath = Unread
-                    .Slice(0, Unread.IndexOf(')'));
+                var maybeSectionIdAndPath = Unread;
 
                 // has sectionId?
                 var indexOfSectionIdSeparator = maybeSectionIdAndPath
@@ -58,38 +53,12 @@ namespace Tanka.DocsTool.Navigation
                     uriOrPath = maybeSectionIdAndPath.ToString();
                 }
 
-                return new Link(title, new Xref(sectionId, uriOrPath));
-            }
-            else
-            {
-                uriOrPath = span.ToString();
+                return new Link(new Xref(sectionId, uriOrPath));
             }
 
-            return new Link(title, uriOrPath);
-        }
+            uriOrPath = span.ToString();
 
-        private bool IsXref(in ReadOnlySpan<char> scheme)
-        {
-            if (scheme.SequenceEqual(Xref))
-                return true;
-
-            return false;
-        }
-
-        private ReadOnlySpan<char> ParseScheme()
-        {
-            var indexOfClose = Unread.IndexOf(SchemeDelimiter);
-
-            if (indexOfClose == -1)
-                throw TokenNotFound(':');
-
-            var scheme = Unread.Slice(0, indexOfClose);
-            Advance(scheme.Length);
-
-            Skip(':');
-            Skip('/');
-            Skip('/');
-            return scheme;
+            return new Link(uriOrPath);
         }
 
         private ReadOnlySpan<char> Unread
@@ -114,13 +83,7 @@ namespace Tanka.DocsTool.Navigation
             }
         }
 
-        private char Current
-        {
-            get
-            {
-                return _link[_position];
-            }
-        }
+        private char Current => _link[_position];
 
         private bool Advance()
         {
@@ -149,19 +112,28 @@ namespace Tanka.DocsTool.Navigation
             Advance();
         }
 
-        private string ParseTitle()
+        private bool IsXref(in ReadOnlySpan<char> scheme)
         {
-            Skip('[');
-            var indexOfClose = Unread.IndexOf(']');
+            if (scheme.SequenceEqual(Xref))
+                return true;
+
+            return false;
+        }
+
+        private ReadOnlySpan<char> ParseScheme()
+        {
+            var indexOfClose = Unread.IndexOf(SchemeDelimiter);
 
             if (indexOfClose == -1)
-                throw TokenNotFound(']');
+                throw TokenNotFound(':');
 
-            var title = Unread.Slice(0, indexOfClose);
-            Advance(title.Length);
-            Skip(']');
+            var scheme = Unread.Slice(0, indexOfClose);
+            Advance(scheme.Length);
 
-            return title.ToString();
+            Skip(':');
+            Skip('/');
+            Skip('/');
+            return scheme;
         }
 
         private Exception TokenNotFound(char c)
