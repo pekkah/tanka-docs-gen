@@ -22,7 +22,7 @@ namespace Tanka.DocsTool.Navigation
             return AddLink(link);
         }
 
-        private NavigationBuilder AddLink(in DisplayLink displayLink)
+        public NavigationBuilder AddLink(in DisplayLink displayLink)
         {
             _displayLinks.Add(displayLink);
             return this;

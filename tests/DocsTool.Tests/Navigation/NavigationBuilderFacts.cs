@@ -13,7 +13,7 @@ namespace Tanka.DocsTool.Tests.Navigation
         private readonly NavigationBuilder _sut;
 
         [Fact]
-        public void Add_DisplayLink()
+        public void Add_DisplayLink_from_text()
         {
             /* Given */
             var link = "[title](xref://nav.md)";
@@ -31,6 +31,24 @@ namespace Tanka.DocsTool.Tests.Navigation
         }
 
         [Fact]
+        public void Add_DisplayLink()
+        {
+            /* Given */
+            var link = new DisplayLink("title", new Link("https://link.invalid"));
+
+
+            /* When */
+            var linkDefinitions = _sut
+                .AddLink(link)
+                .Build();
+
+            /* Then */
+            var definition = Assert.Single(linkDefinitions);
+            Assert.Equal("title", definition.Title);
+            Assert.True(definition.Link.IsExternal);
+        }
+
+        [Fact]
         public void Add_DisplayLinks()
         {
             /* Given */
@@ -38,7 +56,6 @@ namespace Tanka.DocsTool.Tests.Navigation
             {
                 "[title](xref://nav.md)"
             };
-
 
             /* When */
             var linkDefinitions = _sut
