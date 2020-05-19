@@ -11,21 +11,30 @@ namespace Tanka.DocsTool.Catalogs
     public class ContentAggregator
     {
         private readonly IContentClassifier _contentClassifier;
-        private readonly IReadOnlyFileSystem[] _fileSystems;
+        private readonly IEnumerable<Directory> _directories;
 
         public ContentAggregator(
             IContentClassifier contentClassifier,
-            params IReadOnlyFileSystem[] fileSystems)
+            IEnumerable<Directory> directories)
         {
             _contentClassifier = contentClassifier;
-            _fileSystems = fileSystems;
+            _directories = directories;
+        }
+
+        public ContentAggregator(
+            IContentClassifier contentClassifier,
+            params Directory[] directories)
+        {
+            _contentClassifier = contentClassifier;
+            _directories = directories;
         }
 
         public async IAsyncEnumerable<ContentItem> Enumerate()
         {
             var queue = new Queue<Directory>();
 
-            foreach (var fileSystem in _fileSystems) queue.Enqueue(fileSystem.GetDirectory("."));
+            foreach (var fileSystem in _directories) 
+                queue.Enqueue(fileSystem);
 
             while (queue.Count > 0)
             {

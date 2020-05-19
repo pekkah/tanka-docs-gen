@@ -12,29 +12,32 @@ namespace Tanka.DocsTool.Tests.Catalogs
         {
             _fileSystem = Substitute.For<IFileSystem>();
             _classifier = Substitute.For<IContentClassifier>();
+
+            _directory = new Directory(_fileSystem, "");
+            _file = new File(_fileSystem, "file.md");
+            _fileSystem.GetDirectory("").Returns(_directory);
+            _fileSystem.EnumerateDirectory(_directory)
+                .Returns(Async.From(new[]
+                {
+                    _file
+                }));
+
             _sut = new ContentAggregator(
                 _classifier,
-                _fileSystem);
+                _directory);
         }
 
         private readonly IFileSystem _fileSystem;
         private readonly ContentAggregator _sut;
         private readonly IContentClassifier _classifier;
+        private Directory _directory;
+        private File _file;
 
         [Fact]
         public async Task Classify_ContentItems()
         {
             /* Given */
-            var directory = new Directory(_fileSystem, "");
-            var file = new File(_fileSystem, "file.md");
-            _fileSystem.GetDirectory(".").Returns(directory);
-            _fileSystem.EnumerateDirectory(directory)
-                .Returns(Async.From(new[]
-                {
-                    file
-                }));
-
-            _classifier.Classify(directory, file).Returns("text/markdown");
+            _classifier.Classify(_directory, _file).Returns("text/markdown");
 
             /* When */
             var actual = await Async.FromAsync(_sut.Enumerate());

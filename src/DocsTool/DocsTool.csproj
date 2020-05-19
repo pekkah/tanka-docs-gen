@@ -8,6 +8,14 @@
     <ToolCommandName>tanka-docs</ToolCommandName>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Markdig" Version="0.20.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="3.1.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="3.1.4" />
+    <PackageReference Include="MimeDb" Version="0.1.0" />
+    <PackageReference Include="NetEscapades.Configuration.Yaml" Version="1.6.0" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\FileSystem\FileSystem.csproj" />
   </ItemGroup>
 </Project>

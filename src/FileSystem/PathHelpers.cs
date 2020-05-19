@@ -8,6 +8,9 @@ namespace Tanka.FileSystem
         {
             var original = path.AsSpan();
 
+            if (original.IsEmpty)
+                return string.Empty;
+
             int start = 0;
 
             // if path starts with / or . remove it

@@ -1,16 +1,21 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
+using LibGit2Sharp;
 using Tanka.FileSystem.Git;
 using Xunit;
 
 namespace Tanka.FileSystem.Tests.Git
 {
-    public class GitFileSystemFacts
+    public class GitFileSystemFacts: IDisposable
     {
         public GitFileSystemFacts()
         {
-            RepoRoot = System.IO.Path.GetFullPath("../../../../../");  
+            RepoRoot = Repository.Discover(Environment.CurrentDirectory);
+            Repo = new Repository(RepoRoot);
         }
+
+        public Repository Repo { get; set; }
 
         public string RepoRoot { get; set; }
 
@@ -18,7 +23,7 @@ namespace Tanka.FileSystem.Tests.Git
         public async Task EnumerateRoot()
         {
             /* Given */
-            using var fs = new GitFileSystem(RepoRoot, "master");
+            var fs = new GitFileSystem(Repo);
             var canEnumerate = false;
             
             /* When */
@@ -35,7 +40,7 @@ namespace Tanka.FileSystem.Tests.Git
         public async Task Enumerate_known_folder()
         {
             /* Given */
-            using var fs = new GitFileSystem(RepoRoot, "master");
+            var fs = new GitFileSystem(Repo);
             var canEnumerate = false;
 
             /* When */
@@ -54,7 +59,7 @@ namespace Tanka.FileSystem.Tests.Git
         public void Open_file_for_reading()
         {
             /* Given */
-            using var fs = new GitFileSystem(RepoRoot, "master");
+            var fs = new GitFileSystem(Repo);
             var filename = "README.md";
 
             /* When */
@@ -66,6 +71,11 @@ namespace Tanka.FileSystem.Tests.Git
 
             /* Then */
             Assert.NotNull(contents);
+        }
+
+        public void Dispose()
+        {
+            Repo.Dispose();
         }
     }
 }

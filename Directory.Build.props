@@ -6,5 +6,6 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Nullable>enable</Nullable>
+    <Language>latest</Language>
   </PropertyGroup>
 </Project>
