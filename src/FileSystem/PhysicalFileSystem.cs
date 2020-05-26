@@ -1,62 +1,91 @@
 ﻿using System.Collections.Generic;
-using System.IO.Pipelines;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Tanka.FileSystem
 {
     public class PhysicalFileSystem : IFileSystem
     {
-        private string _root;
+        private readonly string _root;
 
         public PhysicalFileSystem(string root)
         {
             _root = root;
         }
 
-        public async IAsyncEnumerable<IFileSystemNode> EnumerateDirectory(Directory directory)
+        public ValueTask<IFile> GetOrCreateFile(Path path)
+        {
+            var fullPath = GetFullPath(path);
+            return new ValueTask<IFile>(new PhysicalFile(
+                path,
+                fullPath));
+        }
+
+        public ValueTask<IDirectory> GetOrCreateDirectory(Path path)
+        {
+            var fullPath = GetFullPath(path);
+            Directory.CreateDirectory(fullPath);
+
+            return new ValueTask<IDirectory>(
+                new PhysicalDirectory(
+                    this,
+                    path));
+        }
+
+        public ValueTask<IFileSystem> Mount(Path path)
+        {
+            var fullPath = GetFullPath(path);
+            return new ValueTask<IFileSystem>(new PhysicalFileSystem(fullPath));
+        }
+
+        public async ValueTask<IReadOnlyFile?> GetFile(Path path)
+        {
+            var fullPath = GetFullPath(path);
+            if (!File.Exists(fullPath))
+                return null;
+
+            return await GetOrCreateFile(path);
+        }
+
+        public async ValueTask<IReadOnlyDirectory?> GetDirectory(Path path)
+        {
+            var fullPath = GetFullPath(path);
+
+            if (!Directory.Exists(fullPath))
+                return null;
+
+            return await GetOrCreateDirectory(path);
+        }
+
+        public async IAsyncEnumerable<IFileSystemNode> Enumerate(Path path)
         {
             await Task.Yield();
-            var path = GetFullPath(directory.Path);
-            foreach (var entry in System.IO.Directory.EnumerateFiles(path))
-                yield return new File(this, System.IO.Path.GetRelativePath(_root, entry));
 
-            foreach (var entry in System.IO.Directory.EnumerateDirectories(path))
-                yield return new Directory(this, System.IO.Path.GetRelativePath(_root, entry));
+            var fullPath = GetFullPath(path);
+            foreach (var entry in Directory.EnumerateFiles(fullPath))
+                yield return new PhysicalFile(
+                    GetRelativePath(entry),
+                    entry);
+
+            foreach (var entry in Directory.EnumerateDirectories(fullPath))
+                yield return new PhysicalDirectory(
+                    this,
+                    GetRelativePath(entry));
         }
 
-        public IAsyncEnumerable<IFileSystemNode> EnumerateRoot()
+        protected Path GetRelativePath(in Path path)
         {
-            return EnumerateDirectory(new Directory(this, ""));
+            return System.IO.Path.GetRelativePath(_root, path);
         }
 
-        public PipeReader OpenRead(File file)
-        {
-            var fileStream = System.IO.File.OpenRead(GetFullPath(file.Path));
-            return PipeReader.Create(fileStream);
-        }
-
-        public PipeWriter OpenWrite(File file)
-        {
-            var fileStream = System.IO.File.OpenWrite(GetFullPath(file.Path));
-            return PipeWriter.Create(fileStream);
-        }
-
-        public Directory GetDirectory(Path path)
-        {
-            return new Directory(this, path);
-        }
-
-        public File GetFile(Path path)
-        {
-            return new File(this, path);
-        }
-
-        protected Path GetFullPath(Path path)
+        protected Path GetFullPath(in Path path)
         {
             if (path == "")
                 return _root;
 
-            return System.IO.Path.GetFullPath(path, _root);
+            var fullPath = System.IO.Path.GetFullPath(path, _root);
+
+            return fullPath;
         }
     }
 }

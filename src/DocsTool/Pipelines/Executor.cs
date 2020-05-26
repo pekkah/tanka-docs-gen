@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,20 +20,19 @@ namespace Tanka.DocsTool.Pipelines
             CurrentPath = currentPath;
             Site = site;
             FileSystem = new PhysicalFileSystem(CurrentPath);
-            BuildFileSystem = CreateFileSystem(currentPath, site.BuildPath);
-            GitFileSystem = new GitFileSystem(
-                GitFileSystem.DiscoverRepository(CurrentPath));
+            CacheFileSystem = CreateFileSystem(currentPath, site.BuildPath);
+            GitRoot = GitFileSystemRoot.Discover(CurrentPath);
         }
 
         public string CurrentPath { get; }
 
-        public IFileSystem BuildFileSystem { get; }
+        public IFileSystem CacheFileSystem { get; }
 
         public SiteDefinition Site { get; }
 
         public IFileSystem FileSystem { get; }
 
-        public GitFileSystem GitFileSystem { get; }
+        public GitFileSystemRoot GitRoot { get; }
 
         private static IFileSystem CreateFileSystem(string rootPath, string? inputPath)
         {
@@ -56,28 +56,16 @@ namespace Tanka.DocsTool.Pipelines
         public async Task Execute(CancellationToken cancellationToken = default)
         {
             /* Build catalog */
-            var sources = BuildSources();
             var aggregator = new ContentAggregator(
                 new MimeDbClassifier(),
-                sources);
+                FileSystem,
+                await CacheFileSystem.Mount("content"),
+                GitRoot,
+                Site);
 
             var catalog = new Catalog();
             await catalog.Add(aggregator.Enumerate(), cancellationToken);
         }
 
-        private IEnumerable<Directory> BuildSources()
-        {
-            foreach (var branch in Site.Branches.Keys)
-            {
-                // current working copy
-                if (branch == "__WIP__")
-                    yield return FileSystem.GetDirectory(Site.InputPath ?? "");
-                else 
-                    yield return GitFileSystem.Branch(branch)
-                    .GetDirectory(Site.InputPath ?? "");
-            }
-
-            //todo: tags
-        }
     }
 }

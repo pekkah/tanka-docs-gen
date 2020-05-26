@@ -1,23 +1,49 @@
 ﻿using System.Collections.Generic;
-using System.IO.Pipelines;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Tanka.FileSystem
 {
     public interface IReadOnlyFileSystem
     {
-        IAsyncEnumerable<IFileSystemNode> EnumerateDirectory(Directory directory);
+        public ValueTask<IReadOnlyFile?> GetFile(Path path);
 
-        IAsyncEnumerable<IFileSystemNode> EnumerateRoot();
+        public ValueTask<IReadOnlyDirectory?> GetDirectory(Path path);
 
-        PipeReader OpenRead(File file);
-
-        Directory GetDirectory(Path path);
-
-        File GetFile(Path path);
+        public IAsyncEnumerable<IFileSystemNode> Enumerate(Path path);
     }
 
-    public interface IFileSystem : IReadOnlyFileSystem
+    public interface IFileSystem: IReadOnlyFileSystem
     {
-        PipeWriter OpenWrite(File file);
+        public ValueTask<IFile> GetOrCreateFile(Path path);
+
+        public ValueTask<IDirectory> GetOrCreateDirectory(Path path);
+
+        public ValueTask<IFileSystem> Mount(Path path);
+
+    }
+
+    public interface IFile: IReadOnlyFile
+    {
+        ValueTask<Stream> OpenWrite();
+    }
+
+    public interface IReadOnlyFile : IFileSystemNode
+    {
+        ValueTask<Stream> OpenRead();
+    }
+
+    public interface IDirectory : IReadOnlyDirectory
+    {
+    }
+
+    public interface IReadOnlyDirectory : IFileSystemNode
+    {
+        IAsyncEnumerable<IFileSystemNode> Enumerate();
+    }
+
+    public interface IFileSystemNode
+    {
+        Path Path { get; }
     }
 }

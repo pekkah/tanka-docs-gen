@@ -6,7 +6,7 @@ namespace Tanka.DocsTool.Pipelines
 {
     public class MimeDbClassifier : IContentClassifier
     {
-        public string Classify(Directory directory, File file)
+        public string Classify(IReadOnlyFile file)
         {
             var path = file.Path.ToString();
 

@@ -9,10 +9,13 @@ namespace Tanka.FileSystem.Tests.Git
 {
     public class GitFileSystemFacts: IDisposable
     {
+        public readonly GitFileSystemRoot RootFs;
+
         public GitFileSystemFacts()
         {
             RepoRoot = Repository.Discover(Environment.CurrentDirectory);
             Repo = new Repository(RepoRoot);
+            RootFs = new GitFileSystemRoot(Repo);
         }
 
         public Repository Repo { get; set; }
@@ -23,11 +26,11 @@ namespace Tanka.FileSystem.Tests.Git
         public async Task EnumerateRoot()
         {
             /* Given */
-            var fs = new GitFileSystem(Repo);
+            var fs = RootFs.Head();
             var canEnumerate = false;
             
             /* When */
-            await foreach (var node in fs.EnumerateRoot())
+            await foreach (var node in fs.Enumerate(""))
             {
                 canEnumerate = true;
             }
@@ -40,12 +43,12 @@ namespace Tanka.FileSystem.Tests.Git
         public async Task Enumerate_known_folder()
         {
             /* Given */
-            var fs = new GitFileSystem(Repo);
+            var fs = RootFs.Head();
             var canEnumerate = false;
 
             /* When */
-            var docsDir = fs.GetDirectory("docs");
-            await foreach (var node in docsDir.Enumerate())
+            var docsDir = await fs.GetDirectory("docs");
+            await foreach (var node in docsDir!.Enumerate())
             {
                 Assert.StartsWith("docs/", node.Path);
                 canEnumerate = true;
@@ -56,18 +59,16 @@ namespace Tanka.FileSystem.Tests.Git
         }
 
         [Fact]
-        public void Open_file_for_reading()
+        public async Task Open_file_for_reading()
         {
             /* Given */
-            var fs = new GitFileSystem(Repo);
+            var fs = RootFs.Head();
             var filename = "README.md";
 
             /* When */
-            var file = fs.GetFile(filename);
-            var reader = file.OpenRead();
-            using var streamReader = new StreamReader(reader.AsStream());
-            var contents = streamReader.ReadToEnd();
-            reader.Complete();
+            var file = await fs.GetFile(filename);
+            using var streamReader = new StreamReader(await file.OpenRead());
+            var contents = await streamReader.ReadToEndAsync();
 
             /* Then */
             Assert.NotNull(contents);

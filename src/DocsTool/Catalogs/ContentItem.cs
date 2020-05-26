@@ -4,17 +4,20 @@ namespace Tanka.DocsTool.Catalogs
 {
     public class ContentItem
     {
-        public ContentItem(Directory directory, File file, string type)
+        public ContentItem(IReadOnlyDirectory directory, IReadOnlyFile file, string type, string version)
         {
             Directory = directory;
             File = file;
             Type = type;
+            Version = version;
         }
 
         public string Type { get; }
 
-        public File File { get; }
+        public string Version { get; }
 
-        public Directory Directory { get; }
+        public IReadOnlyFile File { get; }
+
+        public IReadOnlyDirectory Directory { get; }
     }
 }
