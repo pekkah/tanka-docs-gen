@@ -1,8 +1,7 @@
 ﻿using MimeDb;
-using Tanka.DocsTool.Catalogs;
 using Tanka.FileSystem;
 
-namespace Tanka.DocsTool.Pipelines
+namespace Tanka.DocsTool.Catalogs
 {
     public class MimeDbClassifier : IContentClassifier
     {
@@ -29,8 +28,6 @@ namespace Tanka.DocsTool.Pipelines
         {
             return (filename, extension) switch
             {
-                ("tanka-docs", ".yml") => ContentTypes.SiteDefinition,
-                ("tanka-docs-section", ".yml") => ContentTypes.SectionDefinition,
                 _ => null
             };
         }

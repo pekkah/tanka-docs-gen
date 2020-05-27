@@ -9,5 +9,7 @@
         public const string SiteDefinition = "tanka-docs/site";
 
         public const string Unknown = "unknown";
+
+        public const string TextYaml = "text/yaml";
     }
 }

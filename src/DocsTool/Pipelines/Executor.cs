@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Tanka.DocsTool.Catalogs;
 using Tanka.DocsTool.Definitions;
+using Tanka.DocsTool.Navigation;
 using Tanka.FileSystem;
 using Tanka.FileSystem.Git;
+using YamlDotNet.Core;
+using YamlDotNet.Core.Events;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 using Path = System.IO.Path;
 
 namespace Tanka.DocsTool.Pipelines
@@ -55,17 +61,96 @@ namespace Tanka.DocsTool.Pipelines
 
         public async Task Execute(CancellationToken cancellationToken = default)
         {
+            var contentCache  = await CacheFileSystem.Mount("content");
+            var pageHtmlCache = await CacheFileSystem.Mount("content-html");
+
             /* Build catalog */
             var aggregator = new ContentAggregator(
                 new MimeDbClassifier(),
                 FileSystem,
-                await CacheFileSystem.Mount("content"),
+                contentCache,
                 GitRoot,
                 Site);
 
             var catalog = new Catalog();
             await catalog.Add(aggregator.Enumerate(), cancellationToken);
+
+            var yamlFiles = catalog
+                .GetCollection(ContentTypes.TextYaml);
+
+            // get sections
+            var sectionDefinitions = new Dictionary<string, SectionDefinition>();
+            foreach (var yamlFile in yamlFiles)
+            {
+                if (yamlFile.File.Path.GetFileName().ToString().StartsWith("tanka-docs-section"))
+                {
+                    var sectionDefinition = await yamlFile
+                        .ParseYaml<SectionDefinition>();
+
+                    sectionDefinitions.Add(sectionDefinition.Id, sectionDefinition);
+                }
+            }
+
+            // quickly exit if no index section
+            if (!Site.IndexSection.IsXref)
+            {
+                throw new InvalidOperationException(
+                    $"Could not find index section: '{Site.IndexSection}'. " +
+                    "Index section must be an xref.");
+            }
+
+            var indexSectionId = Site.IndexSection.Xref?.SectionId;
+
+            if (string.IsNullOrEmpty(indexSectionId) || !sectionDefinitions.ContainsKey(indexSectionId))
+            {
+                throw new InvalidOperationException(
+                    $"Could not find index section: '{Site.IndexSection}'. " +
+                    "Check your site definition.");
+            }
+            
+
         }
 
+    }
+
+    public static class YamlExtensions
+    {
+        private static readonly IDeserializer Deserializer = new DeserializerBuilder()
+            .WithNamingConvention(UnderscoredNamingConvention.Instance)
+            .WithTypeConverter(new LinkConverter())
+            .Build();
+
+        public static async ValueTask<T> ParseYaml<T>(this ContentItem item)
+        {
+            await using var stream = await item.File.OpenRead();
+            using var reader = new StreamReader(stream);
+
+            return Deserializer.Deserialize<T>(reader);
+        }
+    }
+
+    internal class LinkConverter: IYamlTypeConverter
+    {
+        public bool Accepts(Type type)
+        {
+            return type == typeof(Link) || type == typeof(Link?);
+        }
+
+        public object? ReadYaml(IParser parser, Type type)
+        {
+            // should be string
+            var value = parser.Consume<Scalar>().Value;
+
+            if (string.IsNullOrEmpty(value))
+                return null;
+
+            var link = LinkParser.Parse(value);
+            return link;
+        }
+
+        public void WriteYaml(IEmitter emitter, object? value, Type type)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
