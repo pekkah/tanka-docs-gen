@@ -23,6 +23,7 @@ namespace Tanka.DocsTool.Navigation
             /* https://uri.invalid */
             /* xref://page.md */
             /* xref://section:page.md */
+            /* xref://section-id@releases/1.0.0:path/to/file.md */
             var indexOfClose = Unread.Length;
 
             var span = Unread.Slice(0, indexOfClose);

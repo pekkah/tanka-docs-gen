@@ -24,4 +24,8 @@
     <ProjectReference Include="..\..\src\FileSystem\FileSystem.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Catalogs\" />
+  </ItemGroup>
+
 </Project>

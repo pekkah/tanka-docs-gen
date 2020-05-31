@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using LibGit2Sharp;
 
@@ -8,22 +7,28 @@ namespace Tanka.FileSystem.Git
 {
     public class GitBranchFileSystem : IReadOnlyFileSystem
     {
-        private readonly Branch _branch;
-        private readonly Repository _repo;
+        public Branch Branch { get; }
+        public Repository Repo { get; }
+
+        public string FriendlyName => Branch.FriendlyName;
+
+        public string Sha => Branch.Tip.Sha;
+
+        public string Author => Branch.Tip.Author.Name;
 
         public GitBranchFileSystem(Repository repository, Branch branch)
         {
-            _repo = repository;
-            _branch = branch;
+            Repo = repository;
+            Branch = branch;
 
-            if (_branch == null)
+            if (Branch == null)
                 throw new ArgumentOutOfRangeException(
-                    $"Branch '{branch}' does not exists in repository: {_repo.Info.Path}");
+                    $"Branch '{branch}' does not exists in repository: {Repo.Info.Path}");
         }
 
         public ValueTask<IReadOnlyFile?> GetFile(Path path)
         {
-            var entry = _branch[path];
+            var entry = Branch[path];
             if (entry.TargetType != TreeEntryTargetType.Blob)
                 throw new InvalidOperationException(
                     $"Tree '{entry.Target.Id}' at path '{path}' is not a blob");
@@ -42,12 +47,12 @@ namespace Tanka.FileSystem.Git
 
             if (string.IsNullOrEmpty(gitPath))
             {
-                foreach (var entry in _branch.Tip.Tree) queue.Enqueue(entry);
+                foreach (var entry in Branch.Tip.Tree) queue.Enqueue(entry);
             }
             else
             {
-                var treeEntry = _branch.Tip.Tree[gitPath];
-                var tree = _repo.Lookup<Tree>(treeEntry.Target.Id);
+                var treeEntry = Branch.Tip.Tree[gitPath];
+                var tree = Repo.Lookup<Tree>(treeEntry.Target.Id);
 
                 foreach (var entry in tree) queue.Enqueue(entry);
             }
@@ -59,7 +64,7 @@ namespace Tanka.FileSystem.Git
                 switch (entry.TargetType)
                 {
                     case TreeEntryTargetType.Tree:
-                        var tree = _repo.Lookup<Tree>(entry.Target.Id);
+                        var tree = Repo.Lookup<Tree>(entry.Target.Id);
                         yield return new GitDirectory(this, gitPath / entry.Path, tree);
                         break;
                     case TreeEntryTargetType.Blob:
@@ -79,15 +84,15 @@ namespace Tanka.FileSystem.Git
             Tree tree;
             if (!string.IsNullOrEmpty(gitPath))
             {
-                var treeEntry = _branch.Tip.Tree[gitPath];
-                tree = _repo.Lookup<Tree>(treeEntry.Target.Id);
+                var treeEntry = Branch.Tip.Tree[gitPath];
+                tree = Repo.Lookup<Tree>(treeEntry.Target.Id);
 
                 if (treeEntry == null || treeEntry.TargetType != TreeEntryTargetType.Tree)
                     return new ValueTask<IReadOnlyDirectory?>(default(IReadOnlyDirectory?));
             }
             else
             {
-                tree = _branch.Tip.Tree;
+                tree = Branch.Tip.Tree;
             }
 
             return new ValueTask<IReadOnlyDirectory?>(
@@ -100,48 +105,6 @@ namespace Tanka.FileSystem.Git
                 return "";
 
             return path;
-        }
-    }
-
-    internal class GitDirectory : IReadOnlyDirectory
-    {
-        private readonly GitBranchFileSystem _fileSystem;
-
-        public GitDirectory(GitBranchFileSystem fileSystem, in Path path, Tree tree)
-        {
-            Path = path;
-            Tree = tree;
-            _fileSystem = fileSystem;
-        }
-
-        public Tree Tree { get; }
-
-        public Path Path { get; }
-
-        public IAsyncEnumerable<IFileSystemNode> Enumerate()
-        {
-            return _fileSystem.Enumerate(Path);
-        }
-    }
-
-    internal class GitFile : IReadOnlyFile
-    {
-        private readonly Blob _blob;
-
-        public GitFile(in Path path, TreeEntry entry, Blob blob)
-        {
-            _blob = blob;
-            Path = path;
-            Entry = entry;
-        }
-
-        public TreeEntry Entry { get; }
-
-        public Path Path { get; }
-
-        public ValueTask<Stream> OpenRead()
-        {
-            return new ValueTask<Stream>(_blob.GetContentStream());
         }
     }
 }

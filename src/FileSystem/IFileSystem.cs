@@ -45,5 +45,7 @@ namespace Tanka.FileSystem
     public interface IFileSystemNode
     {
         Path Path { get; }
+
+        //public IReadOnlyDictionary<string, string> Metadata { get; }
     }
 }

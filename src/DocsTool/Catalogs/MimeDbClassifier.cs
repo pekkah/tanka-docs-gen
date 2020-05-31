@@ -21,7 +21,7 @@ namespace Tanka.DocsTool.Catalogs
             // mime-db lookup
             if (MimeType.TryGet(extension, out var mimeType)) return mimeType.Type;
 
-            return ContentTypes.Unknown;
+            return "__unknown";
         }
 
         public string? GetBuiltIn(string filename, string extension)

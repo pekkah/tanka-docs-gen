@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
+using DotNet.Globbing;
+using LibGit2Sharp;
 using Tanka.DocsTool.Definitions;
 using Tanka.FileSystem;
 using Tanka.FileSystem.Git;
@@ -9,109 +13,105 @@ namespace Tanka.DocsTool.Catalogs
 {
     public class ContentAggregator
     {
-        private readonly IFileSystem _cache;
-        private readonly IContentClassifier _contentClassifier;
-        private readonly IReadOnlyFileSystem _currentFolder;
-        private readonly GitFileSystemRoot _git;
         private readonly SiteDefinition _site;
+        private readonly GitFileSystemRoot _git;
+        private readonly IFileSystem _workFileSystem;
+        private readonly IContentClassifier _classifier;
 
         public ContentAggregator(
-            IContentClassifier contentClassifier,
-            IReadOnlyFileSystem currentFolder,
-            IFileSystem cache,
+            SiteDefinition site,
             GitFileSystemRoot git,
-            SiteDefinition site)
+            IFileSystem workFileSystem,
+            IContentClassifier classifier)
         {
-            _contentClassifier = contentClassifier;
-            _currentFolder = currentFolder;
-            _cache = cache;
-            _git = git;
             _site = site;
+            _git = git;
+            _workFileSystem = workFileSystem;
+            _classifier = classifier;
         }
 
-        public async IAsyncEnumerable<ContentItem> Enumerate()
+        public async IAsyncEnumerable<ContentItem> Aggregate(
+            [EnumeratorCancellation]CancellationToken cancellationToken)
         {
-            var queue = new Queue<(string SourceName, IReadOnlyDirectory Root)>();
+            var stack = new Stack<IFileSystemNode>();
 
-            await foreach (var source in BuildSources())
-                queue.Enqueue(source);
-
-            while (queue.Count > 0)
+            await foreach (var source in BuildSources(cancellationToken))
             {
-                var source = queue.Dequeue();
-                var (name, root) = source;
+                await foreach(var node in source.Enumerate(cancellationToken))
+                    stack.Push(node);
 
-                await foreach (var node in root.Enumerate())
+                while (stack.Count > 0)
+                {
+                    var node = stack.Pop();
+
                     switch (node)
                     {
-                        case IReadOnlyDirectory subDirectory:
-                            queue.Enqueue((name, subDirectory));
-                            break;
                         case IReadOnlyFile file:
-                            yield return await CreateContentItem(name, root, file);
+                            yield return await CreateContentItem(source, file);
                             break;
-                    }
-            }
-        }
-
-        private async IAsyncEnumerable<(string SourceName, IReadOnlyDirectory Root)> BuildSources()
-        {
-            if (_site.Branches != null)
-            {
-                foreach (var branchDefinition in _site.Branches)
-                {
-                    // current working copy
-                    if (branchDefinition.Key == "__WIP__")
-                    {
-                        var dir = await _currentFolder
-                            .GetDirectory(_site.InputPath ?? "");
-
-                        if (dir == null)
-                            continue;
-
-                        yield return (branchDefinition.Key, dir);
-                    }
-                    else
-                    {
-                        var branch = _git
-                            .Branch(branchDefinition.Key);
-
-                        var dir = await branch
-                            .GetDirectory(_site.InputPath ?? "");
-
-                        if (dir == null)
-                            continue;
-
-                        yield return (branchDefinition.Key, dir);
+                        case IReadOnlyDirectory dir:
+                            await foreach (var subNode in dir.Enumerate()
+                                .WithCancellation(cancellationToken))
+                            {
+                                stack.Push(subNode);
+                            }
+                            break;
                     }
                 }
             }
-
-            //todo: tags
         }
 
-        private async Task<ContentItem> CreateContentItem(
-            string sourceName,
-            IReadOnlyDirectory directory,
-            IReadOnlyFile file)
+        private async Task<ContentItem> CreateContentItem(IContentSource source, IReadOnlyFile file)
         {
-            var targetDirectoryPath = sourceName / directory.Path;
-            var filePath = file.Path;
+            await Task.Yield(); //todo: do we do caching here or at build sources
+            var type = _classifier.Classify(file);
 
-            var cacheDirectory = await _cache
-                .GetOrCreateDirectory(targetDirectoryPath);
+            return new ContentItem(source, type, file);
+        }
 
-            await using var sourceStream = await file.OpenRead();
+        private async IAsyncEnumerable<IContentSource> BuildSources(
+            [EnumeratorCancellation] CancellationToken cancellationToken)
+        {
+            var branches = _site.Branches;
+            var tags = _site.Tags;
 
-            // copy to cache
-            var cachedFile = await _cache.GetOrCreateFile(sourceName / filePath);
-            await using var targetStream = await cachedFile.OpenWrite();
-            await sourceStream.CopyToAsync(targetStream);
+            var commonInputPath = _site.InputPath ?? "docs";
 
-            // classify
-            var type = _contentClassifier.Classify(file);
+            foreach (var branch in branches)
+            {
+                if (branch.Key == "HEAD")
+                {
+                    var status = _git.Repo.RetrieveStatus();
 
-            return new ContentItem(cacheDirectory, cachedFile, type, sourceName);
+                    // If we have changes then we actually use the current folder
+                    // as the source of the truth
+                    if (status.IsDirty)
+                    {
+                        yield return new FileSystemContentSource(
+                            await _workFileSystem.Mount(commonInputPath),
+                            "HEAD",
+                            ""); // we're mounting the input path
+                    }
+                    else
+                    {
+                        yield return new GitBranchContentSource(_git.Head(), commonInputPath);
+                    }
+
+                    continue;
+                }
+
+                // use globbing to find matching branches
+                var glob = Glob.Parse(branch.Key);
+                foreach (var repoBranch in _git.Repo.Branches)
+                {
+                    if (glob.IsMatch(repoBranch.FriendlyName))
+                    {
+                        yield return new GitBranchContentSource(
+                            _git.Branch(repoBranch.CanonicalName),
+                            commonInputPath);
+                    }
+                }
+            }
         }
     }
 }

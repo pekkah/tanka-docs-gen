@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,10 +8,6 @@ using Tanka.DocsTool.Definitions;
 using Tanka.DocsTool.Navigation;
 using Tanka.FileSystem;
 using Tanka.FileSystem.Git;
-using YamlDotNet.Core;
-using YamlDotNet.Core.Events;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 using Path = System.IO.Path;
 
 namespace Tanka.DocsTool.Pipelines
@@ -62,34 +57,7 @@ namespace Tanka.DocsTool.Pipelines
         public async Task Execute(CancellationToken cancellationToken = default)
         {
             var contentCache  = await CacheFileSystem.Mount("content");
-            var pageHtmlCache = await CacheFileSystem.Mount("content-html");
-
-            /* Build catalog */
-            var aggregator = new ContentAggregator(
-                new MimeDbClassifier(),
-                FileSystem,
-                contentCache,
-                GitRoot,
-                Site);
-
-            var catalog = new Catalog();
-            await catalog.Add(aggregator.Enumerate(), cancellationToken);
-
-            var yamlFiles = catalog
-                .GetCollection(ContentTypes.TextYaml);
-
-            // get sections
-            var sectionDefinitions = new Dictionary<string, SectionDefinition>();
-            foreach (var yamlFile in yamlFiles)
-            {
-                if (yamlFile.File.Path.GetFileName().ToString().StartsWith("tanka-docs-section"))
-                {
-                    var sectionDefinition = await yamlFile
-                        .ParseYaml<SectionDefinition>();
-
-                    sectionDefinitions.Add(sectionDefinition.Id, sectionDefinition);
-                }
-            }
+            var pageHtmlCache = await CacheFileSystem.Mount("content-html"); 
 
             // quickly exit if no index section
             if (!Site.IndexSection.IsXref)
@@ -99,58 +67,43 @@ namespace Tanka.DocsTool.Pipelines
                     "Index section must be an xref.");
             }
 
-            var indexSectionId = Site.IndexSection.Xref?.SectionId;
+            var aggregator = new ContentAggregator(
+                Site,
+                GitRoot,
+                FileSystem,
+                new MimeDbClassifier());
 
-            if (string.IsNullOrEmpty(indexSectionId) || !sectionDefinitions.ContainsKey(indexSectionId))
+            await foreach (var contentItem in aggregator.Aggregate(cancellationToken))
             {
-                throw new InvalidOperationException(
-                    $"Could not find index section: '{Site.IndexSection}'. " +
-                    "Check your site definition.");
+
             }
-            
 
         }
 
-    }
-
-    public static class YamlExtensions
-    {
-        private static readonly IDeserializer Deserializer = new DeserializerBuilder()
-            .WithNamingConvention(UnderscoredNamingConvention.Instance)
-            .WithTypeConverter(new LinkConverter())
-            .Build();
-
-        public static async ValueTask<T> ParseYaml<T>(this ContentItem item)
+        private Task<SiteModel> BuildSite(IReadOnlyDictionary<string, SectionDefinition> sectionDefinitions)
         {
-            await using var stream = await item.File.OpenRead();
-            using var reader = new StreamReader(stream);
+            return null;
+        }
 
-            return Deserializer.Deserialize<T>(reader);
+        private IAsyncEnumerable<SectionModel> BuildSections(IReadOnlyDictionary<string, SectionDefinition> sectionDefinitions)
+        {
+            return null;
         }
     }
 
-    internal class LinkConverter: IYamlTypeConverter
+    public class SiteModel
     {
-        public bool Accepts(Type type)
-        {
-            return type == typeof(Link) || type == typeof(Link?);
-        }
+        public SiteDefinition Definition { get; set; }
 
-        public object? ReadYaml(IParser parser, Type type)
-        {
-            // should be string
-            var value = parser.Consume<Scalar>().Value;
+        public SectionModel Index { get; set; }
+    }
 
-            if (string.IsNullOrEmpty(value))
-                return null;
+    public class SectionModel
+    {
+        public SectionDefinition Definition { get;  }
 
-            var link = LinkParser.Parse(value);
-            return link;
-        }
+        public NavigationItem[] Navigation { get; }
 
-        public void WriteYaml(IEmitter emitter, object? value, Type type)
-        {
-            throw new NotImplementedException();
-        }
+        //private IReadOnlyDictionary<string, ContentItem> PageFiles { get; }
     }
 }

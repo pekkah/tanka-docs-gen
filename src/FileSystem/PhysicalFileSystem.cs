@@ -29,7 +29,8 @@ namespace Tanka.FileSystem
             return new ValueTask<IDirectory>(
                 new PhysicalDirectory(
                     this,
-                    path));
+                    path,
+                    fullPath));
         }
 
         public ValueTask<IFileSystem> Mount(Path path)
@@ -70,7 +71,8 @@ namespace Tanka.FileSystem
             foreach (var entry in Directory.EnumerateDirectories(fullPath))
                 yield return new PhysicalDirectory(
                     this,
-                    GetRelativePath(entry));
+                    GetRelativePath(entry),
+                    entry);
         }
 
         protected Path GetRelativePath(in Path path)
