@@ -1,2 +1,2 @@
-- [Index](index.md)
-- [Usage](xref:usage:1-usage.md)
+- [Index](xref://index.md)
+- [Usage](xref://usage:1-usage.md)

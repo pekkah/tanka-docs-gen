@@ -104,7 +104,7 @@ namespace Tanka.DocsTool.Catalogs
                 var glob = Glob.Parse(branch.Key);
                 foreach (var repoBranch in _git.Repo.Branches)
                 {
-                    if (glob.IsMatch(repoBranch.FriendlyName))
+                    if (glob.IsMatch(repoBranch.FriendlyName) || glob.IsMatch(repoBranch.CanonicalName))
                     {
                         yield return new GitBranchContentSource(
                             _git.Branch(repoBranch.CanonicalName),

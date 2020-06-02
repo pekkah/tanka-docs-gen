@@ -25,5 +25,13 @@
         public bool IsXref { get; }
 
         public bool IsExternal { get; }
+
+        public override string ToString()
+        {
+            if (IsXref)
+                return Xref.ToString() ?? string.Empty;
+
+            return Uri ?? string.Empty;
+        }
     }
 }

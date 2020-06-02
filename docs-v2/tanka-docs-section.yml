@@ -1,5 +1,5 @@
 ﻿id: root
 title: Index
-index_page: xref://:index.md
+index_page: xref://index.md
 nav:
-  - xref://:nav.md
+  - xref://nav.md

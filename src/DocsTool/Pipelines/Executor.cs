@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading;
 using System.Threading.Tasks;
+using Markdig.Syntax.Inlines;
 using Tanka.DocsTool.Catalogs;
 using Tanka.DocsTool.Definitions;
 using Tanka.DocsTool.Navigation;
@@ -73,21 +76,66 @@ namespace Tanka.DocsTool.Pipelines
                 FileSystem,
                 new MimeDbClassifier());
 
-            await foreach (var contentItem in aggregator.Aggregate(cancellationToken))
-            {
+            var catalog = new Catalog();
+            await catalog.Add(aggregator.Aggregate(cancellationToken), cancellationToken);
 
+
+            var siteModel = await BuildSite(catalog);
+
+        }
+
+        private async Task<SiteModel> BuildSite(Catalog catalog)
+        {
+            var sections = new Dictionary<string, Dictionary<string, SectionModel>>();
+            await foreach (var section in BuildSections(catalog))
+            {
+                if (!sections.ContainsKey(section.Version))
+                    sections[section.Version] = new Dictionary<string, SectionModel>(1);
+
+                sections[section.Version].Add(section.Definition.Id, section);
             }
 
+            return new SiteModel();
         }
 
-        private Task<SiteModel> BuildSite(IReadOnlyDictionary<string, SectionDefinition> sectionDefinitions)
+        private async IAsyncEnumerable<SectionModel> BuildSections(Catalog catalog)
         {
-            return null;
+            foreach (var version in catalog.GetVersions())
+            {
+                var sectionDefinitions = await Task.WhenAll<SectionDefinition>(catalog
+                    .GetContentItems(version, "text/yaml", "tanka-docs-section.*")
+                    .Select(ci => ci.ParseYaml<SectionDefinition>()));
+
+                foreach (var sectionDefinition in sectionDefinitions)
+                {
+                    var sectionNavigation = await BuildSectionNavigation(
+                        sectionDefinition,
+                        version,
+                        catalog);
+
+                    yield return new SectionModel(version, sectionDefinition, sectionNavigation, new ContentItem[0]);
+                }
+            }
         }
 
-        private IAsyncEnumerable<SectionModel> BuildSections(IReadOnlyDictionary<string, SectionDefinition> sectionDefinitions)
+        private async Task<IReadOnlyCollection<NavigationItem>> BuildSectionNavigation(
+            SectionDefinition sectionDefinition,
+            string version,
+            Catalog catalog)
         {
-            return null;
+            //todo: allow referencing other nav docs in difference versions
+            var navContentItems = sectionDefinition.Nav
+                .Where(link => link.IsXref)
+                .Select(link => catalog.GetContentItem(version, "text/markdown", link.Xref!.Value.Path) ?? throw new InvalidOperationException(
+                    $"Could not find text/markdown ContentItem for xref '{link.Xref}"));
+
+            /* Load nav files as markdown ast */
+            var navDocuments = await Task.WhenAll(navContentItems.Select(ci => ci.ParseMarkdown()));
+
+            /* Validate each document has a unordered list or lists */
+            IReadOnlyCollection<NavigationItem> navItems = NavigationBuilder.Build(navDocuments);
+
+            return navItems;
         }
     }
 
@@ -100,9 +148,18 @@ namespace Tanka.DocsTool.Pipelines
 
     public class SectionModel
     {
+        public SectionModel(string version, SectionDefinition definition, IReadOnlyCollection<NavigationItem> navigation, IReadOnlyCollection<ContentItem> pages)
+        {
+            Version = version;
+            Definition = definition;
+            Navigation = navigation;
+        }
+
+        public string Version { get; }
+
         public SectionDefinition Definition { get;  }
 
-        public NavigationItem[] Navigation { get; }
+        public IReadOnlyCollection<NavigationItem> Navigation { get; }
 
         //private IReadOnlyDictionary<string, ContentItem> PageFiles { get; }
     }

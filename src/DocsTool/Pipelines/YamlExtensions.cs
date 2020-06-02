@@ -17,14 +17,14 @@ namespace Tanka.DocsTool.Pipelines
             .WithTypeConverter(new LinkConverter())
             .Build();
 
-       /* public static async ValueTask<T> ParseYaml<T>(this ContentItem item)
+        public static async Task<T> ParseYaml<T>(this ContentItem item)
         {
             await using var stream = await item.File.OpenRead();
             using var reader = new StreamReader(stream);
 
             return Deserializer.Deserialize<T>(reader);
         }
-        */
+
 
         internal class LinkConverter : IYamlTypeConverter
         {

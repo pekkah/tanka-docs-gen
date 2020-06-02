@@ -12,5 +12,13 @@
         public string? Title { get; }
 
         public Link Link { get; }
+
+        public override string ToString()
+        {
+            if (string.IsNullOrEmpty(Title))
+                return $"{Link}";
+
+            return $"[{Title}]({Link})";
+        }
     }
 }
