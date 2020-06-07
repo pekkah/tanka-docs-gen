@@ -9,6 +9,7 @@ using Markdig.Syntax.Inlines;
 using Tanka.DocsTool.Catalogs;
 using Tanka.DocsTool.Definitions;
 using Tanka.DocsTool.Navigation;
+using Tanka.DocsTool.UI;
 using Tanka.FileSystem;
 using Tanka.FileSystem.Git;
 using Path = System.IO.Path;
@@ -59,8 +60,8 @@ namespace Tanka.DocsTool.Pipelines
 
         public async Task Execute(CancellationToken cancellationToken = default)
         {
-            var contentCache  = await CacheFileSystem.Mount("content");
-            var pageHtmlCache = await CacheFileSystem.Mount("content-html"); 
+            RawCache = await CacheFileSystem.Mount("content");
+            PageCache = await CacheFileSystem.Mount("content-html");
 
             // quickly exit if no index section
             if (!Site.IndexSection.IsXref)
@@ -77,24 +78,42 @@ namespace Tanka.DocsTool.Pipelines
                 new MimeDbClassifier());
 
             var catalog = new Catalog();
-            await catalog.Add(aggregator.Aggregate(cancellationToken), cancellationToken);
 
+            /* Add content */
+            await catalog.Add(aggregator.Aggregate(cancellationToken), cancellationToken);
 
             var siteModel = await BuildSite(catalog);
 
         }
 
+        public IFileSystem PageCache { get; set; }
+
+        public IFileSystem RawCache { get; set; }
+
         private async Task<SiteModel> BuildSite(Catalog catalog)
         {
-            var sections = new Dictionary<string, Dictionary<string, SectionModel>>();
+            /* Build sections */
+            var versions = new Dictionary<string, Dictionary<string, SectionModel>>();
             await foreach (var section in BuildSections(catalog))
             {
-                if (!sections.ContainsKey(section.Version))
-                    sections[section.Version] = new Dictionary<string, SectionModel>(1);
+                if (!versions.ContainsKey(section.Version))
+                    versions[section.Version] = new Dictionary<string, SectionModel>(1);
 
-                sections[section.Version].Add(section.Definition.Id, section);
+                versions[section.Version].Add(section.Definition.Id, section);
             }
 
+            /* Router service */
+            var router = new Router();
+
+            /* Build section pages */
+            foreach (var (version, sections) in versions)
+            {
+                foreach (var (id, section) in sections)
+                {
+                    
+                }
+            }
+ 
             return new SiteModel();
         }
 
@@ -102,20 +121,88 @@ namespace Tanka.DocsTool.Pipelines
         {
             foreach (var version in catalog.GetVersions())
             {
-                var sectionDefinitions = await Task.WhenAll<SectionDefinition>(catalog
-                    .GetContentItems(version, "text/yaml", "tanka-docs-section.*")
-                    .Select(ci => ci.ParseYaml<SectionDefinition>()));
+                var sectionDefinitionItems = catalog
+                    .GetContentItems(version, "text/yaml", "**tanka-docs-section.*");
 
-                foreach (var sectionDefinition in sectionDefinitions)
+                foreach (var sectionDefinitionItem in sectionDefinitionItems)
                 {
+                    var sectionDefinition = await sectionDefinitionItem.ParseYaml<SectionDefinition>();
+
                     var sectionNavigation = await BuildSectionNavigation(
                         sectionDefinition,
                         version,
                         catalog);
 
-                    yield return new SectionModel(version, sectionDefinition, sectionNavigation, new ContentItem[0]);
+                    var sectionDefinitionPath = sectionDefinitionItem.File.Path;
+                    var sectionDefinitionDirectory = sectionDefinitionPath
+                        .GetDirectoryPath();
+
+                    var markdownItems = GetSectionMarkdownItems(
+                        catalog, 
+                        version,
+                        sectionDefinitionDirectory);
+
+
+                    yield return new SectionModel(
+                        version, 
+                        sectionDefinition, 
+                        sectionNavigation, 
+                        markdownItems);
                 }
             }
+        }
+
+        private static List<ContentItem> GetSectionMarkdownItems(
+            Catalog catalog, 
+            string version,
+            FileSystem.Path sectionDefinitionDirectory)
+        {
+            FileSystem.Path markdownPattern = $"{sectionDefinitionDirectory}/**/*.md";
+            var markdownItems = catalog
+                .GetContentItems(
+                    version,
+                    "text/markdown",
+                    markdownPattern)
+                .Where(item =>
+                {
+                    //todo: exclusions
+                    if (item.File.Path.GetFileName() == "nav.md")
+                        return false;
+
+                    if (item.Name == "index.md")
+                    {
+                    }
+
+                    // exclude folders with section definitions
+                    var itemPath = item.File.Path.GetDirectoryPath();
+                    var relativeItemPath = itemPath.GetRelative(sectionDefinitionDirectory);
+                    var relativePathSegments = relativeItemPath
+                        .EnumerateSegments()
+                        .ToList();
+
+                    var possibleLocations = new List<FileSystem.Path>();
+                    var temp = string.Empty;
+                    foreach (var relativePathSegment in relativePathSegments)
+                    {
+                        temp += relativePathSegment;
+                        possibleLocations.Add(sectionDefinitionDirectory / temp / "tanka-docs-section.yml");
+                    }
+
+                    // include items in same folder as the section definition
+                    if (itemPath == sectionDefinitionDirectory)
+                        return true;
+
+                    if (catalog.GetContentItems(
+                        version,
+                        "text/yaml",
+                        possibleLocations).Any())
+                    {
+                        return false;
+                    }
+
+                    return true;
+                }).ToList();
+            return markdownItems;
         }
 
         private async Task<IReadOnlyCollection<NavigationItem>> BuildSectionNavigation(
@@ -132,7 +219,7 @@ namespace Tanka.DocsTool.Pipelines
             /* Load nav files as markdown ast */
             var navDocuments = await Task.WhenAll(navContentItems.Select(ci => ci.ParseMarkdown()));
 
-            /* Validate each document has a unordered list or lists */
+            /* Build navigation items */
             IReadOnlyCollection<NavigationItem> navItems = NavigationBuilder.Build(navDocuments);
 
             return navItems;

@@ -31,6 +31,7 @@ namespace Tanka.DocsTool.Navigation
             // xref | http | https | etc
             string uriOrPath;
             string? sectionId = null;
+            string? version = null;
             var scheme = ParseScheme();
 
             if (IsXref(scheme))
@@ -43,10 +44,25 @@ namespace Tanka.DocsTool.Navigation
 
                 if (indexOfSectionIdSeparator != -1)
                 {
-                    sectionId = maybeSectionIdAndPath.Slice(0, indexOfSectionIdSeparator)
-                        .ToString();
+                    var sectionSpan = maybeSectionIdAndPath.Slice(0, indexOfSectionIdSeparator);
 
-                    uriOrPath = maybeSectionIdAndPath.Slice(sectionId.Length + 1)
+                    var versionSeparator = sectionSpan.IndexOf('@');
+
+                    if (versionSeparator != -1)
+                    {
+                        version = sectionSpan.Slice(versionSeparator)
+                            .TrimStart('@')
+                            .ToString();
+                        
+                        sectionId = sectionSpan.Slice(0, versionSeparator)
+                            .ToString();
+                    }
+                    else
+                    {
+                        sectionId = sectionSpan.ToString();
+                    }
+
+                    uriOrPath = maybeSectionIdAndPath.Slice(sectionSpan.Length + 1)
                         .ToString();
                 }
                 else
@@ -54,7 +70,7 @@ namespace Tanka.DocsTool.Navigation
                     uriOrPath = maybeSectionIdAndPath.ToString();
                 }
 
-                return new Link(new Xref(sectionId, uriOrPath));
+                return new Link(new Xref(version, sectionId, uriOrPath));
             }
 
             uriOrPath = span.ToString();

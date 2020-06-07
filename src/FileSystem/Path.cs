@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Tanka.FileSystem
 {
@@ -51,6 +52,11 @@ namespace Tanka.FileSystem
             return _path.Split('/');
         }
 
+        public IEnumerable<string> EnumerateSegments()
+        {
+            return _path.Split('/');
+        }
+
         public static implicit operator string(in Path path)
         {
             return path._path;
@@ -63,6 +69,9 @@ namespace Tanka.FileSystem
 
         public Path GetRelative(in Path relativeTo)
         {
+            if (relativeTo == "")
+                return this;
+
             return System.IO.Path.GetRelativePath(relativeTo, _path);
         }
 
@@ -97,6 +106,11 @@ namespace Tanka.FileSystem
         public Path GetExtension()
         {
             return System.IO.Path.GetExtension(_path);
+        }
+
+        public Path ChangeExtension(string? extension)
+        {
+            return System.IO.Path.ChangeExtension(_path, extension);
         }
     }
 }

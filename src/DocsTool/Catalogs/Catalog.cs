@@ -91,6 +91,24 @@ namespace Tanka.DocsTool.Catalogs
             return Enumerable.Empty<ContentItem>();
         }
 
+        public IEnumerable<ContentItem> GetContentItems(string version, string type, IEnumerable<string> patterns)
+        {
+            var globs = patterns.Select(Glob.Parse)
+                .ToList();
+
+            if (_contentItems.TryGetValue(version, out var versionCollection))
+                if (versionCollection.TryGetValue(type, out var typeCollection))
+                    return typeCollection
+                        .Where(t => globs.Any(glob => glob.IsMatch(t.File.Path)));
+
+            return Enumerable.Empty<ContentItem>();
+        }
+
+        public IEnumerable<ContentItem> GetContentItems(string version, string type, IEnumerable<Path> patterns)
+        {
+            return GetContentItems(version, type, patterns.Select(p => p.ToString()));
+        }
+
         public IEnumerable<string> GetVersions()
         {
             return _contentItems.Keys;
