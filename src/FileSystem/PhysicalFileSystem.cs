@@ -39,6 +39,16 @@ namespace Tanka.FileSystem
             return new ValueTask<IFileSystem>(new PhysicalFileSystem(fullPath));
         }
 
+        public async Task DeleteDir(Path path)
+        {
+            await Task.Yield();
+
+            var fullPath = GetFullPath(path);
+
+            if (Directory.Exists(fullPath))
+                Directory.Delete(fullPath, true);
+        }
+
         public async ValueTask<IReadOnlyFile?> GetFile(Path path)
         {
             var fullPath = GetFullPath(path);

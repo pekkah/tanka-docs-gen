@@ -82,6 +82,11 @@ namespace Tanka.FileSystem.Memory
         {
             return new ValueTask<IFileSystem>(new InMemoryFileSystem());
         }
+
+        public Task DeleteDir(Path path)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class InMemoryDirectory : IDirectory

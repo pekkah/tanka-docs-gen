@@ -25,6 +25,10 @@ namespace Tanka.DocsTool.Pipelines
             return Deserializer.Deserialize<T>(reader);
         }
 
+        public static T ParseYaml<T>(this string text)
+        {
+            return Deserializer.Deserialize<T>(text);
+        }
 
         internal class LinkConverter : IYamlTypeConverter
         {

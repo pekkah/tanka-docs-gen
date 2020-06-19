@@ -82,10 +82,12 @@ namespace Tanka.FileSystem
 
         public bool IsSubPathOf(in Path path)
         {
-            var parentPath = path.GetDirectoryPath().ToString();
-            var directoryPath =  GetDirectoryPath().ToString();
+            return StartsWith(path);
+        }
 
-            return directoryPath.StartsWith(parentPath);
+        public bool StartsWith(in Path path)
+        {
+            return _path.StartsWith(path._path);
         }
 
         public Path GetDirectoryPath()

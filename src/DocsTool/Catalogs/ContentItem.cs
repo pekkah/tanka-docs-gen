@@ -19,6 +19,19 @@ namespace Tanka.DocsTool.Catalogs
 
         public IReadOnlyFile File { get; }
 
-        public string Name => File.Path.GetFileName();
+        public string Name => File.Path;
+
+        public override string ToString()
+        {
+            return $"{Type} {Name}@{Version}";
+        }
+
+        public ContentItem WithFile(IFile file, string? type = null)
+        {
+            return new ContentItem(
+                _source,
+                type ?? Type,
+                file);
+        }
     }
 }

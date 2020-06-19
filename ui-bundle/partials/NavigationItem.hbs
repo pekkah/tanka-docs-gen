@@ -1,0 +1,8 @@
+<li>
+    {{#link_to DisplayLink}}<a href={{url}}>{{title}}</a>{{/link_to}}
+    <ol>
+        {{#each Children}}
+            {{>partials/NavigationItem.hbs}}
+        {{/each}}
+    </ol>
+</li>

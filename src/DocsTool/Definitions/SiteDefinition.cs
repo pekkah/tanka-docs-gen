@@ -8,7 +8,7 @@ namespace Tanka.DocsTool.Definitions
     {
         public string Title { get; set; } = "Tanka Docs";
 
-        public Link IndexSection { get; set; } = LinkParser.Parse("xref://root:index.md");
+        public Xref IndexPage { get; set; } = LinkParser.Parse("xref://root:index.md").Xref!.Value;
 
         public string? InputPath { get; set; }
 
@@ -19,5 +19,9 @@ namespace Tanka.DocsTool.Definitions
         public IReadOnlyDictionary<string, string> Branches { get; set; } = new Dictionary<string, string>();
 
         public string[]? Tags { get; set; }
+
+        public string BasePath { get; set; } = "/";
+
+        public string UiBundlePath { get; set; } = "ui-bundle";
     }
 }

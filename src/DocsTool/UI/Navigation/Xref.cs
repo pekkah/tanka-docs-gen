@@ -25,5 +25,11 @@
 
             return $"xref://{Path}";
         }
+
+        public Xref WithVersion(string version) => new Xref(version, SectionId, Path);
+
+        public Xref WithSectionId(string sectionId) => new Xref(Version, sectionId, Path);
+
+        public Xref WithPath(string path) => new Xref(Version, SectionId, path);
     }
 }

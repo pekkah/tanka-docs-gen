@@ -60,17 +60,21 @@ namespace Tanka.DocsTool.Pipelines
 
         public async Task Execute(CancellationToken cancellationToken = default)
         {
+            await CacheFileSystem.DeleteDir("content");
+            await CacheFileSystem.GetOrCreateDirectory("content");
+
+            await CacheFileSystem.DeleteDir("content-html");
+            await CacheFileSystem.GetOrCreateDirectory("content-html");
+
+            var outputPath = GetRootedPath(CurrentPath, Site.OutputPath);
+            await FileSystem.DeleteDir(outputPath);
+            await FileSystem.GetOrCreateDirectory(outputPath);
+
             RawCache = await CacheFileSystem.Mount("content");
             PageCache = await CacheFileSystem.Mount("content-html");
+            OutputFs = await FileSystem.Mount(outputPath);
 
-            // quickly exit if no index section
-            if (!Site.IndexSection.IsXref)
-            {
-                throw new InvalidOperationException(
-                    $"Could not find index section: '{Site.IndexSection}'. " +
-                    "Index section must be an xref.");
-            }
-
+            /* Aggregate content based on branches, tags and etc given in site definition */
             var aggregator = new ContentAggregator(
                 Site,
                 GitRoot,
@@ -82,172 +86,30 @@ namespace Tanka.DocsTool.Pipelines
             /* Add content */
             await catalog.Add(aggregator.Aggregate(cancellationToken), cancellationToken);
 
-            var siteModel = await BuildSite(catalog);
+            /* Site */
+            var site = await BuildSite(catalog, Site);
+            
+            /* UI */
+            var ui = new UiBuilder(PageCache, OutputFs);
+            await ui.BuildSite(site, new HandlebarsUiBundle(await FileSystem.Mount("ui-bundle")));
 
         }
+
+        private async Task<Site> BuildSite(Catalog catalog, SiteDefinition definition)
+        {
+            var sectionCollector = new SectionCollector();
+            await sectionCollector.Collect(catalog);
+
+            var builder = new SiteBuilder(definition)
+                .Add(sectionCollector.Sections);
+
+            return builder.Build();
+        }
+
+        public IFileSystem OutputFs { get; set; }
 
         public IFileSystem PageCache { get; set; }
 
         public IFileSystem RawCache { get; set; }
-
-        private async Task<SiteModel> BuildSite(Catalog catalog)
-        {
-            /* Build sections */
-            var versions = new Dictionary<string, Dictionary<string, SectionModel>>();
-            await foreach (var section in BuildSections(catalog))
-            {
-                if (!versions.ContainsKey(section.Version))
-                    versions[section.Version] = new Dictionary<string, SectionModel>(1);
-
-                versions[section.Version].Add(section.Definition.Id, section);
-            }
-
-            /* Router service */
-            var router = new Router();
-
-            /* Build section pages */
-            foreach (var (version, sections) in versions)
-            {
-                foreach (var (id, section) in sections)
-                {
-                    
-                }
-            }
- 
-            return new SiteModel();
-        }
-
-        private async IAsyncEnumerable<SectionModel> BuildSections(Catalog catalog)
-        {
-            foreach (var version in catalog.GetVersions())
-            {
-                var sectionDefinitionItems = catalog
-                    .GetContentItems(version, "text/yaml", "**tanka-docs-section.*");
-
-                foreach (var sectionDefinitionItem in sectionDefinitionItems)
-                {
-                    var sectionDefinition = await sectionDefinitionItem.ParseYaml<SectionDefinition>();
-
-                    var sectionNavigation = await BuildSectionNavigation(
-                        sectionDefinition,
-                        version,
-                        catalog);
-
-                    var sectionDefinitionPath = sectionDefinitionItem.File.Path;
-                    var sectionDefinitionDirectory = sectionDefinitionPath
-                        .GetDirectoryPath();
-
-                    var markdownItems = GetSectionMarkdownItems(
-                        catalog, 
-                        version,
-                        sectionDefinitionDirectory);
-
-
-                    yield return new SectionModel(
-                        version, 
-                        sectionDefinition, 
-                        sectionNavigation, 
-                        markdownItems);
-                }
-            }
-        }
-
-        private static List<ContentItem> GetSectionMarkdownItems(
-            Catalog catalog, 
-            string version,
-            FileSystem.Path sectionDefinitionDirectory)
-        {
-            FileSystem.Path markdownPattern = $"{sectionDefinitionDirectory}/**/*.md";
-            var markdownItems = catalog
-                .GetContentItems(
-                    version,
-                    "text/markdown",
-                    markdownPattern)
-                .Where(item =>
-                {
-                    //todo: exclusions
-                    if (item.File.Path.GetFileName() == "nav.md")
-                        return false;
-
-                    if (item.Name == "index.md")
-                    {
-                    }
-
-                    // exclude folders with section definitions
-                    var itemPath = item.File.Path.GetDirectoryPath();
-                    var relativeItemPath = itemPath.GetRelative(sectionDefinitionDirectory);
-                    var relativePathSegments = relativeItemPath
-                        .EnumerateSegments()
-                        .ToList();
-
-                    var possibleLocations = new List<FileSystem.Path>();
-                    var temp = string.Empty;
-                    foreach (var relativePathSegment in relativePathSegments)
-                    {
-                        temp += relativePathSegment;
-                        possibleLocations.Add(sectionDefinitionDirectory / temp / "tanka-docs-section.yml");
-                    }
-
-                    // include items in same folder as the section definition
-                    if (itemPath == sectionDefinitionDirectory)
-                        return true;
-
-                    if (catalog.GetContentItems(
-                        version,
-                        "text/yaml",
-                        possibleLocations).Any())
-                    {
-                        return false;
-                    }
-
-                    return true;
-                }).ToList();
-            return markdownItems;
-        }
-
-        private async Task<IReadOnlyCollection<NavigationItem>> BuildSectionNavigation(
-            SectionDefinition sectionDefinition,
-            string version,
-            Catalog catalog)
-        {
-            //todo: allow referencing other nav docs in difference versions
-            var navContentItems = sectionDefinition.Nav
-                .Where(link => link.IsXref)
-                .Select(link => catalog.GetContentItem(version, "text/markdown", link.Xref!.Value.Path) ?? throw new InvalidOperationException(
-                    $"Could not find text/markdown ContentItem for xref '{link.Xref}"));
-
-            /* Load nav files as markdown ast */
-            var navDocuments = await Task.WhenAll(navContentItems.Select(ci => ci.ParseMarkdown()));
-
-            /* Build navigation items */
-            IReadOnlyCollection<NavigationItem> navItems = NavigationBuilder.Build(navDocuments);
-
-            return navItems;
-        }
-    }
-
-    public class SiteModel
-    {
-        public SiteDefinition Definition { get; set; }
-
-        public SectionModel Index { get; set; }
-    }
-
-    public class SectionModel
-    {
-        public SectionModel(string version, SectionDefinition definition, IReadOnlyCollection<NavigationItem> navigation, IReadOnlyCollection<ContentItem> pages)
-        {
-            Version = version;
-            Definition = definition;
-            Navigation = navigation;
-        }
-
-        public string Version { get; }
-
-        public SectionDefinition Definition { get;  }
-
-        public IReadOnlyCollection<NavigationItem> Navigation { get; }
-
-        //private IReadOnlyDictionary<string, ContentItem> PageFiles { get; }
     }
 }

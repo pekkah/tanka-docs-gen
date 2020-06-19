@@ -49,7 +49,7 @@ namespace Tanka.DocsTool.Catalogs
             if (_contentItems.TryGetValue(version, out var versionCollection))
             {
                 var result = new Dictionary<string, IReadOnlyCollection<ContentItem>>();
-                foreach (var typeCollection in versionCollection) 
+                foreach (var typeCollection in versionCollection)
                     result[typeCollection.Key] = typeCollection.Value;
 
                 return result;
@@ -59,12 +59,13 @@ namespace Tanka.DocsTool.Catalogs
         }
 
         public IEnumerable<
-                (string Version, IReadOnlyDictionary<string, IReadOnlyCollection<ContentItem>> ContentItems)> EnumerateVersions()
+                (string Version, IReadOnlyDictionary<string, IReadOnlyCollection<ContentItem>> ContentItems)>
+            EnumerateVersions()
         {
             foreach (var (version, collection) in _contentItems)
             {
                 var result = new Dictionary<string, IReadOnlyCollection<ContentItem>>();
-                foreach (var typeCollection in collection) 
+                foreach (var typeCollection in collection)
                     result[typeCollection.Key] = typeCollection.Value;
 
                 yield return (version, result);
@@ -107,6 +108,53 @@ namespace Tanka.DocsTool.Catalogs
         public IEnumerable<ContentItem> GetContentItems(string version, string type, IEnumerable<Path> patterns)
         {
             return GetContentItems(version, type, patterns.Select(p => p.ToString()));
+        }
+
+        public IEnumerable<ContentItem> GetContentItems(string version, params string[] typePatterns)
+        {
+            var versionItems = GetContentItemsOfVersion(version);
+
+            if (versionItems == null)
+                yield break;
+
+            var globs = typePatterns.Select(Glob.Parse)
+                .ToList();
+
+            foreach (var (type, collection) in versionItems)
+            {
+                if (!globs.Any(glob => glob.IsMatch(type))) continue;
+
+                foreach (var contentItem in collection)
+                {
+                    yield return contentItem;
+                }
+            }
+        }
+
+        public IEnumerable<ContentItem> GetContentItems(string version, string[] typePatterns, params Path[] patterns)
+
+        {
+            var versionItems = GetContentItemsOfVersion(version);
+
+            if (versionItems == null)
+                yield break;
+
+            var typeGlobs = typePatterns.Select(Glob.Parse)
+                .ToList();
+
+            var pathGlobs = patterns.Select(p => Glob.Parse(p))
+                .ToList();
+
+            foreach (var (type, collection) in versionItems)
+            {
+                if (!typeGlobs.Any(glob => glob.IsMatch(type))) continue;
+
+                foreach (var contentItem in collection)
+                {
+                    if (pathGlobs.Any(glob => glob.IsMatch(contentItem.File.Path)))
+                        yield return contentItem;
+                }
+            }
         }
 
         public IEnumerable<string> GetVersions()

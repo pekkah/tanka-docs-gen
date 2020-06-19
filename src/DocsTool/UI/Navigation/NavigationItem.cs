@@ -8,20 +8,20 @@ namespace Tanka.DocsTool.Navigation
             DisplayLink link, 
             IReadOnlyCollection<NavigationItem> children)
         {
-            Link = link;
+            DisplayLink = link;
             Children = children;
         }
 
-        public DisplayLink Link { get; }
+        public DisplayLink DisplayLink { get; }
 
         public IReadOnlyCollection<NavigationItem> Children { get; }
 
         public override string ToString()
         {
             if (Children.Count > 0)
-                return $"{Link} (children: {Children.Count})";
+                return $"{DisplayLink} (children: {Children.Count})";
 
-            return Link.ToString();
+            return DisplayLink.ToString();
         }
     }
 }
