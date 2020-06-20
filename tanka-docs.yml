@@ -1,4 +1,5 @@
-﻿input: 'docs'
-output: 'gh-pages'
-solution: 'tanka-docs-gen.sln'
-basepath: '/'
+﻿input: "docs"
+output: "gh-pages"
+solution: "tanka-docs-gen.sln"
+basepath: "/"
+title: "Tanka Docs Generator"

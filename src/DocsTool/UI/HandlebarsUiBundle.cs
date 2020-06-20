@@ -73,12 +73,18 @@ namespace Tanka.DocsTool.UI
             {
                 if (arguments.Length != 1)
                     throw new InvalidOperationException($"link_to requires one argument of type DisplayLink");
-                
-                var displayLink = (DisplayLink) arguments[0];
-                var title = displayLink.Title ?? "";
-                string? url = displayLink.Link.Xref != null
-                    ? router.GenerateRoute(displayLink.Link.Xref.Value)
-                    : displayLink.Link.Uri;
+
+                var target = arguments[0];
+
+                string? url = null;
+                string? title = null;
+                if (target is DisplayLink displayLink)
+                {
+                    title = displayLink.Title ?? "";
+                    url = displayLink.Link.Xref != null
+                        ? router.GenerateRoute(displayLink.Link.Xref.Value)
+                        : displayLink.Link.Uri;
+                }
 
                 if (url == null)
                     url = "[TODO: MISSING LINK TARGET]";
@@ -86,6 +92,43 @@ namespace Tanka.DocsTool.UI
                 options.Template(output, new
                 {
                     title,
+                    url
+                });
+            });
+
+            _handlebars.RegisterHelper("xref", (output, options, context, arguments) =>
+            {
+                if (arguments.Length != 1)
+                    throw new InvalidOperationException($"xref requires one argument of type xref");
+
+                var target = arguments[0];
+
+                string? url = null;
+                
+                if (target is string xrefStr)
+                {
+                    target = LinkParser.Parse(xrefStr);
+                }
+
+                if (target is Link link)
+                {
+                    if (link.IsExternal)
+                        url = link.Uri;
+                    else
+                        target = link.Xref!.Value;
+
+                }
+
+                if (target is Xref xref)
+                {
+                    url = router.GenerateRoute(xref);
+                }
+
+                if (url == null)
+                    url = "[TODO: MISSING LINK TARGET]";
+
+                options.Template(output, new
+                {
                     url
                 });
             });

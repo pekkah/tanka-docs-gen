@@ -32,8 +32,44 @@ namespace Tanka.DocsTool.UI
         {
             var menu = await ComposeMenu(section);
             var router = new DocsSiteRouter(_site, section);
+            await ComposeAssets(section, router);
             await ComposePages(section, menu, router);
             //ComposeIndexPages(section, menu);
+        }
+
+        private async Task ComposeAssets(Section section, DocsSiteRouter router)
+        {
+            foreach (var (relativePath, assetItem) in section.ContentItems.Where(ci => IsAsset(ci.Key, ci.Value)))
+            {
+                // open file streams
+                await using var inputStream = await assetItem.File.OpenRead();
+
+                // create output dir for page
+                Path outputPath = router.GenerateRoute(new Xref(assetItem.Version, section.Id, relativePath))
+                    ?? throw new InvalidOperationException($"Could not generate output path for '{outputPath}'.");
+
+                await _output.GetOrCreateDirectory(outputPath.GetDirectoryPath());
+
+                // create output file
+                var outputFile = await _output.GetOrCreateFile(outputPath);
+                await using var outputStream = await outputFile.OpenWrite();
+
+                await inputStream.CopyToAsync(outputStream);
+            }
+        }
+
+        private bool IsAsset(Path relativePath, ContentItem contentItem)
+        {
+            if (IsPage(relativePath, contentItem))
+                return false;
+
+            var extension = relativePath.GetExtension().ToString();
+
+            return new []
+            {
+                ".js",
+                ".css"
+            }.Contains(extension);
         }
 
         private async Task ComposePages(Section section, IReadOnlyCollection<IReadOnlyCollection<NavigationItem>> menu, DocsSiteRouter router)
