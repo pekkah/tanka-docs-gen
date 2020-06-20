@@ -1,3 +1,7 @@
 {{#each Menu}}
-    {{{@value}}}
+    <nav class="nav flex-column">
+        {{#each @value}}
+            {{>partials/NavigationItem.hbs }}
+        {{/each}}
+    </nav>
 {{/each}}

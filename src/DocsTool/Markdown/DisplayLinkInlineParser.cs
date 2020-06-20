@@ -2,13 +2,17 @@
 using Markdig.Parsers;
 using Markdig.Syntax;
 using Tanka.DocsTool.Navigation;
+using Tanka.DocsTool.UI;
 
 namespace Tanka.DocsTool.Markdown
 {
     public class DisplayLinkInlineParser : InlineParser
     {
-        public DisplayLinkInlineParser()
+        private readonly DocsSiteRouter _router;
+
+        public DisplayLinkInlineParser(DocsMarkdownRenderingContext context)
         {
+            _router = context.Router;
             OpeningCharacters = "[".ToCharArray();
         }
 
@@ -61,6 +65,14 @@ namespace Tanka.DocsTool.Markdown
             try
             {
                 var link = DisplayLinkParser.Parse(linkText);
+
+                if (link.Link.IsXref)
+                {
+                    var xref = link.Link.Xref!.Value;
+                    link = new DisplayLink(
+                        link.Title,
+                        new Link(_router.FullyQualify(xref)));
+                }
 
                 processor.Inline = new DisplayLinkInline
                 {

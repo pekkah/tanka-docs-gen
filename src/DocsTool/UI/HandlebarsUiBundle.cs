@@ -50,11 +50,11 @@ namespace Tanka.DocsTool.UI
             }
         }
 
-        public IPageRenderer GetRenderer(string template)
+        public IPageRenderer GetRenderer(string template, DocsSiteRouter router)
         {
             var templateHbs = _templates[template];
 
-            return new HandlebarsPageRenderer(templateHbs, _partials);
+            return new HandlebarsPageRenderer(templateHbs, _partials, router);
         }
 
         public string DefaultTemplate { get; } = "article.hbs";
@@ -65,7 +65,7 @@ namespace Tanka.DocsTool.UI
         private readonly string _templateHbs;
         private IHandlebars _handlebars;
 
-        public HandlebarsPageRenderer(string templateHbs, IReadOnlyDictionary<string, string> partials)
+        public HandlebarsPageRenderer(string templateHbs, IReadOnlyDictionary<string, string> partials, DocsSiteRouter router)
         {
             _templateHbs = templateHbs;
             _handlebars = Handlebars.Create();
@@ -77,7 +77,7 @@ namespace Tanka.DocsTool.UI
                 var displayLink = (DisplayLink) arguments[0];
                 var title = displayLink.Title ?? "";
                 string? url = displayLink.Link.Xref != null
-                    ? throw new NotImplementedException("todo")
+                    ? router.GenerateRoute(displayLink.Link.Xref.Value)
                     : displayLink.Link.Uri;
 
                 if (url == null)

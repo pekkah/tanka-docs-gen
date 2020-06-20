@@ -33,7 +33,7 @@ namespace Tanka.DocsTool.UI
         }
 
 
-        public async Task<ContentItem> ComposePage(Path relativePath, ContentItem page, IReadOnlyCollection<string> menu, DocsSiteRouter router)
+        public async Task<ContentItem> ComposePage(Path relativePath, ContentItem page, IReadOnlyCollection<IReadOnlyCollection<NavigationItem>> menu, DocsSiteRouter router)
         {
             var (partialHtmlPage, frontmatter) = await ComposePartialHtmlPage(relativePath, page, router);
 
@@ -51,7 +51,7 @@ namespace Tanka.DocsTool.UI
         private async Task<ContentItem> ComposeFullHtmlPage(
             ContentItem partialHtmlPage,
             PageFrontmatter frontmatter, 
-            IReadOnlyCollection<string> menu)
+            IReadOnlyCollection<IReadOnlyCollection<NavigationItem>> menu)
         {
             // open file streams
             await using var inputStream = await partialHtmlPage.File.OpenRead();
@@ -63,7 +63,7 @@ namespace Tanka.DocsTool.UI
 
             // create output file
             var outputFile = await _output.GetOrCreateFile(partialHtmlPage.File.Path);
-            var fullPageHtml = _uiBundle.GetRenderer(frontmatter.Template)
+            var fullPageHtml = _uiBundle.GetRenderer(frontmatter.Template, _router)
                 .Render(new PageRenderingContext(
                     _site,
                     _section,

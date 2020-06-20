@@ -74,20 +74,4 @@ namespace Tanka.DocsTool.Markdown
             return (stringWriter.ToString(), page);
         }
     }
-
-    public class DocsMarkdownRenderingContext
-    {
-        public DocsMarkdownRenderingContext(Site site, Section section, DocsSiteRouter router)
-        {
-            Site = site;
-            Section = section;
-            Router = router;
-        }
-
-        public Site Site { get; }
-
-        public Section Section { get; }
-
-        public DocsSiteRouter Router { get; }
-    }
 }

@@ -23,7 +23,7 @@ namespace Tanka.DocsTool.Markdown
         {
             if (!pipeline.InlineParsers.Contains<DisplayLinkInlineParser>())
                 // Insert the parser before the link inline parser
-                pipeline.InlineParsers.InsertBefore<LinkInlineParser>(new DisplayLinkInlineParser());
+                pipeline.InlineParsers.InsertBefore<LinkInlineParser>(new DisplayLinkInlineParser(_context));
         }
 
         public void Setup(MarkdownPipeline pipeline, IMarkdownRenderer renderer)

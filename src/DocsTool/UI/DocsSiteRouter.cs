@@ -15,6 +15,24 @@ namespace Tanka.DocsTool.UI
             _section = section;
         }
 
+        //todo: should probably move this to Site
+        public Xref FullyQualify(Xref xref)
+        {
+            var targetSection = _site.GetSectionByXref(xref, _section);
+
+            if (targetSection == null)
+                throw new NotImplementedException($"NotFound: {xref}");
+
+            var targetItem = targetSection.GetContentItem(xref.Path);
+
+            if (targetItem == null)
+                throw new NotImplementedException($"NotFound: {xref}");
+
+            return xref
+                .WithSectionId(targetSection.Id)
+                .WithVersion(targetSection.Version);
+        }
+
         public string? GenerateRoute(Xref xref)
         {
             var targetSection = _site.GetSectionByXref(xref, _section);

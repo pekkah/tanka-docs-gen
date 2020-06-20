@@ -270,3 +270,4 @@ BenchmarkDotNet.Artifacts/
 docs-html/
 gh-pages/
 _build/
+output/

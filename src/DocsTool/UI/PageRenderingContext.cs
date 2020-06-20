@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using Tanka.DocsTool.Navigation;
 using Tanka.DocsTool.Pipelines;
 
 namespace Tanka.DocsTool.UI
 {
     public class PageRenderingContext
     {
-        public PageRenderingContext(Site site, Section section, IReadOnlyCollection<string> menu, PageFrontmatter page, string pageHtml)
+        public PageRenderingContext(Site site, Section section, IReadOnlyCollection<IReadOnlyCollection<NavigationItem>> menu, PageFrontmatter page, string pageHtml)
         {
             Site = site;
             Section = section;
@@ -19,7 +20,7 @@ namespace Tanka.DocsTool.UI
 
         public Section Section { get; }
 
-        public IReadOnlyCollection<string> Menu { get; }
+        public IReadOnlyCollection<IReadOnlyCollection<NavigationItem>> Menu { get; }
 
         public PageFrontmatter Page { get; }
 
