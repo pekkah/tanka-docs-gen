@@ -32,7 +32,8 @@ namespace Tanka.DocsTool.Pipelines
 
             if (!_sectionsByVersion.TryGetValue(version, out var sectionsById))
             {
-                _sectionsByVersion[version] = sectionsById = new Dictionary<string, Section>();
+                sectionsById = new Dictionary<string, Section>();
+                _sectionsByVersion.Add(version, sectionsById);
             }
 
             sectionsById.Add(id, section);

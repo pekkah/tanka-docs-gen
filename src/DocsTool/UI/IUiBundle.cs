@@ -10,7 +10,7 @@ namespace Tanka.DocsTool.UI
 
         Task Initialize(CancellationToken cancellationToken);
 
-        IPageRenderer GetRenderer(string template, DocsSiteRouter router);
+        IPageRenderer GetPageRenderer(string template, DocsSiteRouter router);
     }
 
     public interface IPageRenderer

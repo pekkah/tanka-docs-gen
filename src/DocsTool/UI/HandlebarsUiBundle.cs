@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HandlebarsDotNet;
@@ -22,35 +23,60 @@ namespace Tanka.DocsTool.UI
         private readonly Dictionary<string, string> _partials =
             new Dictionary<string, string>();
 
-        private readonly IFileSystem _uiBundle;
+        private readonly Site _site;
+        private readonly Section _uiBundle;
+        private readonly IFileSystem _output;
 
-        public HandlebarsUiBundle(IFileSystem uiBundle)
+        public HandlebarsUiBundle(Site site, Section uiBundle, IFileSystem output)
         {
-            _uiBundle = uiBundle;
+            _site = site ?? throw new ArgumentNullException(nameof(site));
+            _uiBundle = uiBundle ?? throw new ArgumentNullException(nameof(uiBundle));
+            _output = output ?? throw new ArgumentNullException(nameof(output));
         }
-
 
         public async Task Initialize(CancellationToken cancellationToken)
         {
-            var aggregator = new FileSystemAggregator(_uiBundle);
-
-            await foreach (var file in aggregator.Aggregate("", new Path[]{ "**/*.hbs" }, cancellationToken))
+            foreach (var (path, contentItem) in _uiBundle.GetContentItems("**/*.hbs"))
             {
-                await using var input = await file.OpenRead();
+                await using var input = await contentItem.File.OpenRead();
                 using var reader = new StreamReader(input);
 
                 var template = await reader.ReadToEndAsync();
-                var name = file.Path.ToString();
 
                 // is partial or view?
-                if (file.Path.StartsWith(PartialsPath))
-                    _partials[name] = template;
+                if (path.StartsWith(PartialsPath))
+                    _partials[path] = template;
                 else
-                    _templates[name] = template;
+                    _templates[path] = template;
             }
         }
 
-        public IPageRenderer GetRenderer(string template, DocsSiteRouter router)
+        public async Task PrepareAssets(DocsSiteRouter router)
+        {
+            foreach (var (path, contentItem) in _uiBundle.GetContentItems(new Path[]
+            {
+                "**/*.js",
+                "**/*.css",
+                "**/*.png",
+                "**/*.jpg",
+                "**/*.gif"
+            }))
+            {
+                var xref = new Xref(_uiBundle.Version, _uiBundle.Id, path);
+                Path route = router.GenerateRoute(xref)
+                    ?? throw new InvalidOperationException($"Could not generate route for '{xref}'.");
+
+                await using var inputStream = await contentItem.File.OpenRead();
+
+                await _output.GetOrCreateDirectory(route.GetDirectoryPath());
+                var outputFile = await _output.GetOrCreateFile(route);
+                var outputStream = await outputFile.OpenWrite();
+
+                await inputStream.CopyToAsync(outputStream);
+            }
+        }
+
+        public IPageRenderer GetPageRenderer(string template, DocsSiteRouter router)
         {
             var templateHbs = _templates[template];
 

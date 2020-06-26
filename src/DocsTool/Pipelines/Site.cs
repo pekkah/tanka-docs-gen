@@ -43,6 +43,15 @@ namespace Tanka.DocsTool.Pipelines
             return GetSectionByXref(xref);
         }
 
+        public Section? GetSection(string version, string id)
+        {
+            if (_sectionsByVersion.TryGetValue(version, out var sectionsById))
+                if (sectionsById.TryGetValue(id, out var section))
+                    return section;
+
+            return null;
+        }
+
         private Section? GetSectionByXref(in Xref xref)
         {
             if (xref.SectionId == null)

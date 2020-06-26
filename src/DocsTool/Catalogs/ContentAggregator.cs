@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,10 +12,10 @@ namespace Tanka.DocsTool.Catalogs
 {
     public class ContentAggregator
     {
-        private readonly SiteDefinition _site;
-        private readonly GitFileSystemRoot _git;
-        private readonly IFileSystem _workFileSystem;
         private readonly IContentClassifier _classifier;
+        private readonly GitFileSystemRoot _git;
+        private readonly SiteDefinition _site;
+        private readonly IFileSystem _workFileSystem;
 
         public ContentAggregator(
             SiteDefinition site,
@@ -31,13 +30,13 @@ namespace Tanka.DocsTool.Catalogs
         }
 
         public async IAsyncEnumerable<ContentItem> Aggregate(
-            [EnumeratorCancellation]CancellationToken cancellationToken)
+            [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var stack = new Stack<IFileSystemNode>();
 
             await foreach (var source in BuildSources(cancellationToken))
             {
-                await foreach(var node in source.Enumerate(cancellationToken))
+                await foreach (var node in source.Enumerate(cancellationToken))
                     stack.Push(node);
 
                 while (stack.Count > 0)
@@ -52,9 +51,7 @@ namespace Tanka.DocsTool.Catalogs
                         case IReadOnlyDirectory dir:
                             await foreach (var subNode in dir.Enumerate()
                                 .WithCancellation(cancellationToken))
-                            {
                                 stack.Push(subNode);
-                            }
                             break;
                     }
                 }
@@ -75,42 +72,47 @@ namespace Tanka.DocsTool.Catalogs
             var branches = _site.Branches;
             var tags = _site.Tags;
 
-            var commonInputPath = _site.InputPath ?? "docs";
-
-            foreach (var branch in branches)
+            foreach (var (branch, definition) in branches)
             {
-                if (branch.Key == "HEAD")
-                {
-                    var status = _git.Repo.RetrieveStatus();
-
-                    // If we have changes then we actually use the current folder
-                    // as the source of the truth
-                    if (status.IsDirty)
+                var commonInputPaths = definition.InputPath;
+                foreach (var commonInputPath in commonInputPaths)
+                    if (branch == "HEAD")
                     {
-                        yield return new FileSystemContentSource(
-                            await _workFileSystem.Mount(commonInputPath),
-                            "HEAD",
-                            ""); // we're mounting the input path
+                        var status = _git.Repo.RetrieveStatus();
+
+                        // If we have changes then we actually use the current folder
+                        // as the source of the truth
+                        if (status.IsDirty)
+                        {
+                            var inputDirectory = await _workFileSystem.GetDirectory(commonInputPath);
+                            if (inputDirectory != null)
+                                yield return new FileSystemContentSource(
+                                    _workFileSystem,
+                                    "HEAD",
+                                    inputDirectory.Path); // we're mounting the input path
+                        }
+                        else
+                        {
+                            var head = _git.Head();
+                            if (await head.GetDirectory(commonInputPath) != null)
+                                yield return new GitBranchContentSource(head, commonInputPath);
+                        }
                     }
                     else
                     {
-                        yield return new GitBranchContentSource(_git.Head(), commonInputPath);
-                    }
+                        // use globbing to find matching branches
+                        var glob = Glob.Parse(branch);
+                        foreach (var repoBranch in _git.Repo.Branches)
+                            if (glob.IsMatch(repoBranch.FriendlyName) || glob.IsMatch(repoBranch.CanonicalName))
+                            {
+                                var matchingBranch = _git.Branch(repoBranch.CanonicalName);
 
-                    continue;
-                }
-
-                // use globbing to find matching branches
-                var glob = Glob.Parse(branch.Key);
-                foreach (var repoBranch in _git.Repo.Branches)
-                {
-                    if (glob.IsMatch(repoBranch.FriendlyName) || glob.IsMatch(repoBranch.CanonicalName))
-                    {
-                        yield return new GitBranchContentSource(
-                            _git.Branch(repoBranch.CanonicalName),
-                            commonInputPath);
+                                if (await matchingBranch.GetDirectory(commonInputPath) != null)
+                                    yield return new GitBranchContentSource(
+                                        matchingBranch,
+                                        commonInputPath);
+                            }
                     }
-                }
             }
         }
     }

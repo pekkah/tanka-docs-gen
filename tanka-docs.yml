@@ -1,5 +1,7 @@
-﻿input: "docs"
+﻿basepath: "/"
+title: "Tanka Docs Generator"
+input:
+  - "docs-v2"
+  - "ui-bundle"
 output: "gh-pages"
 solution: "tanka-docs-gen.sln"
-basepath: "/"
-title: "Tanka Docs Generator"

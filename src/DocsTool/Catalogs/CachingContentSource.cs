@@ -19,6 +19,8 @@ namespace Tanka.DocsTool.Catalogs
 
         public string Version => _source.Version;
 
+        public Path Path => _source.Path;
+
         public async IAsyncEnumerable<IFileSystemNode> Enumerate(
             [EnumeratorCancellation]CancellationToken cancellationToken)
         {

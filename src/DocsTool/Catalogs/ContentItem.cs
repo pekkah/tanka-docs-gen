@@ -17,6 +17,10 @@ namespace Tanka.DocsTool.Catalogs
 
         public string Version => _source.Version;
 
+        public Path SourcePath => _source.Path;
+
+        public Path SourceRelativePath => File.Path.GetRelative(SourcePath);
+
         public IReadOnlyFile File { get; }
 
         public string Name => File.Path;

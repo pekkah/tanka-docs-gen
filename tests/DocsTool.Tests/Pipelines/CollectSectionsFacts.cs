@@ -23,12 +23,14 @@ namespace Tanka.DocsTool.Tests.Pipelines
             var site = new SiteDefinition
             {
                 Title = "Run pipeline",
-                InputPath = $"docs-v2",
                 OutputPath = "output",
                 BuildPath = "_build",
-                Branches = new Dictionary<string, string>
+                Branches = new Dictionary<string, BranchDefinition>
                 {
-                    ["HEAD"] = "??",
+                    ["HEAD"] = new BranchDefinition()
+                    {
+                        InputPath = new[] { "docs-v2", "ui-bundle" }
+                    }
                 }
             };
 

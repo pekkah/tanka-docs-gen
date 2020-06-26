@@ -21,6 +21,7 @@ namespace Tanka.DocsTool.UI
             await uiBundle.Initialize(CancellationToken.None);
 
             foreach (var version in site.Versions)
+                // compose doc sections
             foreach (var section in site.GetSectionsByVersion(version))
             {
                 var composer = new SectionComposer(site, _cache, _output, uiBundle);

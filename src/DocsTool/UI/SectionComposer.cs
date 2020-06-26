@@ -39,6 +39,7 @@ namespace Tanka.DocsTool.UI
 
         private async Task ComposeAssets(Section section, DocsSiteRouter router)
         {
+            // compose assets from sections
             foreach (var (relativePath, assetItem) in section.ContentItems.Where(ci => IsAsset(ci.Key, ci.Value)))
             {
                 // open file streams
@@ -68,7 +69,10 @@ namespace Tanka.DocsTool.UI
             return new []
             {
                 ".js",
-                ".css"
+                ".css",
+                ".png",
+                ".jpg",
+                ".gif"
             }.Contains(extension);
         }
 

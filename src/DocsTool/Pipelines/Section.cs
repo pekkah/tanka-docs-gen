@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using DotNet.Globbing;
 using Tanka.DocsTool.Catalogs;
 using Tanka.DocsTool.Definitions;
 using Tanka.FileSystem;
@@ -9,7 +11,10 @@ namespace Tanka.DocsTool.Pipelines
     {
         private readonly ContentItem _contentItem;
 
-        public Section(ContentItem contentItem, SectionDefinition definition, IReadOnlyDictionary<Path, ContentItem> contentItems)
+        public Section(
+            ContentItem contentItem, 
+            SectionDefinition definition,
+            IReadOnlyDictionary<Path, ContentItem> contentItems)
         {
             _contentItem = contentItem;
             Definition = definition;
@@ -18,11 +23,13 @@ namespace Tanka.DocsTool.Pipelines
 
         public string Id => Definition.Id;
 
+        public string Type => Definition.Type;
+
         public string Version => _contentItem.Version;
 
         public SectionDefinition Definition { get; }
 
-        public Path Path => _contentItem.File.Path.GetDirectoryPath();
+        public Path Path => _contentItem.SourceRelativePath.GetDirectoryPath();
 
         public IReadOnlyDictionary<Path, ContentItem> ContentItems { get; }
 
@@ -37,6 +44,18 @@ namespace Tanka.DocsTool.Pipelines
                 return contentItem;
 
             return null;
+        }
+
+        public IEnumerable<(Path RelativePath, ContentItem ContentItem)> GetContentItems(params Path[] patterns)
+        {
+            var globs = patterns.Select(p => Glob.Parse(p))
+                .ToList();
+
+            foreach (var (path, contentItem) in ContentItems)
+            {
+                if (globs.Any(g => g.IsMatch(path)))
+                    yield return (path, contentItem);
+            }
         }
 
         public Section WithContentItems(params ContentItem[] contentItems)

@@ -1,2 +1,1 @@
-- [Example](xref://1-example.md)
-  - [Todo](https://google.fi)
+- [Todo](https://google.fi)

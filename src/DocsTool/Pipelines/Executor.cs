@@ -12,6 +12,7 @@ using Tanka.DocsTool.Navigation;
 using Tanka.DocsTool.UI;
 using Tanka.FileSystem;
 using Tanka.FileSystem.Git;
+using YamlDotNet.Core;
 using Path = System.IO.Path;
 
 namespace Tanka.DocsTool.Pipelines
@@ -91,7 +92,11 @@ namespace Tanka.DocsTool.Pipelines
             
             /* UI */
             var ui = new UiBuilder(PageCache, OutputFs);
-            await ui.BuildSite(site, new HandlebarsUiBundle(await FileSystem.Mount("ui-bundle")));
+            var uiBundleRef = LinkParser.Parse("xref://ui-bundle@HEAD:tanka-docs-section.yml")
+                .Xref!.Value;
+
+            var uiBundle = site.GetSection(uiBundleRef.Version, uiBundleRef.SectionId);
+            await ui.BuildSite(site, new HandlebarsUiBundle(site, uiBundle, OutputFs));
 
         }
 

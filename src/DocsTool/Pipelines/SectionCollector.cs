@@ -35,14 +35,22 @@ namespace Tanka.DocsTool.Pipelines
             var sectionItems = CollectSectionItems(
                 catalog, 
                 contentItem);
-            
-            var sectionDirectoryPath = contentItem.File.Path.GetDirectoryPath();
+
+            var sectionDirectoryPath = contentItem
+                .SourceRelativePath
+                .GetDirectoryPath();
 
             var sectionItemsByRelativePath = sectionItems
-                .ToDictionary(s => 
-                        s.File.Path.GetRelative(sectionDirectoryPath),
+                .ToDictionary(s =>
+                    {
+                        return s.SourceRelativePath.GetRelative(sectionDirectoryPath);
+                    },
                     s => s
                     );
+
+            // default to doc type
+            if (string.IsNullOrEmpty(definition.Type))
+                definition.Type = "doc";
 
             _sections.Add(new Section(contentItem, definition, sectionItemsByRelativePath));
         }

@@ -10,18 +10,21 @@ namespace Tanka.DocsTool.Definitions
 
         public Xref IndexPage { get; set; } = LinkParser.Parse("xref://root:index.md").Xref!.Value;
 
-        public string? InputPath { get; set; }
+        public string OutputPath { get; set; } = "output";
 
-        public string? OutputPath { get; set; }
+        public string BuildPath { get; set; } = Path.GetTempPath();
 
-        public string? BuildPath { get; set; } = Path.GetTempPath();
-
-        public IReadOnlyDictionary<string, string> Branches { get; set; } = new Dictionary<string, string>();
+        public IReadOnlyDictionary<string, BranchDefinition> Branches { get; set; } = new Dictionary<string, BranchDefinition>();
 
         public string[]? Tags { get; set; }
 
-        public string BasePath { get; set; } = "/";
+        public string BasePath { get; set; } = "";
+    }
 
-        public string UiBundlePath { get; set; } = "ui-bundle";
+    public class BranchDefinition
+    {
+        public string? Title { get; set; }
+
+        public string[] InputPath { get; set; } = { "docs" };
     }
 }

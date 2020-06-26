@@ -63,7 +63,7 @@ namespace Tanka.DocsTool.UI
 
             // create output file
             var outputFile = await _output.GetOrCreateFile(partialHtmlPage.File.Path);
-            var fullPageHtml = _uiBundle.GetRenderer(frontmatter.Template, _router)
+            var fullPageHtml = _uiBundle.GetPageRenderer(frontmatter.Template, _router)
                 .Render(new PageRenderingContext(
                     _site,
                     _section,

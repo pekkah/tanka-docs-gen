@@ -8,6 +8,8 @@ namespace Tanka.DocsTool.Catalogs
     {
         public string Version { get; }
 
+        public Path Path { get; }
+
         public IAsyncEnumerable<IFileSystemNode> Enumerate(CancellationToken cancellationToken);
     }
 }

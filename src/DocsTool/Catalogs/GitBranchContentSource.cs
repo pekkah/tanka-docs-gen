@@ -18,6 +18,8 @@ namespace Tanka.DocsTool.Catalogs
 
         public string Version => _branch.FriendlyName;
 
+        public Path Path => _path;
+
         public IAsyncEnumerable<IFileSystemNode> Enumerate(CancellationToken cancellationToken)
         {
             return _branch.Enumerate(_path);
