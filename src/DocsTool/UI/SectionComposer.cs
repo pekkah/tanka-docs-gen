@@ -76,7 +76,7 @@ namespace Tanka.DocsTool.UI
             }.Contains(extension);
         }
 
-        private async Task ComposePages(Section section, IReadOnlyCollection<IReadOnlyCollection<NavigationItem>> menu, DocsSiteRouter router)
+        private async Task ComposePages(Section section, IReadOnlyCollection<NavigationItem> menu, DocsSiteRouter router)
         {
             var pageComposer = new PageComposer(_site, section, _cache, _output, _uiBundle);
 
@@ -91,9 +91,9 @@ namespace Tanka.DocsTool.UI
             return relativePath.GetExtension() == ".md" && relativePath.GetFileName() != "nav.md";
         }
 
-        private async Task<IReadOnlyCollection<IReadOnlyCollection<NavigationItem>>> ComposeMenu(Section section)
+        private async Task<IReadOnlyCollection<NavigationItem>> ComposeMenu(Section section)
         {
-            var items = new List<List<NavigationItem>>();
+            var items = new List<NavigationItem>();
 
             foreach (var naviFileLink in section.Definition.Nav)
             {
@@ -119,15 +119,14 @@ namespace Tanka.DocsTool.UI
                 // override context so each navigation file is rendered in the context of the owning section
                 var router = new DocsSiteRouter(_site, targetSection);
                 var renderer = new DocsMarkdownService(new DocsMarkdownRenderingContext(_site, targetSection, router));
-
                 var builder = new NavigationBuilder(renderer, router);
-                var fileItems = builder
-                    .Add(new []{ text })
-                    .Build()
-                    .ToList();
-                
-                
-                items.Add(fileItems);
+                var fileItems = builder.Add(new string[]
+                    {
+                        text
+                    })
+                    .Build();
+
+                items.AddRange(fileItems);
             }
 
             return items;

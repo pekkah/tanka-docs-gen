@@ -1,2 +1,3 @@
-- [Usage](1-usage.md)
-- [Publish](2-publishing.md)
+- [Instructions](https://#)
+  - [Usage](xref://1-instructions/1-usage.md)
+  - [Publish](xref://1-instructions/2-publishing.md)

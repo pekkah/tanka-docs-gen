@@ -30,7 +30,7 @@ namespace Tanka.DocsTool.Markdown
             return document;
         }
 
-        public async Task<PageFrontmatter?> Render(Stream input, Stream output)
+        public async Task<PageFrontmatter?> RenderPage(Stream input, Stream output)
         {
             using var reader = new StreamReader(input);
             await using var writer = new StreamWriter(output);
@@ -51,7 +51,25 @@ namespace Tanka.DocsTool.Markdown
             return yaml?.ParseYaml<PageFrontmatter>();
         }
 
-        public async Task<(string Html, PageFrontmatter? Page)> Render(Stream input)
+        public async Task<(MarkdownDocument Document, PageFrontmatter? Page)> ParsePage(Stream input)
+        {
+            using var reader = new StreamReader(input);
+
+            var text = await reader.ReadToEndAsync();
+            var markdown = Parse(text);
+
+            var frontmatterBlock = markdown
+                .OfType<YamlFrontMatterBlock>()
+                .SingleOrDefault();
+
+
+            var yaml = frontmatterBlock?.Lines.ToString();
+            var page = yaml?.ParseYaml<PageFrontmatter>();
+
+            return (markdown, page);
+        }
+
+        public async Task<(string Html, PageFrontmatter? Page)> RenderPage(Stream input)
         {
             using var reader = new StreamReader(input);
 

@@ -92,11 +92,7 @@ namespace Tanka.DocsTool.Pipelines
             
             /* UI */
             var ui = new UiBuilder(PageCache, OutputFs);
-            var uiBundleRef = LinkParser.Parse("xref://ui-bundle@HEAD:tanka-docs-section.yml")
-                .Xref!.Value;
-
-            var uiBundle = site.GetSection(uiBundleRef.Version, uiBundleRef.SectionId);
-            await ui.BuildSite(site, new HandlebarsUiBundle(site, uiBundle, OutputFs));
+            await ui.BuildSite(site);
 
         }
 

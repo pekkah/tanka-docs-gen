@@ -1,5 +1,7 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
+using Tanka.DocsTool.Navigation;
 using Tanka.DocsTool.Pipelines;
 using Tanka.FileSystem;
 
@@ -16,16 +18,25 @@ namespace Tanka.DocsTool.UI
             _output = output;
         }
 
-        public async Task BuildSite(Site site, IUiBundle uiBundle)
+        public async Task BuildSite(Site site)
         {
-            await uiBundle.Initialize(CancellationToken.None);
-
             foreach (var version in site.Versions)
-                // compose doc sections
-            foreach (var section in site.GetSectionsByVersion(version))
             {
-                var composer = new SectionComposer(site, _cache, _output, uiBundle);
-                await composer.ComposeSection(section);
+                // compose doc sections
+                foreach (var section in site.GetSectionsByVersion(version))
+                {
+                    var uiBundleRef = LinkParser.Parse("xref://ui-bundle:tanka-docs-section.yml").Xref!.Value;
+                    var uiContent = site.GetSectionByXref(uiBundleRef, section);
+                    
+                    if (uiContent == null)
+                        throw new InvalidOperationException($"Could not resolve ui-bundle. Xref '{uiBundleRef}' could not be resolved.'");
+
+                    var uiBundle = new HandlebarsUiBundle(site, uiContent, _output);
+                    await uiBundle.Initialize(CancellationToken.None);
+
+                    var composer = new SectionComposer(site, _cache, _output, uiBundle);
+                    await composer.ComposeSection(section);
+                }
             }
         }
     }

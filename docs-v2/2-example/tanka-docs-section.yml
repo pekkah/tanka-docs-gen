@@ -3,4 +3,5 @@ title: Example
 index_page: xref://1-example.md
 nav:
   - xref://root:nav.md
-  - xref://nav.md
+  - xref://root:1-instructions/nav.md
+  - xref://example:nav.md

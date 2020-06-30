@@ -1,6 +1,8 @@
-﻿namespace Tanka.DocsTool.Navigation
+﻿using System;
+
+namespace Tanka.DocsTool.Navigation
 {
-    public readonly struct Xref
+    public readonly struct Xref: IEquatable<Xref>
     {
         public Xref(string? version, string? sectionId, string path)
         {
@@ -31,5 +33,20 @@
         public Xref WithSectionId(string sectionId) => new Xref(Version, sectionId, Path);
 
         public Xref WithPath(string path) => new Xref(Version, SectionId, path);
+
+        public bool Equals(Xref other)
+        {
+            return SectionId == other.SectionId && Path == other.Path && Version == other.Version;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is Xref other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(SectionId, Path, Version);
+        }
     }
 }
