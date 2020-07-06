@@ -1,30 +1,23 @@
-## Extensions to Markdig
+## Syntax
 
-### C# Code inclusion support using Roslyn
+### Include csharp code snippets
 
-#### Include class
+#### Include file
 
 ```markdown
-[{tanka.generate.docs.Program}]
+\#include::xref://src:DocsTool/Program.cs
 ```
 
-[{tanka.generate.docs.Program}]
+```csharp
+#include::xref://src:DocsTool/Program.cs
+```
 
 #### Include function
 
 ```markdown
-[{tanka.generate.docs.Program.Main}]
+\#include::xref://src:DocsTool/Program.cs[f:Main]
 ```
 
-[{tanka.generate.docs.Program.Main}]
-
-
-### Include code snippet using DFM extension
-
-```markdown
-[!code-yaml[tanka-docs](tanka-docs.yaml)]
+```csharp
+#include::xref://src:DocsTool/Program.cs[f:Main]
 ```
-
-[!code-yaml[tanka-docs](tanka-docs.yaml)]
-
-> More about DFM https://dotnet.github.io/docfx/spec/docfx_flavored_markdown.html?tabs=tabid-1%2Ctabid-a

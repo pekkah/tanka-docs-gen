@@ -30,7 +30,7 @@ namespace Tanka.DocsTool.Tests.Pipelines
                 {
                     ["HEAD"] = new BranchDefinition()
                     {
-                        InputPath = new[] { "docs-v2", "ui-bundle" }
+                        InputPath = new[] { "ui-bundle", "docs-v2"}
                     }
                 }
             };
@@ -41,7 +41,6 @@ namespace Tanka.DocsTool.Tests.Pipelines
                 GitRootPath);
             
             await executor.Execute();
-
             /* Then */
         }
 

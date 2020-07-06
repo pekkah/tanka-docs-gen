@@ -21,7 +21,13 @@ namespace Tanka.DocsTool.UI
         private readonly DocsSiteRouter _router;
         private readonly IUiBundle _uiBundle;
 
-        public PageComposer(Site site, Section section, IFileSystem cache, IFileSystem output, IUiBundle uiBundle)
+        public PageComposer(
+            Site site, 
+            Section section, 
+            IFileSystem cache, 
+            IFileSystem output, 
+            IUiBundle uiBundle,
+            DocsMarkdownService renderer)
         {
             _site = site;
             _section = section;
@@ -29,7 +35,7 @@ namespace Tanka.DocsTool.UI
             _output = output;
             _uiBundle = uiBundle;
             _router = new DocsSiteRouter(site, section);
-            _docsMarkdownService = new DocsMarkdownService(new DocsMarkdownRenderingContext(site, section, _router));
+            _docsMarkdownService = renderer;
         }
 
 

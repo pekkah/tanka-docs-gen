@@ -20,7 +20,13 @@ namespace Tanka.DocsTool.Markdown
             var builder = new MarkdownPipelineBuilder();
             builder.UseYamlFrontMatter();
             builder.Use(new DisplayLinkExtension(section));
+            
+            _pipeline = builder.Build();
+        }
 
+        public DocsMarkdownService(MarkdownPipelineBuilder builder)
+        {
+            builder.UseYamlFrontMatter();
             _pipeline = builder.Build();
         }
 

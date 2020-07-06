@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DotNet.Globbing;
 using Tanka.DocsTool.Catalogs;
 using Tanka.DocsTool.Definitions;
 using Tanka.DocsTool.Navigation;
@@ -33,6 +34,7 @@ namespace Tanka.DocsTool.Pipelines
         {
             var definition = await contentItem.ParseYaml<SectionDefinition>();
             var sectionItems = CollectSectionItems(
+                definition,
                 catalog, 
                 contentItem);
 
@@ -56,15 +58,20 @@ namespace Tanka.DocsTool.Pipelines
         }
 
         private IEnumerable<ContentItem> CollectSectionItems(
-            Catalog catalog, 
+            SectionDefinition definition,
+            Catalog catalog,
             ContentItem contentItem)
         {
             var sectionDirectoryPath = contentItem.File.Path.GetDirectoryPath();
 
             var contentItems = catalog.GetContentItems(
                 contentItem.Version,
-                new []{"**"},
+                new[] {"**"},
                 $"{sectionDirectoryPath}/**/*");
+
+            var includes = definition.Includes ?? new[] {"**/*"};
+            var includeGlobs = includes.Select(Glob.Parse)
+                .ToList();
 
             // filter out items belonging to sections under this section
             return contentItems
@@ -73,6 +80,7 @@ namespace Tanka.DocsTool.Pipelines
                     // exclude folders with section definitions
                     var itemPath = item.File.Path.GetDirectoryPath();
                     var relativeItemPath = itemPath.GetRelative(sectionDirectoryPath);
+
                     var relativePathSegments = relativeItemPath
                         .EnumerateSegments()
                         .ToList();
@@ -98,7 +106,16 @@ namespace Tanka.DocsTool.Pipelines
                     }
 
                     return true;
-                }).ToList();
+                })
+                .Where(item =>
+                {
+                    var itemPath = item.File.Path;
+                    var relativeItemPath = itemPath.GetRelative(sectionDirectoryPath);
+
+                    // apply includes
+                    return includeGlobs.Any(glob => glob.IsMatch(relativeItemPath));
+                })
+                .ToList();
         }
 
         public IReadOnlyCollection<Section> Sections => _sections;

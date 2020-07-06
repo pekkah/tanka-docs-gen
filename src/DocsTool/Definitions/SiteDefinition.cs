@@ -19,6 +19,8 @@ namespace Tanka.DocsTool.Definitions
         public string[]? Tags { get; set; }
 
         public string BasePath { get; set; } = "";
+
+        public Dictionary<string, Dictionary<string, object>> Extensions { get; set; } = new Dictionary<string, Dictionary<string, object>>();
     }
 
     public class BranchDefinition
