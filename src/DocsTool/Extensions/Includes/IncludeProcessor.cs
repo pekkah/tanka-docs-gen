@@ -3,6 +3,7 @@ using System.Buffers;
 using System.IO.Pipelines;
 using System.Text;
 using System.Threading.Tasks;
+using Tanka.DocsTool.Catalogs;
 using Tanka.DocsTool.Navigation;
 using Tanka.DocsTool.UI.Navigation;
 
@@ -10,6 +11,13 @@ namespace Tanka.DocsTool.Extensions.Includes
 {
     public class IncludeProcessor
     {
+        private readonly Func<Xref, ContentItem> _resolver;
+
+        public IncludeProcessor(Func<Xref, ContentItem> resolver)
+        {
+            _resolver = resolver;
+        }
+
         public async Task Process(IncludeProcessorContext context)
         {
             var reader = context.Reader;
@@ -43,8 +51,7 @@ namespace Tanka.DocsTool.Extensions.Includes
                         }
 
                         //todo: lookup the included file and copy to writer
-
-                        writer.Write(Encoding.UTF8.GetBytes("todo: include"));
+                        await WriteInclude(writer, include);
                         await writer.FlushAsync();
 
                         // advance reader
@@ -76,6 +83,14 @@ namespace Tanka.DocsTool.Extensions.Includes
             {
                 await writer.CompleteAsync();
             }
+        }
+
+        private async Task WriteInclude(PipeWriter writer, IncludeDirective include)
+        {
+            var contentItem = _resolver(include.Xref);
+            await using var stream = await contentItem.File.OpenRead();
+            var reader = PipeReader.Create(stream);
+            await reader.CopyToAsync(writer);
         }
 
         private bool TryReadInclude(ReadResult readResult, out SequencePosition start, out SequencePosition end, out IncludeDirective? include)

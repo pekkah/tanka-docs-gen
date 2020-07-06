@@ -108,7 +108,7 @@ namespace Tanka.FileSystem.Memory
         }
     }
 
-    internal class InMemoryFile : IFile, IDisposable
+    public class InMemoryFile : IFile, IDisposable
     {
         private readonly InMemoryFileSystem _fileSystem;
 
@@ -130,7 +130,7 @@ namespace Tanka.FileSystem.Memory
         public ValueTask<Stream> OpenRead()
         {
             _stream ??= new InMemoryFileStream();
-
+            _stream.Position = 0;
             return new ValueTask<Stream>(_stream);
         }
 
@@ -146,6 +146,7 @@ namespace Tanka.FileSystem.Memory
                 _stream = new InMemoryFileStream();
             }
 
+            _stream.Position = 0;
             return new ValueTask<Stream>(_stream);
         }
     }
