@@ -93,44 +93,56 @@ namespace Tanka.DocsTool.Extensions.Includes
             await reader.CopyToAsync(writer);
         }
 
+        public static byte[] IncludeDirective = new[]
+        {
+            (byte) '#', 
+            (byte) 'i', 
+            (byte) 'n', 
+            (byte) 'c', 
+            (byte) 'l', 
+            (byte) 'u', 
+            (byte) 'd', 
+            (byte) 'e', 
+            (byte) ':',
+            (byte) ':'
+        };
+
         private bool TryReadInclude(ReadResult readResult, out SequencePosition start, out SequencePosition end, out IncludeDirective? include)
         {
             var reader = new SequenceReader<byte>(readResult.Buffer);
 
-            while (!reader.End)
+            while (reader.TryReadTo(out ReadOnlySpan<byte> _, (byte)'#', (byte)'\\', false))
             {
-                if (reader.TryReadTo(out ReadOnlySpan<byte> _, (byte) '#', (byte) '\\', false))
+                start = reader.Position;
+
+                if (!reader.IsNext(IncludeDirective, true))
                 {
-                    // mark start of the define
-                    start = reader.Position;
+                    reader.Advance(1);
+                    continue;
+                }
 
-                    ReadOnlySpan<byte> bytes;
+                ReadOnlySpan<byte> bytes;
 
-                    // includes are one liners so we read until end of line
-                    if (reader.TryReadToAny(
-                        out ReadOnlySpan<byte> definitionBytes,
-                        ParserConstants.ReturnAndNewLine.Span,
-                        false))
-                    {
-                        bytes = definitionBytes.ToArray();
-                    }
-                    else
-                    {
-                        // there's no more data coming so must be end of the file or stream
-                        bytes = reader.Sequence.Slice(start).ToArray();
-                        reader.Advance(bytes.Length);
-                    }
-
-                    end = reader.Position;
-
-                    // parse include
-                    include = ParseInclude(bytes);
-                    return true;
+                // includes are one liners so we read until end of line
+                if (reader.TryReadToAny(
+                    out ReadOnlySpan<byte> definitionBytes,
+                    ParserConstants.ReturnAndNewLine.Span,
+                    false))
+                {
+                    bytes = definitionBytes.ToArray();
                 }
                 else
                 {
-                    break;
+                    // there's no more data coming so must be end of the file or stream
+                    bytes = reader.Sequence.Slice(reader.Position).ToArray();
+                    reader.Advance(bytes.Length);
                 }
+
+                end = reader.Position;
+
+                // parse include
+                include = ParseInclude(bytes);
+                return true;
             }
 
             start = reader.Position;
@@ -141,13 +153,7 @@ namespace Tanka.DocsTool.Extensions.Includes
 
         private IncludeDirective ParseInclude(in ReadOnlySpan<byte> bytes)
         {
-            // skip until ::
-            var separatorIndex = bytes.IndexOf(new byte[] {(byte) ':', (byte) ':'});
-
-            if (separatorIndex == -1)
-                throw new InvalidOperationException(":: missing");
-
-            var xrefSpan = bytes.Slice(separatorIndex + 2);
+            var xrefSpan = bytes;
 
             //todo: fix link parser so that it takes bytes as input
             var temp = Encoding.UTF8.GetString(xrefSpan);

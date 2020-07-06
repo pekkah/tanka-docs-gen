@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Pipelines;
 using System.Threading.Tasks;
 using Tanka.DocsTool.Catalogs;
+using Tanka.DocsTool.Extensions.Includes;
 using Tanka.DocsTool.Markdown;
 using Tanka.DocsTool.Navigation;
 using Tanka.DocsTool.Pipelines;
@@ -103,9 +105,34 @@ namespace Tanka.DocsTool.UI
             await using var inputStream = await page.File.OpenRead();
             await using var outputStream = await outputFile.OpenWrite();
 
-            var frontmatter = await _docsMarkdownService.RenderPage(inputStream, outputStream);
+            // process preprocessor directives
+            var processedInputStream = new MemoryStream(); //todo: probably not the best solution
+            var includeProcessor = new IncludeProcessor(ResolveInclude);
+            var reader = PipeReader.Create(inputStream);
+            var writer = PipeWriter.Create(processedInputStream, new StreamPipeWriterOptions(leaveOpen: true));
+            await includeProcessor.Process(new IncludeProcessorContext(reader, writer));
+            processedInputStream.Position = 0;
+
+            // render markdown
+            var frontmatter = await _docsMarkdownService.RenderPage(processedInputStream, outputStream);
 
             return (page.WithFile(outputFile, "text/html"), frontmatter);
+        }
+
+        private ContentItem ResolveInclude(Xref xref)
+        {
+            var targetSection = _site.GetSectionByXref(xref, _section);
+
+            if (targetSection == null)
+                throw new InvalidOperationException($"Could not resolve include. Could not resolve section '{xref}'.");
+
+            var targetItem = targetSection
+                .GetContentItem(xref.Path);
+
+            if (targetItem == null)
+                throw new InvalidOperationException($"Could not resolve include. Could not resolve content item '{xref}'.");
+
+            return targetItem;
         }
     }
 }

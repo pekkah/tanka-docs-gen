@@ -192,5 +192,213 @@ after
 
             Assert.Equal("included", actual);
         }
+
+        [Fact]
+        public async Task Process1()
+        {
+            /* Given */
+            var md = @"```csharp
+#include::xref://src:DocsTool/Program.cs?f=Main
+```";
+            var reader = new Pipe();
+            var writer = new Pipe();
+            var contentItem = await CreateContentItem("file.md", "included");
+            var sut = new IncludeProcessor(xref => contentItem);
+
+            reader.Writer.Write(Encoding.UTF8.GetBytes(md));
+            await reader.Writer.FlushAsync();
+            await reader.Writer.CompleteAsync();
+
+            /* When */
+            await sut.Process(new IncludeProcessorContext(reader.Reader, writer.Writer));
+
+            /* Then */
+            await using var stream = new MemoryStream();
+            await writer.Reader.CopyToAsync(stream);
+
+            stream.Position = 0;
+            using var streamWriter = new StreamReader(stream);
+            var actual = await streamWriter.ReadToEndAsync();
+
+            Assert.Equal(@"```csharp
+included
+```", actual);
+        }
+
+        [Fact]
+        public async Task Escape()
+        {
+            /* Given */
+            var md = @"```csharp
+\#include::xref://src:DocsTool/Program.cs?f=Main
+```";
+            var reader = new Pipe();
+            var writer = new Pipe();
+            var contentItem = await CreateContentItem("file.md", "included");
+            var sut = new IncludeProcessor(xref => contentItem);
+
+            reader.Writer.Write(Encoding.UTF8.GetBytes(md));
+            await reader.Writer.FlushAsync();
+            await reader.Writer.CompleteAsync();
+
+            /* When */
+            await sut.Process(new IncludeProcessorContext(reader.Reader, writer.Writer));
+
+            /* Then */
+            await using var stream = new MemoryStream();
+            await writer.Reader.CopyToAsync(stream);
+
+            stream.Position = 0;
+            using var streamWriter = new StreamReader(stream);
+            var actual = await streamWriter.ReadToEndAsync();
+
+            Assert.Equal(@"```csharp
+\#include::xref://src:DocsTool/Program.cs?f=Main
+```", actual);
+        }
+
+        [Fact]
+        public async Task Escape_and_include()
+        {
+            /* Given */
+            var md = @"```csharp
+\#include::xref://src:DocsTool/Program.cs?f=Main
+
+#include::xref://src:DocsTool/Program.cs?f=Main
+```";
+            var reader = new Pipe();
+            var writer = new Pipe();
+            var contentItem = await CreateContentItem("file.md", "included");
+            var sut = new IncludeProcessor(xref => contentItem);
+
+            reader.Writer.Write(Encoding.UTF8.GetBytes(md));
+            await reader.Writer.FlushAsync();
+            await reader.Writer.CompleteAsync();
+
+            /* When */
+            await sut.Process(new IncludeProcessorContext(reader.Reader, writer.Writer));
+
+            /* Then */
+            await using var stream = new MemoryStream();
+            await writer.Reader.CopyToAsync(stream);
+
+            stream.Position = 0;
+            using var streamWriter = new StreamReader(stream);
+            var actual = await streamWriter.ReadToEndAsync();
+
+            Assert.Equal(@"```csharp
+\#include::xref://src:DocsTool/Program.cs?f=Main
+
+included
+```", actual);
+        }
+
+        [Fact]
+        public async Task Mixed_content_with_headers()
+        {
+            /* Given */
+            var md = @"
+# header
+#include::xref://src:DocsTool/Program.cs?f=Main
+";
+            var reader = new Pipe();
+            var writer = new Pipe();
+            var contentItem = await CreateContentItem("file.md", "included");
+            var sut = new IncludeProcessor(xref => contentItem);
+
+            reader.Writer.Write(Encoding.UTF8.GetBytes(md));
+            await reader.Writer.FlushAsync();
+            await reader.Writer.CompleteAsync();
+
+            /* When */
+            await sut.Process(new IncludeProcessorContext(reader.Reader, writer.Writer));
+
+            /* Then */
+            await using var stream = new MemoryStream();
+            await writer.Reader.CopyToAsync(stream);
+
+            stream.Position = 0;
+            using var streamWriter = new StreamReader(stream);
+            var actual = await streamWriter.ReadToEndAsync();
+
+            Assert.Equal(@"
+# header
+included
+", actual);
+        }
+
+        [Fact]
+        public async Task Process_full_example()
+        {
+            /* Given */
+            var md = @"## Syntax
+
+### Include csharp code snippets
+
+#### Include file
+
+```markdown
+\#include::xref://src:DocsTool/Program.cs
+```
+
+```csharp
+#include::xref://src:DocsTool/Program.cs
+```
+
+#### Include function
+
+```markdown
+\#include::xref://src:DocsTool/Program.cs?f=Main
+```
+
+```csharp
+#include::xref://src:DocsTool/Program.cs?f=Main
+```
+";
+            var reader = new Pipe();
+            var writer = new Pipe();
+            var contentItem = await CreateContentItem("file.md", "included");
+            var sut = new IncludeProcessor(xref => contentItem);
+
+            reader.Writer.Write(Encoding.UTF8.GetBytes(md));
+            await reader.Writer.FlushAsync();
+            await reader.Writer.CompleteAsync();
+
+            /* When */
+            await sut.Process(new IncludeProcessorContext(reader.Reader, writer.Writer));
+
+            /* Then */
+            await using var stream = new MemoryStream();
+            await writer.Reader.CopyToAsync(stream);
+
+            stream.Position = 0;
+            using var streamWriter = new StreamReader(stream);
+            var actual = await streamWriter.ReadToEndAsync();
+
+            Assert.Equal(@"## Syntax
+
+### Include csharp code snippets
+
+#### Include file
+
+```markdown
+\#include::xref://src:DocsTool/Program.cs
+```
+
+```csharp
+included
+```
+
+#### Include function
+
+```markdown
+\#include::xref://src:DocsTool/Program.cs?f=Main
+```
+
+```csharp
+included
+```
+", actual);
+        }
     }
 }
