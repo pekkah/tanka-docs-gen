@@ -15,9 +15,9 @@
 #### Include function
 
 ```markdown
-\#include::xref://src:DocsTool/Program.cs[f:Main]
+\#include::xref://src:DocsTool/Program.cs?f:Main
 ```
 
 ```csharp
-#include::xref://src:DocsTool/Program.cs[f:Main]
+#include::xref://src:DocsTool/Program.cs?f:Main
 ```

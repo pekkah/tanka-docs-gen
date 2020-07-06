@@ -164,5 +164,33 @@ after
 
             Assert.Equal("included", actual);
         }
+
+        [Fact]
+        public async Task Process_with_params()
+        {
+            /* Given */
+            var md = @"#include::xref://section:file.md?c=Program&f=Main";
+            var reader = new Pipe();
+            var writer = new Pipe();
+            var contentItem = await CreateContentItem("file.md", "included");
+            var sut = new IncludeProcessor(xref => contentItem);
+
+            reader.Writer.Write(Encoding.UTF8.GetBytes(md));
+            await reader.Writer.FlushAsync();
+            await reader.Writer.CompleteAsync();
+
+            /* When */
+            await sut.Process(new IncludeProcessorContext(reader.Reader, writer.Writer));
+
+            /* Then */
+            await using var stream = new MemoryStream();
+            await writer.Reader.CopyToAsync(stream);
+
+            stream.Position = 0;
+            using var streamWriter = new StreamReader(stream);
+            var actual = await streamWriter.ReadToEndAsync();
+
+            Assert.Equal("included", actual);
+        }
     }
 }

@@ -1,16 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Tanka.DocsTool.Navigation
 {
     public readonly struct Xref: IEquatable<Xref>
     {
-        public Xref(string? version, string? sectionId, string path)
+        public Xref(string? version, string? sectionId, string path, IReadOnlyDictionary<string, string>? query = null)
         {
             Version = version;
             SectionId = sectionId;
             Path = path;
+            Query = query ?? new Dictionary<string, string>();
         }
-        
+
+        public IReadOnlyDictionary<string, string> Query { get; }
+
         public string? SectionId { get; }
 
         public string Path { get; }

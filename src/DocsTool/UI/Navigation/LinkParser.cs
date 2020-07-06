@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Markdig.Helpers;
 
 namespace Tanka.DocsTool.Navigation
 {
@@ -36,6 +38,7 @@ namespace Tanka.DocsTool.Navigation
 
             if (IsXref(scheme))
             {
+                ReadOnlySpan<char> uriOrPathSpan;
                 var maybeSectionIdAndPath = Unread;
 
                 // has sectionId?
@@ -62,20 +65,57 @@ namespace Tanka.DocsTool.Navigation
                         sectionId = sectionSpan.ToString();
                     }
 
-                    uriOrPath = maybeSectionIdAndPath.Slice(sectionSpan.Length + 1)
-                        .ToString();
+                    uriOrPathSpan = maybeSectionIdAndPath.Slice(sectionSpan.Length + 1);
                 }
                 else
                 {
-                    uriOrPath = maybeSectionIdAndPath.ToString();
+                    uriOrPathSpan = maybeSectionIdAndPath;
                 }
 
-                return new Link(new Xref(version, sectionId, uriOrPath));
+                var indexOfQueryStart = uriOrPathSpan.IndexOf('?');
+
+                if (indexOfQueryStart != -1)
+                {
+                    var querySpan = uriOrPathSpan.Slice(indexOfQueryStart);
+                    var query = ParseQuery(querySpan);
+
+                    return new Link(new Xref(version, sectionId, uriOrPathSpan.Slice(0, indexOfQueryStart).ToString(), query));
+                }
+
+                return new Link(new Xref(version, sectionId, uriOrPathSpan.ToString()));
             }
 
             uriOrPath = span.ToString();
 
             return new Link(uriOrPath);
+        }
+
+        private IReadOnlyDictionary<string, string> ParseQuery(in ReadOnlySpan<char> querySpan)
+        {
+            ReadOnlySpan<char> unread = querySpan;
+            if (querySpan[0] == '?')
+                unread = unread.Slice(1);
+                
+            var result = new Dictionary<string ,string>();
+            while (!unread.IsEmpty)
+            {
+                var indexOfAndOrEnd = unread.IndexOf('&');
+                if (indexOfAndOrEnd == -1)
+                    indexOfAndOrEnd = unread.Length;
+
+                var kvSpan = unread.Slice(0, indexOfAndOrEnd);
+                var indexOfEquals = kvSpan.IndexOf('=');
+                var key = kvSpan.Slice(0, indexOfEquals)
+                    .ToString();
+                var value = kvSpan.Slice(indexOfEquals + 1)
+                    .ToString();
+
+                result[key] = value;
+
+                unread = unread.Slice(indexOfAndOrEnd).TrimStart('&');
+            }
+
+            return result;
         }
 
         private ReadOnlySpan<char> Unread
