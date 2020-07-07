@@ -15,7 +15,7 @@ namespace Tanka.DocsTool
             Console.WriteLine($"Working on {currentPath}");
             Console.WriteLine();
             var configuration = new ConfigurationBuilder()
-                .AddYamlFile(Path.Combine(currentPath, "tanka-docs.yaml"), true)
+                .AddYamlFile(Path.Combine(currentPath, "tanka-docs.yml"), true)
                 .AddCommandLine(args)
                 .Build();
 

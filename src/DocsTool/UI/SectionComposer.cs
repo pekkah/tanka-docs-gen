@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Pipelines;
 using System.Linq;
 using System.Threading.Tasks;
 using Markdig;
 using Tanka.DocsTool.Catalogs;
+using Tanka.DocsTool.Extensions;
 using Tanka.DocsTool.Extensions.Roslyn;
 using Tanka.DocsTool.Markdown;
 using Tanka.DocsTool.Navigation;
@@ -32,30 +34,32 @@ namespace Tanka.DocsTool.UI
 
         public async Task ComposeSection(Section section)
         {
+            var preprocessorPipe = BuildPreProcessors(section);
             var router = new DocsSiteRouter(_site, section);
             var renderer = await InitializeMarkdown(section, router);
 
             var menu = await ComposeMenu(section);
-
+            
             await ComposeAssets(section, router);
-            await ComposePages(section, menu, router, renderer);
+            await ComposePages(section, menu, router, renderer, preprocessorPipe);
             //ComposeIndexPages(section, menu);
         }
 
-        private async Task<DocsMarkdownService> InitializeMarkdown(Section section, DocsSiteRouter router)
+        private Func<Path, PipeReader, Task<PipeReader>> BuildPreProcessors(Section section)
+        {
+            var builder = new PreProcessorPipelineBuilder();
+            new RoslynExtension().ConfigurePreProcessors(_site, section, builder);
+
+            return builder.Build();
+        }
+
+        private Task<DocsMarkdownService> InitializeMarkdown(Section section, DocsSiteRouter router)
         {
             var context = new DocsMarkdownRenderingContext(_site, section, router);
             var builder = new MarkdownPipelineBuilder();
             builder.Use(new DisplayLinkExtension(context));
 
-            if (section.Definition.Extensions.ContainsKey("roslyn"))
-            {
-                var roslyn = new RoslynExtension();
-                await roslyn.ConfigureMarkdown(context, builder);
-
-            }
-
-            return new DocsMarkdownService(builder);
+            return Task.FromResult(new DocsMarkdownService(builder));
         }
 
         private async Task ComposeAssets(Section section, DocsSiteRouter router)
@@ -97,17 +101,16 @@ namespace Tanka.DocsTool.UI
             }.Contains(extension);
         }
 
-        private async Task ComposePages(
-            Section section, 
+        private async Task ComposePages(Section section,
             IReadOnlyCollection<NavigationItem> menu,
-            DocsSiteRouter router, 
-            DocsMarkdownService renderer)
+            DocsSiteRouter router,
+            DocsMarkdownService renderer, Func<Path, PipeReader, Task<PipeReader>> preprocessorPipe)
         {
             var pageComposer = new PageComposer(_site, section, _cache, _output, _uiBundle, renderer);
 
             foreach (var pageItem in section.ContentItems.Where(ci => IsPage(ci.Key, ci.Value)))
             {
-                await pageComposer.ComposePage(pageItem.Key, pageItem.Value, menu, router);
+                await pageComposer.ComposePage(pageItem.Key, pageItem.Value, menu, router, preprocessorPipe);
             }
         }
 

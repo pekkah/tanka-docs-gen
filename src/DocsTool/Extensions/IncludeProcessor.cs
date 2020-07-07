@@ -3,17 +3,30 @@ using System.Buffers;
 using System.IO.Pipelines;
 using System.Text;
 using System.Threading.Tasks;
-using Tanka.DocsTool.Catalogs;
 using Tanka.DocsTool.Navigation;
 using Tanka.DocsTool.UI.Navigation;
 
-namespace Tanka.DocsTool.Extensions.Includes
+namespace Tanka.DocsTool.Extensions
 {
-    public class IncludeProcessor
+    public class IncludeProcessor : IPreProcessor
     {
-        private readonly Func<Xref, ContentItem> _resolver;
+        public static byte[] IncludeDirective =
+        {
+            (byte) '#',
+            (byte) 'i',
+            (byte) 'n',
+            (byte) 'c',
+            (byte) 'l',
+            (byte) 'u',
+            (byte) 'd',
+            (byte) 'e',
+            (byte) ':',
+            (byte) ':'
+        };
 
-        public IncludeProcessor(Func<Xref, ContentItem> resolver)
+        private readonly Func<Xref, Task<PipeReader>> _resolver;
+
+        public IncludeProcessor(Func<Xref, Task<PipeReader>> resolver)
         {
             _resolver = resolver;
         }
@@ -46,7 +59,7 @@ namespace Tanka.DocsTool.Extensions.Includes
                             //todo: fix
                             var memory = writer.GetMemory((int) beforePosition.Length);
                             beforePosition.CopyTo(memory.Span);
-                            writer.Advance((int)beforePosition.Length);
+                            writer.Advance((int) beforePosition.Length);
                             await writer.FlushAsync();
                         }
 
@@ -60,17 +73,12 @@ namespace Tanka.DocsTool.Extensions.Includes
                     else
                     {
                         if (buffer.IsSingleSegment)
-                        {
                             await writer.WriteAsync(buffer.First);
-                        }
                         else
-                        {
                             foreach (var memory in buffer)
-                            {
                                 await writer.WriteAsync(memory);
-                            }
-                        }
 
+                        await writer.FlushAsync();
                         reader.AdvanceTo(buffer.End);
                     }
                 }
@@ -87,31 +95,17 @@ namespace Tanka.DocsTool.Extensions.Includes
 
         private async Task WriteInclude(PipeWriter writer, IncludeDirective include)
         {
-            var contentItem = _resolver(include.Xref);
-            await using var stream = await contentItem.File.OpenRead();
-            var reader = PipeReader.Create(stream);
-            await reader.CopyToAsync(writer);
+            var includedContentReader = await _resolver(include.Xref);
+            await includedContentReader.CopyToAsync(writer);
+            await includedContentReader.CompleteAsync();
         }
 
-        public static byte[] IncludeDirective = new[]
-        {
-            (byte) '#', 
-            (byte) 'i', 
-            (byte) 'n', 
-            (byte) 'c', 
-            (byte) 'l', 
-            (byte) 'u', 
-            (byte) 'd', 
-            (byte) 'e', 
-            (byte) ':',
-            (byte) ':'
-        };
-
-        private bool TryReadInclude(ReadResult readResult, out SequencePosition start, out SequencePosition end, out IncludeDirective? include)
+        private bool TryReadInclude(ReadResult readResult, out SequencePosition start, out SequencePosition end,
+            out IncludeDirective? include)
         {
             var reader = new SequenceReader<byte>(readResult.Buffer);
 
-            while (reader.TryReadTo(out ReadOnlySpan<byte> _, (byte)'#', (byte)'\\', false))
+            while (reader.TryReadTo(out ReadOnlySpan<byte> _, (byte) '#', (byte) '\\', false))
             {
                 start = reader.Position;
 

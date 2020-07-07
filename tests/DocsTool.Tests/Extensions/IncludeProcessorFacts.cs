@@ -1,17 +1,18 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
 using System.IO;
 using System.IO.Pipelines;
 using System.Text;
 using System.Threading.Tasks;
 using Tanka.DocsTool.Catalogs;
-using Tanka.DocsTool.Extensions.Includes;
+using Tanka.DocsTool.Extensions;
 using Tanka.FileSystem.Memory;
 using Xunit;
 using Path = Tanka.FileSystem.Path;
 
 namespace Tanka.DocsTool.Tests.Extensions
 {
-    public class IncludeProcessorFacts
+    public class IncludeProcessorFacts: IDisposable
     {
         public IncludeProcessorFacts()
         {
@@ -20,18 +21,17 @@ namespace Tanka.DocsTool.Tests.Extensions
 
         private readonly InMemoryFileSystem _fileSystem;
 
-        private async Task<ContentItem> CreateContentItem(Path filePath, string content)
+        private async Task<PipeReader> CreateContentItem(Path filePath, string content)
         {
             var file = await _fileSystem.GetOrCreateFile(filePath);
             await using var stream = await file.OpenWrite();
             await using var writer = new StreamWriter(stream);
             await writer.WriteAsync(content);
+            await writer.FlushAsync();
 
-            return new ContentItem(
-                new FileSystemContentSource(_fileSystem, "master", ""), "text/markdown",
-                file);
+            var readStream = await file.OpenRead();
+            return PipeReader.Create(readStream);
         }
-
 
         [Fact]
         public async Task Output_after()
@@ -43,8 +43,7 @@ after
 ";
             var reader = new Pipe();
             var writer = new Pipe();
-            var contentItem = await CreateContentItem("file.md", "included");
-            var sut = new IncludeProcessor(xref => contentItem);
+            var sut = new IncludeProcessor(xref => CreateContentItem("file.md", "included"));
 
             reader.Writer.Write(Encoding.UTF8.GetBytes(md));
             await reader.Writer.FlushAsync();
@@ -77,8 +76,7 @@ before
 ";
             var reader = new Pipe();
             var writer = new Pipe();
-            var contentItem = await CreateContentItem("file.md", "included");
-            var sut = new IncludeProcessor(xref => contentItem);
+            var sut = new IncludeProcessor(xref => CreateContentItem("file.md", "included"));
 
             reader.Writer.Write(Encoding.UTF8.GetBytes(md));
             await reader.Writer.FlushAsync();
@@ -112,8 +110,7 @@ after
 ";
             var reader = new Pipe();
             var writer = new Pipe();
-            var contentItem = await CreateContentItem("file.md", "included");
-            var sut = new IncludeProcessor(xref => contentItem);
+            var sut = new IncludeProcessor(xref => CreateContentItem("file.md", "included"));
 
             reader.Writer.Write(Encoding.UTF8.GetBytes(md));
             await reader.Writer.FlushAsync();
@@ -144,8 +141,7 @@ after
             var md = @"#include::xref://section:file.md";
             var reader = new Pipe();
             var writer = new Pipe();
-            var contentItem = await CreateContentItem("file.md", "included");
-            var sut = new IncludeProcessor(xref => contentItem);
+            var sut = new IncludeProcessor(xref => CreateContentItem("file.md", "included"));
 
             reader.Writer.Write(Encoding.UTF8.GetBytes(md));
             await reader.Writer.FlushAsync();
@@ -172,8 +168,7 @@ after
             var md = @"#include::xref://section:file.md?c=Program&f=Main";
             var reader = new Pipe();
             var writer = new Pipe();
-            var contentItem = await CreateContentItem("file.md", "included");
-            var sut = new IncludeProcessor(xref => contentItem);
+            var sut = new IncludeProcessor(xref => CreateContentItem("file.md", "included"));
 
             reader.Writer.Write(Encoding.UTF8.GetBytes(md));
             await reader.Writer.FlushAsync();
@@ -202,8 +197,7 @@ after
 ```";
             var reader = new Pipe();
             var writer = new Pipe();
-            var contentItem = await CreateContentItem("file.md", "included");
-            var sut = new IncludeProcessor(xref => contentItem);
+            var sut = new IncludeProcessor(xref => CreateContentItem("file.md", "included"));
 
             reader.Writer.Write(Encoding.UTF8.GetBytes(md));
             await reader.Writer.FlushAsync();
@@ -234,9 +228,8 @@ included
 ```";
             var reader = new Pipe();
             var writer = new Pipe();
-            var contentItem = await CreateContentItem("file.md", "included");
-            var sut = new IncludeProcessor(xref => contentItem);
-
+            var sut = new IncludeProcessor(xref => CreateContentItem("file.md", "included"));
+            
             reader.Writer.Write(Encoding.UTF8.GetBytes(md));
             await reader.Writer.FlushAsync();
             await reader.Writer.CompleteAsync();
@@ -268,8 +261,7 @@ included
 ```";
             var reader = new Pipe();
             var writer = new Pipe();
-            var contentItem = await CreateContentItem("file.md", "included");
-            var sut = new IncludeProcessor(xref => contentItem);
+            var sut = new IncludeProcessor(xref => CreateContentItem("file.md", "included"));
 
             reader.Writer.Write(Encoding.UTF8.GetBytes(md));
             await reader.Writer.FlushAsync();
@@ -303,8 +295,7 @@ included
 ";
             var reader = new Pipe();
             var writer = new Pipe();
-            var contentItem = await CreateContentItem("file.md", "included");
-            var sut = new IncludeProcessor(xref => contentItem);
+            var sut = new IncludeProcessor(xref => CreateContentItem("file.md", "included"));
 
             reader.Writer.Write(Encoding.UTF8.GetBytes(md));
             await reader.Writer.FlushAsync();
@@ -357,8 +348,7 @@ included
 ";
             var reader = new Pipe();
             var writer = new Pipe();
-            var contentItem = await CreateContentItem("file.md", "included");
-            var sut = new IncludeProcessor(xref => contentItem);
+            var sut = new IncludeProcessor(xref => CreateContentItem("file.md", "included"));
 
             reader.Writer.Write(Encoding.UTF8.GetBytes(md));
             await reader.Writer.FlushAsync();
@@ -399,6 +389,11 @@ included
 included
 ```
 ", actual);
+        }
+
+        public void Dispose()
+        {
+            _fileSystem.Dispose();
         }
     }
 }

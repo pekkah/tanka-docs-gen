@@ -1,10 +1,18 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipelines;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 using Tanka.DocsTool.Catalogs;
-using Tanka.DocsTool.Extensions.Includes;
+using Tanka.DocsTool.Extensions;
+using Tanka.DocsTool.Extensions.Roslyn;
 using Tanka.DocsTool.Markdown;
 using Tanka.DocsTool.Navigation;
 using Tanka.DocsTool.Pipelines;
@@ -41,9 +49,18 @@ namespace Tanka.DocsTool.UI
         }
 
 
-        public async Task<ContentItem> ComposePage(Path relativePath, ContentItem page, IReadOnlyCollection<NavigationItem> menu, DocsSiteRouter router)
+        public async Task<ContentItem> ComposePage(
+            Path relativePath, 
+            ContentItem page,
+            IReadOnlyCollection<NavigationItem> menu, 
+            DocsSiteRouter router,
+            Func<Path, PipeReader, Task<PipeReader>> preprocessorPipe)
         {
-            var (partialHtmlPage, frontmatter) = await ComposePartialHtmlPage(relativePath, page, router);
+            var (partialHtmlPage, frontmatter) = await ComposePartialHtmlPage(
+                relativePath, 
+                page, 
+                router, 
+                preprocessorPipe);
 
             if (frontmatter == null)
                 frontmatter = new PageFrontmatter
@@ -90,7 +107,8 @@ namespace Tanka.DocsTool.UI
         private async Task<(ContentItem Page, PageFrontmatter? Frontmatter)> ComposePartialHtmlPage(
             Path relativePath,
             ContentItem page,
-            DocsSiteRouter router)
+            DocsSiteRouter router, 
+            Func<Path, PipeReader, Task<PipeReader>> preprocessorPipe)
         {
             Path outputPath = router.GenerateRoute(new Xref(page.Version, _section.Id, relativePath))
                 ?? throw new InvalidOperationException($"Could not generate output path for '{page}'");
@@ -103,36 +121,23 @@ namespace Tanka.DocsTool.UI
 
             // open file streams
             await using var inputStream = await page.File.OpenRead();
-            await using var outputStream = await outputFile.OpenWrite();
+
+            // stream for preprocessed content
+            await using var processedStream = new MemoryStream();
 
             // process preprocessor directives
-            var processedInputStream = new MemoryStream(); //todo: probably not the best solution
-            var includeProcessor = new IncludeProcessor(ResolveInclude);
-            var reader = PipeReader.Create(inputStream);
-            var writer = PipeWriter.Create(processedInputStream, new StreamPipeWriterOptions(leaveOpen: true));
-            await includeProcessor.Process(new IncludeProcessorContext(reader, writer));
-            processedInputStream.Position = 0;
+            var reader = await preprocessorPipe(relativePath, PipeReader.Create(inputStream));
+            var writer = PipeWriter.Create(processedStream, new StreamPipeWriterOptions(leaveOpen:true));
+            await reader.CopyToAsync(writer);
+            await reader.CompleteAsync();
+            await writer.CompleteAsync();
+            processedStream.Position = 0;
 
             // render markdown
-            var frontmatter = await _docsMarkdownService.RenderPage(processedInputStream, outputStream);
+            await using var outputStream = await outputFile.OpenWrite();
+            var frontmatter = await _docsMarkdownService.RenderPage(processedStream, outputStream);
 
             return (page.WithFile(outputFile, "text/html"), frontmatter);
-        }
-
-        private ContentItem ResolveInclude(Xref xref)
-        {
-            var targetSection = _site.GetSectionByXref(xref, _section);
-
-            if (targetSection == null)
-                throw new InvalidOperationException($"Could not resolve include. Could not resolve section '{xref}'.");
-
-            var targetItem = targetSection
-                .GetContentItem(xref.Path);
-
-            if (targetItem == null)
-                throw new InvalidOperationException($"Could not resolve include. Could not resolve content item '{xref}'.");
-
-            return targetItem;
         }
     }
 }
