@@ -5,7 +5,7 @@
     <AssemblyName>Tanka.DocsTool</AssemblyName>
     <RootNamespace>Tanka.DocsTool</RootNamespace>
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>tanka-docs</ToolCommandName>
+    <ToolCommandName>tanka-docs-vnext</ToolCommandName>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="DotNet.Glob" Version="3.0.9" />
