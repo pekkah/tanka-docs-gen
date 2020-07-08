@@ -65,20 +65,24 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-dark bg-dark">
-        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">{{Site.Title}}</a>
-        <ul class="navbar-nav">
-            {{#section "HEAD", "root"}}
-                <li class="nav-item text-nowrap">
-                    <a class="nav-link" href="{{#xref IndexPage}}{{url}}{{/xref}}">{{title}}</a>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">{{Site.Title}}</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            {{#sections "HEAD"}}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{#xref IndexPage}}{{url}}{{/xref}}">{{Title}}</a>
                 </li>
-            {{/section}}
-        </ul>
-        <ul class="navbar-nav px-3">
-            <li class="nav-item text-nowrap">
+            {{/sections}}
+            <li class="nav-item">
                 <a class="nav-link" href="https://github.com/pekkah/tanka-docs-gen">GitHub</a>
             </li>
         </ul>
+        </div>
     </nav>
     <div class="container-fluid">
         <div class="row flex-xl-nowrap">

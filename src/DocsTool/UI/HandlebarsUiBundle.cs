@@ -187,6 +187,56 @@ namespace Tanka.DocsTool.UI
                 });
             });
 
+            _handlebars.RegisterHelper("sections", (output, options, context, arguments) =>
+            {
+                if (arguments.Length != 1)
+                    throw new InvalidOperationException($"Sections requires version. " +
+                                                        $"Example: sections \"head\"");
+
+                var version = arguments[0]?.ToString()
+                              ?? throw new ArgumentNullException("arguments[0]");
+
+                var sections = router.Site.GetSectionsByVersion(version)
+                    .Where(s => s.Type == "doc");
+
+                foreach (var section in sections)
+                {
+                    options.Template(output, new
+                    {
+                        Id = section.Id,
+                        Title = section.Title,
+                        Type = section.Type,
+                        Version = section.Version,
+                        IndexPage = section.IndexPage
+                    });
+                }
+            });
+
+            _handlebars.RegisterHelper("versions", (output, options, context, arguments) =>
+            {
+                var versions = router.Site.Versions;
+
+                foreach (var version in versions)
+                {
+                    options.Template(output, new 
+                    {
+                        Version = version,
+                        Sections = router.Site.GetSectionsByVersion(version)
+                            .Where(s => s.Type == "doc")
+                            .Select(section => new 
+                            { 
+                                Id = section.Id,
+                                Title = section.Title,
+                                Type = section.Type,
+                                Version = section.Version,
+                                IndexPage = section.IndexPage
+
+                            })
+                            .ToList()
+                    });
+                }
+            });
+
             foreach (var (name, partialTemplate) in partials)
             {
                 _handlebars.RegisterTemplate(name, partialTemplate);

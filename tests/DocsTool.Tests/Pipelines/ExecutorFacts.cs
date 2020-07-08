@@ -23,7 +23,7 @@ namespace Tanka.DocsTool.Tests.Pipelines
             /* Given */
             var site = new SiteDefinition
             {
-                Title = "Run pipeline",
+                Title = "ExecutorFacts",
                 OutputPath = "output",
                 BuildPath = "_build",
                 Branches = new Dictionary<string, BranchDefinition>
