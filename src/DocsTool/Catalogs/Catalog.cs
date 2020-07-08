@@ -4,20 +4,29 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DotNet.Globbing;
+using Microsoft.Extensions.Logging;
 using Tanka.FileSystem;
 
 namespace Tanka.DocsTool.Catalogs
 {
     public class Catalog
     {
+        public Catalog()
+        {
+            _logger = Infra.LoggerFactory.CreateLogger<Catalog>();
+        }
+
         private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, BlockingCollection<ContentItem>>>
             _contentItems =
                 new ConcurrentDictionary<string, ConcurrentDictionary<string, BlockingCollection<ContentItem>>>();
+
+        private ILogger<Catalog> _logger;
 
         public async Task Add(
             IAsyncEnumerable<ContentItem> aggregate,
             CancellationToken cancellationToken = default)
         {
+            _logger.BeginScope(nameof(Add));
             await foreach (var contentItem in aggregate.WithCancellation(cancellationToken))
             {
                 var version = contentItem.Version;

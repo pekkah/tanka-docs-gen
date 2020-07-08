@@ -14,7 +14,7 @@ namespace Tanka.DocsTool.Definitions
 
         public string BuildPath { get; set; } = Path.GetTempPath();
 
-        public IReadOnlyDictionary<string, BranchDefinition> Branches { get; set; } = new Dictionary<string, BranchDefinition>();
+        public Dictionary<string, BranchDefinition> Branches { get; set; } = new Dictionary<string, BranchDefinition>();
 
         public string[]? Tags { get; set; }
 

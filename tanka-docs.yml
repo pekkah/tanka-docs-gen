@@ -1,7 +1,10 @@
-﻿basepath: "/"
+﻿base_path: "/"
 title: "Tanka Docs Generator"
-input:
-  - "docs-v2"
-  - "ui-bundle"
-output: "gh-pages"
-solution: "tanka-docs-gen.sln"
+output_path: "gh-pages"
+build_path: "_build"
+branches:
+  HEAD:
+    input_path:
+      - ui-bundle
+      - docs-v2
+      - src

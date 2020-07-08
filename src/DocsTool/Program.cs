@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Tanka.DocsTool.Definitions;
 using Tanka.DocsTool.Pipelines;
 
@@ -11,19 +12,30 @@ namespace Tanka.DocsTool
     {
         private static async Task Main(string[] args)
         {
+            Infra.Initialize(args);
+            var logger = Infra.Logger;
             var currentPath = Directory.GetCurrentDirectory();
-            Console.WriteLine($"Working on {currentPath}");
-            Console.WriteLine();
-            var configuration = new ConfigurationBuilder()
-                .AddYamlFile(Path.Combine(currentPath, "tanka-docs.yml"), true)
-                .AddCommandLine(args)
-                .Build();
+            logger.LogInformation($"Current path: '{currentPath}'");
 
-            var site = new SiteDefinition();
-            configuration.Bind(site);
+            var configFilePath = Path.Combine(currentPath, "tanka-docs.yml");
+
+            if (!File.Exists(configFilePath))
+            {
+                logger.LogError(
+                    "Could not load configuration: '{path}'",
+                    configFilePath);
+               
+                return;
+            }
+
+            var site = (await File.ReadAllTextAsync(configFilePath))
+                .ParseYaml<SiteDefinition>();
+
+            logger.LogInformationJson("Site", site);
 
             var executor = new Executor(site, currentPath);
             await executor.Execute();
+            logger.LogInformation("Done!");
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DotNet.Globbing;
+using Microsoft.Extensions.Logging;
 using Tanka.DocsTool.Catalogs;
 using Tanka.DocsTool.Definitions;
 using Tanka.DocsTool.Navigation;
@@ -12,6 +13,12 @@ namespace Tanka.DocsTool.Pipelines
     public class SectionCollector
     {
         private readonly ConcurrentBag<Section> _sections = new ConcurrentBag<Section>();
+        private ILogger<SectionCollector> _logger;
+
+        public SectionCollector()
+        {
+            _logger = Infra.LoggerFactory.CreateLogger<SectionCollector>();
+        }
 
         public async Task Collect(Catalog catalog)
         {
@@ -32,7 +39,15 @@ namespace Tanka.DocsTool.Pipelines
 
         private async Task CollectSection(Catalog catalog, ContentItem contentItem)
         {
+            using var _ = _logger.BeginScope("Collect({contentItem})", contentItem);
             var definition = await contentItem.ParseYaml<SectionDefinition>();
+            
+            // default to doc type
+            if (string.IsNullOrEmpty(definition.Type))
+                definition.Type = "doc";
+
+            _logger.LogInformationJson("Section", definition);
+
             var sectionItems = CollectSectionItems(
                 definition,
                 catalog, 
@@ -43,16 +58,10 @@ namespace Tanka.DocsTool.Pipelines
                 .GetDirectoryPath();
 
             var sectionItemsByRelativePath = sectionItems
-                .ToDictionary(s =>
-                    {
-                        return s.SourceRelativePath.GetRelative(sectionDirectoryPath);
-                    },
+                .ToDictionary(
+                    s => s.SourceRelativePath.GetRelative(sectionDirectoryPath),
                     s => s
                     );
-
-            // default to doc type
-            if (string.IsNullOrEmpty(definition.Type))
-                definition.Type = "doc";
 
             _sections.Add(new Section(contentItem, definition, sectionItemsByRelativePath));
         }
@@ -113,7 +122,15 @@ namespace Tanka.DocsTool.Pipelines
                     var relativeItemPath = itemPath.GetRelative(sectionDirectoryPath);
 
                     // apply includes
-                    return includeGlobs.Any(glob => glob.IsMatch(relativeItemPath));
+                    var include = includeGlobs.Any(glob => glob.IsMatch(relativeItemPath));
+
+                    if (include)
+                        _logger.LogDebug("ContentItem({path} => {contentItem}): include: {included}",
+                            relativeItemPath,
+                            item,
+                         include);
+
+                    return include;
                 })
                 .ToList();
         }

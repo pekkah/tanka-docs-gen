@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using DotNet.Globbing;
 using LibGit2Sharp;
+using Microsoft.Extensions.Logging;
 using Tanka.DocsTool.Definitions;
 using Tanka.FileSystem;
 using Tanka.FileSystem.Git;
@@ -16,6 +19,7 @@ namespace Tanka.DocsTool.Catalogs
         private readonly GitFileSystemRoot _git;
         private readonly SiteDefinition _site;
         private readonly IFileSystem _workFileSystem;
+        private readonly ILogger<ContentAggregator> _logger;
 
         public ContentAggregator(
             SiteDefinition site,
@@ -27,13 +31,15 @@ namespace Tanka.DocsTool.Catalogs
             _git = git;
             _workFileSystem = workFileSystem;
             _classifier = classifier;
+            _logger = Infra.LoggerFactory.CreateLogger<ContentAggregator>();
         }
 
         public async IAsyncEnumerable<ContentItem> Aggregate(
             [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var stack = new Stack<IFileSystemNode>();
+            using var _ = _logger.BeginScope(nameof(Aggregate));
 
+            var stack = new Stack<IFileSystemNode>();
             await foreach (var source in BuildSources(cancellationToken))
             {
                 await foreach (var node in source.Enumerate(cancellationToken))
@@ -69,50 +75,64 @@ namespace Tanka.DocsTool.Catalogs
         private async IAsyncEnumerable<IContentSource> BuildSources(
             [EnumeratorCancellation] CancellationToken cancellationToken)
         {
+            using var _ = _logger.BeginScope(nameof(BuildSources));
+
             var branches = _site.Branches;
             var tags = _site.Tags;
 
             foreach (var (branch, definition) in branches)
             {
-                var commonInputPaths = definition.InputPath;
-                foreach (var commonInputPath in commonInputPaths)
-                    if (branch == "HEAD")
-                    {
-                        var status = _git.Repo.RetrieveStatus();
+                using (_logger.BeginScope($"Source({branch}):"))
+                {
+                    _logger.LogInformation($"Definition: {JsonSerializer.Serialize(definition)}");
 
-                        // If we have changes then we actually use the current folder
-                        // as the source of the truth
-                        if (status.IsDirty)
+                    var commonInputPaths = definition.InputPath;
+                    foreach (var commonInputPath in commonInputPaths)
+                    {
+                        using var __ = _logger.BeginScope("InputPath({inputPath})", commonInputPath);
+                        if (branch == "HEAD")
                         {
-                            var inputDirectory = await _workFileSystem.GetDirectory(commonInputPath);
-                            if (inputDirectory != null)
-                                yield return new FileSystemContentSource(
-                                    _workFileSystem,
-                                    "HEAD",
-                                    inputDirectory.Path); // we're mounting the input path
+                            var status = _git.Repo.RetrieveStatus();
+
+                            // If we have changes then we actually use the current folder
+                            // as the source of the truth
+                            if (status.IsDirty)
+                            {
+                                _logger.LogInformation(
+                                    "Special branch HEAD is dirty and will fallback to using working copy");
+                                var inputDirectory = await _workFileSystem.GetDirectory(commonInputPath);
+                                if (inputDirectory != null)
+                                    yield return new FileSystemContentSource(
+                                        _workFileSystem,
+                                        "HEAD",
+                                        inputDirectory.Path); // we're mounting the input path
+                            }
+                            else
+                            {
+                                _logger.LogInformation("Using HEAD");
+                                var head = _git.Head();
+                                if (await head.GetDirectory(commonInputPath) != null)
+                                    yield return new GitBranchContentSource(head, commonInputPath);
+                            }
                         }
                         else
                         {
-                            var head = _git.Head();
-                            if (await head.GetDirectory(commonInputPath) != null)
-                                yield return new GitBranchContentSource(head, commonInputPath);
+                            // use globbing to find matching branches
+                            _logger.LogInformation("Finding matching branches: {glob}", branch);
+                            var glob = Glob.Parse(branch);
+                            foreach (var repoBranch in _git.Repo.Branches)
+                                if (glob.IsMatch(repoBranch.FriendlyName) || glob.IsMatch(repoBranch.CanonicalName))
+                                {
+                                    var matchingBranch = _git.Branch(repoBranch.CanonicalName);
+                                    _logger.LogInformation("Using branch: {branch}", matchingBranch.FriendlyName);
+                                    if (await matchingBranch.GetDirectory(commonInputPath) != null)
+                                        yield return new GitBranchContentSource(
+                                            matchingBranch,
+                                            commonInputPath);
+                                }
                         }
                     }
-                    else
-                    {
-                        // use globbing to find matching branches
-                        var glob = Glob.Parse(branch);
-                        foreach (var repoBranch in _git.Repo.Branches)
-                            if (glob.IsMatch(repoBranch.FriendlyName) || glob.IsMatch(repoBranch.CanonicalName))
-                            {
-                                var matchingBranch = _git.Branch(repoBranch.CanonicalName);
-
-                                if (await matchingBranch.GetDirectory(commonInputPath) != null)
-                                    yield return new GitBranchContentSource(
-                                        matchingBranch,
-                                        commonInputPath);
-                            }
-                    }
+                }
             }
         }
     }

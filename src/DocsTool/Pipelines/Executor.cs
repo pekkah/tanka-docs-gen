@@ -6,6 +6,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Threading;
 using System.Threading.Tasks;
 using Markdig.Syntax.Inlines;
+using Microsoft.Extensions.Logging;
 using Tanka.DocsTool.Catalogs;
 using Tanka.DocsTool.Definitions;
 using Tanka.DocsTool.Navigation;
@@ -19,10 +20,13 @@ namespace Tanka.DocsTool.Pipelines
 {
     public class Executor
     {
+        private ILogger<Executor> _logger;
+
         public Executor(
             SiteDefinition site,
             string currentPath)
         {
+            _logger = Infra.LoggerFactory.CreateLogger<Executor>();
             CurrentPath = currentPath;
             Site = site;
             FileSystem = new PhysicalFileSystem(CurrentPath);
@@ -61,6 +65,8 @@ namespace Tanka.DocsTool.Pipelines
 
         public async Task Execute(CancellationToken cancellationToken = default)
         {
+            using var _ = _logger.BeginScope(nameof(Execute));
+            _logger.LogInformation("Executing pipeline");
             await CacheFileSystem.DeleteDir("content");
             await CacheFileSystem.GetOrCreateDirectory("content");
 
@@ -93,11 +99,12 @@ namespace Tanka.DocsTool.Pipelines
             /* UI */
             var ui = new UiBuilder(PageCache, OutputFs);
             await ui.BuildSite(site);
-
+            _logger.LogInformation("Pipeline completed");
         }
 
         private async Task<Site> BuildSite(Catalog catalog, SiteDefinition definition)
         {
+            using var _ = _logger.BeginScope(nameof(BuildSite));
             var sectionCollector = new SectionCollector();
             await sectionCollector.Collect(catalog);
 
