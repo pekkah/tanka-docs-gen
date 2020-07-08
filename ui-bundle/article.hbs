@@ -67,6 +67,13 @@
 <body>
     <nav class="navbar navbar-dark bg-dark">
         <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">{{Site.Title}}</a>
+        <ul class="navbar-nav">
+            {{#section "HEAD", "root"}}
+                <li class="nav-item text-nowrap">
+                    <a class="nav-link" href="{{#xref IndexPage}}{{url}}{{/xref}}">{{title}}</a>
+                </li>
+            {{/section}}
+        </ul>
         <ul class="navbar-nav px-3">
             <li class="nav-item text-nowrap">
                 <a class="nav-link" href="https://github.com/pekkah/tanka-docs-gen">GitHub</a>

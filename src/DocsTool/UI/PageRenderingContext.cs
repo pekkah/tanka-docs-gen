@@ -14,9 +14,10 @@ namespace Tanka.DocsTool.UI
             Page = page;
             PageHtml = pageHtml;
         }
-
-
+        
         public Site Site { get; }
+
+        public IReadOnlyCollection<string> Versions => Site.Versions;
 
         public Section Section { get; }
 

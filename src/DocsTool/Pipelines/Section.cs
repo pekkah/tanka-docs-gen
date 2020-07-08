@@ -3,6 +3,7 @@ using System.Linq;
 using DotNet.Globbing;
 using Tanka.DocsTool.Catalogs;
 using Tanka.DocsTool.Definitions;
+using Tanka.DocsTool.Navigation;
 using Tanka.FileSystem;
 
 namespace Tanka.DocsTool.Pipelines
@@ -28,6 +29,10 @@ namespace Tanka.DocsTool.Pipelines
         public string Version => _contentItem.Version;
 
         public SectionDefinition Definition { get; }
+
+        public Link IndexPage => Definition.IndexPage;
+
+        public string Title => Definition.Title;
 
         public Path Path => _contentItem.SourceRelativePath.GetDirectoryPath();
 

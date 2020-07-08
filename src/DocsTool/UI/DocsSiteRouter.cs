@@ -7,19 +7,19 @@ namespace Tanka.DocsTool.UI
 {
     public class DocsSiteRouter
     {
-        private readonly Site _site;
-        private readonly Section _section;
+        public Site Site { get; }
+        public Section Section { get; }
 
         public DocsSiteRouter(Site site, Section section)
         {
-            _site = site;
-            _section = section;
+            Site = site;
+            Section = section;
         }
 
         //todo: should probably move this to Site
         public Xref FullyQualify(Xref xref)
         {
-            var targetSection = _site.GetSectionByXref(xref, _section);
+            var targetSection = Site.GetSectionByXref(xref, Section);
 
             if (targetSection == null)
                 throw new NotImplementedException($"NotFound: {xref}");
@@ -36,15 +36,15 @@ namespace Tanka.DocsTool.UI
 
         public string? GenerateRoute(Xref xref)
         {
-            var targetSection = _site.GetSectionByXref(xref, _section);
+            var targetSection = Site.GetSectionByXref(xref, Section);
 
             if (targetSection == null)
-                throw new NotImplementedException($"NotFound: {xref}");
+                throw new NotImplementedException($"Section NotFound: {xref}");
 
             var targetItem = targetSection.GetContentItem(xref.Path);
 
             if (targetItem == null)
-                throw new NotImplementedException($"NotFound: {xref}");
+                throw new NotImplementedException($"ContentItem NotFound: {xref} from section {targetSection}");
 
             Path path = xref.Path;
 

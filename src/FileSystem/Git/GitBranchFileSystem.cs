@@ -85,10 +85,11 @@ namespace Tanka.FileSystem.Git
             if (!string.IsNullOrEmpty(gitPath))
             {
                 var treeEntry = Branch.Tip.Tree[gitPath];
-                tree = Repo.Lookup<Tree>(treeEntry.Target.Id);
 
                 if (treeEntry == null || treeEntry.TargetType != TreeEntryTargetType.Tree)
                     return new ValueTask<IReadOnlyDirectory?>(default(IReadOnlyDirectory?));
+
+                tree = Repo.Lookup<Tree>(treeEntry.Target.Id);
             }
             else
             {

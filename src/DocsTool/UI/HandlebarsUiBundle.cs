@@ -159,6 +159,34 @@ namespace Tanka.DocsTool.UI
                 });
             });
 
+            _handlebars.RegisterHelper("section", (output, options, context, arguments) =>
+            {
+                if (arguments.Length != 2)
+                    throw new InvalidOperationException($"Section requires version and id. " +
+                                                        $"Example: section \"head\" \"root\"");
+
+                var version = arguments[0]?.ToString() 
+                              ?? throw new ArgumentNullException("arguments[0]");
+
+                var id = arguments[1]?.ToString() 
+                         ?? throw new ArgumentNullException("arguments[1]");
+
+                var section = router.Site.GetSection(version, id);
+
+                if (section == null)
+                    throw new InvalidOperationException(
+                        $"Could not find section '{id}@{version}'");
+
+                options.Template(output, new
+                {
+                    Id = section.Id,
+                    Title = section.Title,
+                    Type = section.Type,
+                    Version = section.Version,
+                    IndexPage = section.IndexPage
+                });
+            });
+
             foreach (var (name, partialTemplate) in partials)
             {
                 _handlebars.RegisterTemplate(name, partialTemplate);
