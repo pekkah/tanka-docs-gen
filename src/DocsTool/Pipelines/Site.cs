@@ -10,13 +10,13 @@ namespace Tanka.DocsTool.Pipelines
     {
         private readonly Dictionary<string, Dictionary<string, Section>> _sectionsByVersion;
 
-        public SiteDefinition Definition { get; }
-
         public Site(SiteDefinition definition, Dictionary<string, Dictionary<string, Section>> sectionsByVersion)
         {
             _sectionsByVersion = sectionsByVersion;
             Definition = definition;
         }
+
+        public SiteDefinition Definition { get; }
 
         public string Title => Definition.Title;
 
@@ -52,7 +52,7 @@ namespace Tanka.DocsTool.Pipelines
             return null;
         }
 
-        private Section? GetSectionByXref(in Xref xref)
+        public Section? GetSectionByXref(in Xref xref)
         {
             if (xref.SectionId == null)
                 throw new ArgumentNullException(nameof(xref.SectionId));
@@ -61,10 +61,8 @@ namespace Tanka.DocsTool.Pipelines
                 throw new ArgumentNullException(nameof(xref.Version));
 
             if (_sectionsByVersion.TryGetValue(xref.Version, out var sectionsById))
-            {
                 if (sectionsById.TryGetValue(xref.SectionId, out var section))
                     return section;
-            }
 
             return null;
         }

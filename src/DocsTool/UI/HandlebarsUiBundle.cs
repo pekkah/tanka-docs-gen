@@ -78,6 +78,9 @@ namespace Tanka.DocsTool.UI
 
         public IPageRenderer GetPageRenderer(string template, DocsSiteRouter router)
         {
+            if (string.IsNullOrEmpty(template))
+                template = DefaultTemplate;
+
             var templateHbs = _templates[template];
 
             return new HandlebarsPageRenderer(templateHbs, _partials, router);

@@ -41,11 +41,6 @@ namespace Tanka.DocsTool.UI
             if (targetSection == null)
                 throw new InvalidOperationException($"Section NotFound: {xref}");
 
-            var targetItem = targetSection.GetContentItem(xref.Path);
-
-            if (targetItem == null)
-                throw new InvalidOperationException($"ContentItem NotFound: {xref} from section {targetSection}");
-
             Path path = xref.Path;
 
             if (path.GetExtension() == ".md")

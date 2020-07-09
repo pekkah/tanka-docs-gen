@@ -88,6 +88,10 @@ namespace Tanka.DocsTool.UI
 
             // create output file
             var outputFile = await _output.GetOrCreateFile(partialHtmlPage.File.Path);
+
+            if (string.IsNullOrEmpty(frontmatter.Title))
+                frontmatter.Title = outputFile.Path.GetFileName().ChangeExtension(null);
+
             var fullPageHtml = _uiBundle.GetPageRenderer(frontmatter.Template, _router)
                 .Render(new PageRenderingContext(
                     _site,
@@ -139,5 +143,46 @@ namespace Tanka.DocsTool.UI
 
             return (page.WithFile(outputFile, "text/html"), frontmatter);
         }
+
+        public async Task ComposeRedirectPage(Path relativePath, Link redirectToPage)
+        {
+            string? target = redirectToPage.IsXref
+                ? _router.GenerateRoute(redirectToPage.Xref.Value)
+                : redirectToPage.Uri;
+
+            if (target == null)
+                throw new InvalidOperationException(
+                    $"Cannot generate redirect target from '{redirectToPage}'.");
+
+            var generatedHtml = string.Format(RedirectPageHtml, target);
+
+            // create output dir for page
+            Path targetFilePath = _router.GenerateRoute(
+                new Xref(_section.Version, _section.Id, relativePath));
+
+            if (targetFilePath == new Path(target))
+                throw new InvalidOperationException(
+                    $"Cannot generate a index.html redirect page '{targetFilePath}'. " +
+                    $"Redirect would point to same file as the generated file and would" +
+                    "end in a endless loop");
+
+            await _output.GetOrCreateDirectory(targetFilePath.GetDirectoryPath());
+
+            // create output file
+            var outputFile = await _output.GetOrCreateFile(targetFilePath);
+            await using var outputStream = await outputFile.OpenWrite();
+            await using var writer = new StreamWriter(outputStream);
+            await writer.WriteAsync(generatedHtml);
+        }
+
+        internal static string RedirectPageHtml = @"<html>
+   <head>
+      <script>
+        window.location = ""{0}"";
+      </script>
+    </head>
+    <body>
+    </body>
+</html>";
     }
 }

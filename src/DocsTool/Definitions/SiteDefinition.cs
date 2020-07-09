@@ -8,7 +8,7 @@ namespace Tanka.DocsTool.Definitions
     {
         public string Title { get; set; } = "Tanka Docs";
 
-        public Xref IndexPage { get; set; } = LinkParser.Parse("xref://root:index.md").Xref!.Value;
+        public Link IndexPage { get; set; } = LinkParser.Parse("xref://root@HEAD:index.md");
 
         public string OutputPath { get; set; } = "output";
 

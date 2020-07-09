@@ -1,5 +1,6 @@
 ﻿base_path: "/"
 title: "Tanka Docs Generator"
+index_page: xref://root@HEAD:index.md
 output_path: "gh-pages"
 build_path: "_build"
 branches:

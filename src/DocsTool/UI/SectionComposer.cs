@@ -45,7 +45,6 @@ namespace Tanka.DocsTool.UI
             
             await ComposeAssets(section, router);
             await ComposePages(section, menu, router, renderer, preprocessorPipe);
-            //ComposeIndexPages(section, menu);
         }
 
         private Func<Path, PipeReader, Task<PipeReader>> BuildPreProcessors(Section section)
@@ -108,10 +107,12 @@ namespace Tanka.DocsTool.UI
             }.Contains(extension);
         }
 
-        private async Task ComposePages(Section section,
+        private async Task ComposePages(
+            Section section,
             IReadOnlyCollection<NavigationItem> menu,
             DocsSiteRouter router,
-            DocsMarkdownService renderer, Func<Path, PipeReader, Task<PipeReader>> preprocessorPipe)
+            DocsMarkdownService renderer, 
+            Func<Path, PipeReader, Task<PipeReader>> preprocessorPipe)
         {
             var pageComposer = new PageComposer(_site, section, _cache, _output, _uiBundle, renderer);
 
@@ -119,6 +120,20 @@ namespace Tanka.DocsTool.UI
             {
                 await pageComposer.ComposePage(pageItem.Key, pageItem.Value, menu, router, preprocessorPipe);
             }
+
+            if (section.Type != "doc")
+                return;
+
+            // check if section has index page
+            var indexPage = section.GetContentItem("index.md");
+
+            // if index page exists then don't generate it
+            if (indexPage != null)
+                return;
+
+            // we need a redirect target
+            var redirectToPage = section.IndexPage;
+            await pageComposer.ComposeRedirectPage("index.html", redirectToPage);
         }
 
         private bool IsPage(Path relativePath, ContentItem contentItem)
