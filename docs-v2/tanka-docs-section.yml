@@ -4,4 +4,3 @@ index_page: xref://root:index.md
 nav:
   - xref://root:nav.md
   - xref://root:1-instructions/nav.md
-  - xref://example:nav.md

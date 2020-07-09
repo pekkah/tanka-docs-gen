@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Tanka.DocsTool.Pipelines;
 
 namespace Tanka.DocsTool.UI
 {
@@ -11,10 +10,5 @@ namespace Tanka.DocsTool.UI
         Task Initialize(CancellationToken cancellationToken);
 
         IPageRenderer GetPageRenderer(string template, DocsSiteRouter router);
-    }
-
-    public interface IPageRenderer
-    {
-        string Render(PageRenderingContext context);
     }
 }

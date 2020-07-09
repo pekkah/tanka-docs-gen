@@ -5,6 +5,7 @@ using System.IO.Pipelines;
 using System.Linq;
 using System.Threading.Tasks;
 using Markdig;
+using Microsoft.Extensions.Logging;
 using Tanka.DocsTool.Catalogs;
 using Tanka.DocsTool.Extensions;
 using Tanka.DocsTool.Extensions.Roslyn;
@@ -23,6 +24,7 @@ namespace Tanka.DocsTool.UI
         private readonly IFileSystem _cache;
         private readonly IFileSystem _output;
         private readonly IUiBundle _uiBundle;
+        private ILogger<SectionComposer> _logger;
 
         public SectionComposer(Site site, IFileSystem cache, IFileSystem output, IUiBundle uiBundle)
         {
@@ -30,13 +32,14 @@ namespace Tanka.DocsTool.UI
             _cache = cache;
             _output = output;
             _uiBundle = uiBundle;
+            _logger = Infra.LoggerFactory.CreateLogger<SectionComposer>();
         }
 
         public async Task ComposeSection(Section section)
         {
             var preprocessorPipe = BuildPreProcessors(section);
             var router = new DocsSiteRouter(_site, section);
-            var renderer = await InitializeMarkdown(section, router);
+            var renderer = await BuildMarkdownService(section, router);
 
             var menu = await ComposeMenu(section);
             
@@ -53,7 +56,7 @@ namespace Tanka.DocsTool.UI
             return builder.Build();
         }
 
-        private Task<DocsMarkdownService> InitializeMarkdown(Section section, DocsSiteRouter router)
+        private Task<DocsMarkdownService> BuildMarkdownService(Section section, DocsSiteRouter router)
         {
             var context = new DocsMarkdownRenderingContext(_site, section, router);
             var builder = new MarkdownPipelineBuilder();
@@ -89,15 +92,19 @@ namespace Tanka.DocsTool.UI
             if (IsPage(relativePath, contentItem))
                 return false;
 
-            var extension = relativePath.GetExtension().ToString();
+            var extension = relativePath.GetExtension()
+                .ToString()
+                .ToLowerInvariant();
 
+            //todo: better management of assets
             return new []
             {
                 ".js",
                 ".css",
                 ".png",
                 ".jpg",
-                ".gif"
+                ".gif",
+                ".zip"
             }.Contains(extension);
         }
 

@@ -22,12 +22,12 @@ namespace Tanka.DocsTool.UI
             var targetSection = Site.GetSectionByXref(xref, Section);
 
             if (targetSection == null)
-                throw new NotImplementedException($"NotFound: {xref}");
+                throw new InvalidOperationException($"NotFound: {xref}");
 
             var targetItem = targetSection.GetContentItem(xref.Path);
 
             if (targetItem == null)
-                throw new NotImplementedException($"NotFound: {xref}");
+                throw new InvalidOperationException($"NotFound: {xref}");
 
             return xref
                 .WithSectionId(targetSection.Id)
@@ -39,12 +39,12 @@ namespace Tanka.DocsTool.UI
             var targetSection = Site.GetSectionByXref(xref, Section);
 
             if (targetSection == null)
-                throw new NotImplementedException($"Section NotFound: {xref}");
+                throw new InvalidOperationException($"Section NotFound: {xref}");
 
             var targetItem = targetSection.GetContentItem(xref.Path);
 
             if (targetItem == null)
-                throw new NotImplementedException($"ContentItem NotFound: {xref} from section {targetSection}");
+                throw new InvalidOperationException($"ContentItem NotFound: {xref} from section {targetSection}");
 
             Path path = xref.Path;
 

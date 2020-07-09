@@ -14,28 +14,36 @@ namespace Tanka.DocsTool
         {
             Infra.Initialize(args);
             var logger = Infra.Logger;
-            var currentPath = Directory.GetCurrentDirectory();
-            logger.LogInformation($"Current path: '{currentPath}'");
 
-            var configFilePath = Path.Combine(currentPath, "tanka-docs.yml");
-
-            if (!File.Exists(configFilePath))
+            try
             {
-                logger.LogError(
-                    "Could not load configuration: '{path}'",
-                    configFilePath);
-               
-                return;
+                var currentPath = Directory.GetCurrentDirectory();
+                logger.LogInformation($"Current path: '{currentPath}'");
+
+                var configFilePath = Path.Combine(currentPath, "tanka-docs.yml");
+
+                if (!File.Exists(configFilePath))
+                {
+                    logger.LogError(
+                        "Could not load configuration: '{path}'",
+                        configFilePath);
+
+                    return;
+                }
+
+                var site = (await File.ReadAllTextAsync(configFilePath))
+                    .ParseYaml<SiteDefinition>();
+
+                logger.LogInformationJson("Site", site);
+
+                var executor = new Executor(site, currentPath);
+                await executor.Execute();
+                logger.LogInformation("Done!");
             }
-
-            var site = (await File.ReadAllTextAsync(configFilePath))
-                .ParseYaml<SiteDefinition>();
-
-            logger.LogInformationJson("Site", site);
-
-            var executor = new Executor(site, currentPath);
-            await executor.Execute();
-            logger.LogInformation("Done!");
+            catch (Exception x)
+            {
+                logger.LogError(x, "Execution failed :(");
+            }
         }
     }
 }

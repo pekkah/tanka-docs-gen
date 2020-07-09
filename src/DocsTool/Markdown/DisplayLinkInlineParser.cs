@@ -1,4 +1,5 @@
-﻿using Markdig.Helpers;
+﻿using System;
+using Markdig.Helpers;
 using Markdig.Parsers;
 using Markdig.Syntax;
 using Tanka.DocsTool.Navigation;
@@ -83,9 +84,10 @@ namespace Tanka.DocsTool.Markdown
                     DisplayLink = link
                 };
             }
-            catch
+            catch (Exception x)
             {
-                return false;
+                throw new InvalidOperationException(
+                    $"Invalid link '{linkText}'", x);
             }
 
             return true;

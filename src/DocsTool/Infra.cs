@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Tanka.DocsTool
 {
@@ -31,7 +32,7 @@ namespace Tanka.DocsTool
                 });
         }
 
-        public static ILoggerFactory LoggerFactory; 
+        public static ILoggerFactory LoggerFactory = new NullLoggerFactory(); 
 
         public static ILogger Logger => LoggerFactory.CreateLogger("main");
     }

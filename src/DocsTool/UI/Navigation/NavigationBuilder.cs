@@ -11,12 +11,10 @@ namespace Tanka.DocsTool.UI.Navigation
     {
         private readonly List<NavigationItem> _items = new List<NavigationItem>();
         private readonly DocsMarkdownService _markdownService;
-        private readonly DocsSiteRouter _router;
 
         public NavigationBuilder(DocsMarkdownService markdownService, DocsSiteRouter router)
         {
             _markdownService = markdownService;
-            _router = router;
         }
 
         public IReadOnlyCollection<NavigationItem> Build()
@@ -99,7 +97,7 @@ namespace Tanka.DocsTool.UI.Navigation
                     return ParseInlineLink(inlineLink);
                 default:
                     throw new InvalidOperationException(
-                        $"Document contains invalid navigation document syntax at {paragraphBlock.Inline.FirstChild.ToPositionText()}. Expected inline link.");
+                        $"Document contains invalid navigation document syntax at {paragraphBlock.ToPositionText()}. Expected inline link.");
             }
         }
 

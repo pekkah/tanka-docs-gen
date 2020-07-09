@@ -5,7 +5,10 @@ namespace Tanka.DocsTool.Markdown
 {
     public class DocsMarkdownRenderingContext
     {
-        public DocsMarkdownRenderingContext(Site site, Section section, DocsSiteRouter router)
+        public DocsMarkdownRenderingContext(
+            Site site, 
+            Section section, 
+            DocsSiteRouter router)
         {
             Site = site;
             Section = section;
