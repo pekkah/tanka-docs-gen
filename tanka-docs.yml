@@ -4,7 +4,18 @@ index_page: xref://root@HEAD:index.md
 output_path: "gh-pages"
 build_path: "_build"
 branches:
-  HEAD:
+  master:
+    input_path:
+      - ui-bundle
+      - docs-v2
+      - src
+tags:
+  0.*:
+    input_path:
+      - ui-bundle
+      - docs-v2
+      - src
+  1.*:
     input_path:
       - ui-bundle
       - docs-v2

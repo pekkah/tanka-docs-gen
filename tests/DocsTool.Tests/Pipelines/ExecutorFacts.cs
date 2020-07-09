@@ -32,6 +32,13 @@ namespace Tanka.DocsTool.Tests.Pipelines
                     {
                         InputPath = new[] { "ui-bundle", "docs-v2", "src"}
                     }
+                },
+                Tags = new Dictionary<string, BranchDefinition>()
+                {
+                    ["0.*"] = new BranchDefinition()
+                    {
+                        InputPath = new[] { "ui-bundle", "docs-v2", "src" }
+                    }
                 }
             };
 

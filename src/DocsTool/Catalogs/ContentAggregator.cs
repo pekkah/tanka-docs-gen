@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -78,7 +79,6 @@ namespace Tanka.DocsTool.Catalogs
             using var _ = _logger.BeginScope(nameof(BuildSources));
 
             var branches = _site.Branches;
-            var tags = _site.Tags;
 
             foreach (var (branch, definition) in branches)
             {
@@ -131,6 +131,35 @@ namespace Tanka.DocsTool.Catalogs
                                             commonInputPath);
                                 }
                         }
+                    }
+                }
+            }
+
+            var tags = _site.Tags;
+
+            foreach (var (tag, definition) in tags)
+            {
+                using (_logger.BeginScope($"Source({tag}):"))
+                {
+                    _logger.LogInformation($"Definition: {JsonSerializer.Serialize(definition)}");
+
+                    var inputPaths = definition.InputPath;
+
+                    foreach (var inputPath in inputPaths)
+                    {
+                        // use globbing to find matching branches
+                        _logger.LogInformation("Finding matching tags: {glob}", tag);
+                        var glob = Glob.Parse(tag);
+                        foreach (var repoBranch in _git.Repo.Tags)
+                            if (glob.IsMatch(repoBranch.FriendlyName) || glob.IsMatch(repoBranch.CanonicalName))
+                            {
+                                var matchingBranch = _git.Tag(repoBranch);
+                                _logger.LogInformation("Using branch: {branch}", matchingBranch.FriendlyName);
+                                if (await matchingBranch.GetDirectory(inputPath) != null)
+                                    yield return new GitBranchContentSource(
+                                        matchingBranch,
+                                        inputPath);
+                            }
                     }
                 }
             }

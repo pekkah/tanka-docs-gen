@@ -23,7 +23,7 @@ namespace Tanka.FileSystem.Git
 
             if (Branch == null)
                 throw new ArgumentOutOfRangeException(
-                    $"Branch '{branch}' does not exists in repository: {Repo.Info.Path}");
+                    $"Tag '{branch}' does not exists in repository: {Repo.Info.Path}");
         }
 
         public ValueTask<IReadOnlyFile?> GetFile(Path path)

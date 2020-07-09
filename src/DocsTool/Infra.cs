@@ -6,9 +6,9 @@ namespace Tanka.DocsTool
 {
     public static class Infra
     {
-        public static void Initialize(string[] args)
+        public static void Initialize(Options args)
         {
-            var debug = args.Contains("--debug");
+            var debug = args.Debug;
             LoggerFactory = Microsoft.Extensions.Logging
                 .LoggerFactory.Create(builder =>
                 {

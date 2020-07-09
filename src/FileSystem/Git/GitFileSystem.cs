@@ -18,6 +18,11 @@ namespace Tanka.FileSystem.Git
             return new GitBranchFileSystem(_repo, _repo.Branches[name]);
         }
 
+        public GitBranchFileSystem Tag(Tag tag)
+        {
+            return new GitBranchFileSystem(_repo, _repo.Branches[tag.CanonicalName]);
+        }
+
         public GitBranchFileSystem Head()
         {
             return new GitBranchFileSystem(_repo, _repo.Head);
@@ -38,6 +43,5 @@ namespace Tanka.FileSystem.Git
         {
             return new GitFileSystemRoot(DiscoverRepo(startingPath));
         }
-
     }
 }
