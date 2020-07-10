@@ -123,7 +123,6 @@ Task("Docs")
         Information("Generate docs");
         var settings = new DotNetCoreRunSettings
         {
-            Framework = "netcoreapp3.0",
             Configuration = "Release"
         };
 
@@ -136,7 +135,8 @@ Task("Docs")
         }
 
         DotNetCoreRun(
-            "./src/DocsTool",
+            "./src/DocsTool", 
+            $"", 
             settings);
     });
 
