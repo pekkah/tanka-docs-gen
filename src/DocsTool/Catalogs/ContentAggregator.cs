@@ -150,14 +150,15 @@ namespace Tanka.DocsTool.Catalogs
                         // use globbing to find matching branches
                         _logger.LogInformation("Finding matching tags: {glob}", tag);
                         var glob = Glob.Parse(tag);
-                        foreach (var repoBranch in _git.Repo.Tags)
-                            if (glob.IsMatch(repoBranch.FriendlyName) || glob.IsMatch(repoBranch.CanonicalName))
+                        foreach (var repoTag in _git.Repo.Tags)
+                            if (glob.IsMatch(repoTag.FriendlyName) || glob.IsMatch(repoTag.CanonicalName))
                             {
-                                var matchingBranch = _git.Tag(repoBranch);
-                                _logger.LogInformation("Using branch: {branch}", matchingBranch.FriendlyName);
-                                if (await matchingBranch.GetDirectory(inputPath) != null)
-                                    yield return new GitBranchContentSource(
-                                        matchingBranch,
+                                var matchingCommit = _git.Tag(repoTag);
+                                _logger.LogInformation("Using tag: {branch}", repoTag.FriendlyName);
+                                if (await matchingCommit.GetDirectory(inputPath) != null)
+                                    yield return new GitCommitContentSource(
+                                        matchingCommit,
+                                        repoTag.FriendlyName,
                                         inputPath);
                             }
                     }

@@ -25,4 +25,27 @@ namespace Tanka.DocsTool.Catalogs
             return _branch.Enumerate(_path);
         }
     }
+
+    public class GitCommitContentSource : IContentSource
+    {
+        private readonly GitCommitFileSystem _commit;
+        private readonly string _friendlyName;
+        private readonly Path _path;
+
+        public GitCommitContentSource(GitCommitFileSystem commit, string friendlyName, Path path)
+        {
+            _commit = commit;
+            _friendlyName = friendlyName;
+            _path = path;
+        }
+
+        public string Version => _friendlyName;
+
+        public Path Path => _path;
+
+        public IAsyncEnumerable<IFileSystemNode> Enumerate(CancellationToken cancellationToken)
+        {
+            return _commit.Enumerate(_path);
+        }
+    }
 }

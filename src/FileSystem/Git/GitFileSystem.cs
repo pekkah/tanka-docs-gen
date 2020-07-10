@@ -18,9 +18,10 @@ namespace Tanka.FileSystem.Git
             return new GitBranchFileSystem(_repo, _repo.Branches[name]);
         }
 
-        public GitBranchFileSystem Tag(Tag tag)
+        public GitCommitFileSystem Tag(Tag tag)
         {
-            return new GitBranchFileSystem(_repo, _repo.Branches[tag.CanonicalName]);
+            var commit = _repo.Lookup<Commit>(tag.Target.Id);
+            return new GitCommitFileSystem(_repo, commit);
         }
 
         public GitBranchFileSystem Head()

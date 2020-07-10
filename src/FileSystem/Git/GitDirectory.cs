@@ -5,9 +5,9 @@ namespace Tanka.FileSystem.Git
 {
     internal class GitDirectory : IReadOnlyDirectory
     {
-        private readonly GitBranchFileSystem _fileSystem;
+        private readonly IReadOnlyFileSystem _fileSystem;
 
-        public GitDirectory(GitBranchFileSystem fileSystem, in Path path, Tree tree)
+        public GitDirectory(IReadOnlyFileSystem fileSystem, in Path path, Tree tree)
         {
             Path = path;
             Tree = tree;
