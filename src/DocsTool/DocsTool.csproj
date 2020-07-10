@@ -1,25 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyName>Tanka.DocsTool</AssemblyName>
+    <AssemblyName>Tanka.DocsGen</AssemblyName>
     <RootNamespace>Tanka.DocsTool</RootNamespace>
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>tanka-docs-vnext</ToolCommandName>
+    <ToolCommandName>tanka-docs-gen</ToolCommandName>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="DotNet.Glob" Version="3.0.9" />
     <PackageReference Include="Markdig" Version="0.20.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.6.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.5" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="3.1.5" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="3.1.5" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.5" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.5" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.5" />
     <PackageReference Include="MimeDb" Version="0.1.0" />
-    <PackageReference Include="NetEscapades.Configuration.Yaml" Version="2.0.1" />
     <PackageReference Include="YamlDotNet" Version="8.1.2" />
     <PackageReference Include="Handlebars.Net" Version="1.10.1" />
   </ItemGroup>
