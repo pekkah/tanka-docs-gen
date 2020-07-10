@@ -16,7 +16,8 @@ namespace Tanka.DocsTool
                     {
                         console.DisableColors = false;
                         console.IncludeScopes = true;
-                        
+                        console.LogToStandardErrorThreshold = LogLevel.Error;
+
                     });
 
                     builder.AddFilter(level =>

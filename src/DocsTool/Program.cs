@@ -21,11 +21,15 @@ namespace Tanka.DocsTool
 
     internal class Program
     {
-        public static async Task Main(string[] args)
+        private static int statusCode = 0;
+
+        public static async Task<int> Main(string[] args)
         {
             await Parser.Default.ParseArguments<Options>(args)
                 .WithNotParsed(HandleParseError)
                 .WithParsedAsync(Execute);
+
+            return statusCode;
         }
 
         private static void HandleParseError(IEnumerable<Error> obj)
@@ -34,6 +38,8 @@ namespace Tanka.DocsTool
             {
                 Infra.Logger.LogError(error.ToString());
             }
+
+            statusCode = 1;
         }
 
         private static async Task Execute(Options options)
@@ -73,10 +79,13 @@ namespace Tanka.DocsTool
                 var executor = new Executor(site, currentPath);
                 await executor.Execute();
                 logger.LogInformation("Done!");
+
+                statusCode = 0;
             }
             catch (Exception x)
             {
                 logger.LogError(x, "Execution failed :(");
+                statusCode = 2;
             }
         }
     }
