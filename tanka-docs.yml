@@ -15,7 +15,27 @@ branches:
       - docs-v2
       - src
 tags:
-  0.*:
+  0.8.*:
+    input_path:
+      - ui-bundle
+      - docs-v2
+      - src
+  0.9.*:
+    input_path:
+      - ui-bundle
+      - docs-v2
+      - src
+  0.10.*:
+    input_path:
+      - ui-bundle
+      - docs-v2
+      - src
+  0.11.*:
+    input_path:
+      - ui-bundle
+      - docs-v2
+      - src
+  0.12.*:
     input_path:
       - ui-bundle
       - docs-v2
