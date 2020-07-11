@@ -46,7 +46,7 @@ namespace Tanka.DocsTool.UI
             if (path.GetExtension() == ".md")
                 path = path.ChangeExtension(".html");
 
-            return "/"+ targetSection.Version + "/" + targetSection.Path / path;
+            return targetSection.Version + "/" + targetSection.Path / path;
         }
     }
 }

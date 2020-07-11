@@ -154,7 +154,7 @@ namespace Tanka.DocsTool.UI
                 throw new InvalidOperationException(
                     $"Cannot generate redirect target from '{redirectToPage}'.");
 
-            var generatedHtml = string.Format(RedirectPageHtml, target);
+            var generatedHtml = string.Format(RedirectPageHtml, _site.BasePath, target);
 
             // create output dir for page
             Path targetFilePath = _router.GenerateRoute(
@@ -175,10 +175,12 @@ namespace Tanka.DocsTool.UI
             await writer.WriteAsync(generatedHtml);
         }
 
-        internal static string RedirectPageHtml = @"<html>
-   <head>
+        internal static string RedirectPageHtml = @"<!DOCTYPE html>
+<html>
+    <head>
+        <base href=""{0}"">
       <script>
-        window.location = ""{0}"";
+        window.location = ""{1}"";
       </script>
     </head>
     <body>

@@ -128,15 +128,10 @@ Task("Docs")
 
         var targetFolder = $"{artifactsDir}\\gh-pages";
         var basepath = "/tanka-docs-gen/";
-        if (preRelease)
-        {
-            targetFolder += "\\beta";
-            basepath += "beta/";
-        }
 
         DotNetCoreRun(
             "./src/DocsTool", 
-            $"", 
+            $"--output \"{targetFolder}\" --base \"{basepath}\"", 
             settings);
     });
 

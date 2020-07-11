@@ -69,7 +69,8 @@ namespace Tanka.DocsTool.UI
 
             
             var generatedHtml = string.Format(
-                PageComposer.RedirectPageHtml, 
+                PageComposer.RedirectPageHtml,
+                site.BasePath,
                 target);
 
             // create output dir for page

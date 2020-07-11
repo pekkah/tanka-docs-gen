@@ -3,25 +3,34 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using CommandLine;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Tanka.DocsTool.Definitions;
 using Tanka.DocsTool.Pipelines;
 
 namespace Tanka.DocsTool
 {
+    [Verb("gen", true, HelpText = "Generate documentation")]
     public class Options
     {
         [Option("debug", Required = false, HelpText = "Set output to verbose messages.")]
         public bool Debug { get; set; }
 
-        [Option('f', "file", Required = false, HelpText = "tanka-docs.yml file")]
+        [Option('f', "file", Required = false, HelpText = "tanka-docs.yml file path")]
         public string? ConfigFile { get; set; }
+
+        [Option('o', "output", Required = false, HelpText = "Output directory")]
+        public string? OutputPath { get; set; }
+
+        [Option('b', "build", Required = false, HelpText = "Build directory")]
+        public string? BuildPath { get; set; }
+
+        [Option("base", HelpText = "Set the base href meta for the generated html pages")]
+        public string? Base { get; set; }
     }
 
     internal class Program
     {
-        private static int statusCode = 0;
+        private static int statusCode;
 
         public static async Task<int> Main(string[] args)
         {
@@ -34,10 +43,7 @@ namespace Tanka.DocsTool
 
         private static void HandleParseError(IEnumerable<Error> obj)
         {
-            foreach (var error in obj)
-            {
-                Infra.Logger.LogError(error.ToString());
-            }
+            foreach (var error in obj) Infra.Logger.LogError(error.ToString());
 
             statusCode = 1;
         }
@@ -73,6 +79,24 @@ namespace Tanka.DocsTool
 
                 var site = (await File.ReadAllTextAsync(configFilePath))
                     .ParseYaml<SiteDefinition>();
+
+                // override output path if set
+                if (!string.IsNullOrEmpty(options.OutputPath))
+                {
+                    site.OutputPath = options.OutputPath;
+                }
+
+                // override build path if set
+                if (!string.IsNullOrEmpty(options.BuildPath))
+                {
+                    site.BuildPath = options.BuildPath;
+                }
+
+                // override html meta basepath if set
+                if (!string.IsNullOrEmpty(options.Base))
+                {
+                    site.BasePath = options.Base;
+                }
 
                 logger.LogInformationJson("Site", site);
 
