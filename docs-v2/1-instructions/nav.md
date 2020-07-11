@@ -1,0 +1,3 @@
+- [Instructions](xref://1-instructions/1-usage.md)
+  - [Usage](xref://1-instructions/1-usage.md)
+  - [Publish](xref://1-instructions/2-publishing.md)

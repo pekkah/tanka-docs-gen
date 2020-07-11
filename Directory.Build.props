@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <Authors>Pekka Heikura &lt;pekkah@gmail.com&gt;</Authors>
+    <PackageProjectUrl>https://github.com/pekkah/tanka-docs-gen</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/pekkah/tanka-docs-gen</RepositoryUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Nullable>enable</Nullable>
+    <Language>latest</Language>
+  </PropertyGroup>
+</Project>

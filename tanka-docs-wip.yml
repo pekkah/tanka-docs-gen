@@ -1,0 +1,11 @@
+﻿base_path: "/"
+title: "Tanka Docs Generator - WIP"
+index_page: xref://root@HEAD:index.md
+output_path: "gh-pages"
+build_path: "_build"
+branches:
+  HEAD:
+    input_path:
+      - ui-bundle
+      - docs-v2
+      - src

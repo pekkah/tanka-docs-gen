@@ -1,0 +1,42 @@
+﻿base_path: "/"
+title: "Tanka Docs Generator"
+index_page: xref://root@master:index.md
+output_path: "gh-pages"
+build_path: "_build"
+branches:
+  master:
+    input_path:
+      - ui-bundle
+      - docs-v2
+      - src
+tags:
+  0.8.*:
+    input_path:
+      - ui-bundle
+      - docs-v2
+      - src
+  0.9.*:
+    input_path:
+      - ui-bundle
+      - docs-v2
+      - src
+  0.10.*:
+    input_path:
+      - ui-bundle
+      - docs-v2
+      - src
+  0.11.*:
+    input_path:
+      - ui-bundle
+      - docs-v2
+      - src
+  0.12.*:
+    input_path:
+      - ui-bundle
+      - docs-v2
+      - src
+  1.*:
+    input_path:
+      - ui-bundle
+      - docs-v2
+      - src

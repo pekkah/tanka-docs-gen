@@ -123,21 +123,15 @@ Task("Docs")
         Information("Generate docs");
         var settings = new DotNetCoreRunSettings
         {
-            Framework = "netcoreapp3.0",
             Configuration = "Release"
         };
 
         var targetFolder = $"{artifactsDir}\\gh-pages";
         var basepath = "/tanka-docs-gen/";
-        if (preRelease)
-        {
-            targetFolder += "\\beta";
-            basepath += "beta/";
-        }
 
         DotNetCoreRun(
-            "./src/generate.docs", 
-            $"--output=\"{targetFolder}\" --basepath=\"{basepath}\"", 
+            "./src/DocsTool", 
+            $"--output \"{targetFolder}\" --base \"{basepath}\"", 
             settings);
     });
 
