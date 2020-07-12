@@ -3,13 +3,13 @@
 
 <head>
     <base href="/tanka-docs-gen/">
-    <title>2-publishing - Tanka Docs Generator</title>
+    <title>tanka-docs - Tanka Docs Generator</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-    <link rel="stylesheet" href="0.8.0/prism.css" />
+    <link rel="stylesheet" href="master/prism.css" />
     <style>
         body {
             height: 100%;
@@ -74,13 +74,33 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="0.8.0/index.html">Home</a>
+                    <a class="nav-link" href="master/index.html">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="0.8.0/2-example/1-example.html">Example</a>
+                    <a class="nav-link" href="master/01-structure/tanka-docs.html">Structure</a>
                 </li>
-            <li class="nav-item">
+                <li class="nav-item">
+                    <a class="nav-link" href="master/02-syntax/xref.html">Syntax</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="master/03-versioning/tags-and-branches.html">Versioning</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="master/04-ui/ui-bundle.html">UI</a>
+                </li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+             <li class="nav-item">
                 <a class="nav-link" href="https://github.com/pekkah/tanka-docs-gen">GitHub</a>
+            </li>
+            <li class="nav-item dropdown justify-content-end">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    master
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="/0.8.0">0.8.0</a>
+                        <a class="dropdown-item" href="/master">master</a>
+                </div>
             </li>
         </ul>
         </div>
@@ -91,69 +111,87 @@
                 <div class="sidebar-sticky">
     <nav class="nav flex-column">
 <li class="nav-item">
-    <a class="nav-link" href=0.8.0/index.html>Home</a>
-    <ul>
-    </ul>
-</li>    </nav>
-    <nav class="nav flex-column">
-<li class="nav-item">
-    <a class="nav-link" href=0.8.0/1-instructions/1-usage.html>Instructions</a>
+    <a class="nav-link" href=master/01-structure/configuration.html>Configuration</a>
     <ul>
 <li class="nav-item">
-    <a class="nav-link" href=0.8.0/1-instructions/1-usage.html>Usage</a>
+    <a class="nav-link" href=master/01-structure/tanka-docs.html>Site</a>
     <ul>
     </ul>
 </li><li class="nav-item">
-    <a class="nav-link" href=0.8.0/1-instructions/2-publishing.html>Publish</a>
+    <a class="nav-link" href=master/01-structure/tanka-docs-section.html>Section</a>
     <ul>
     </ul>
 </li>    </ul>
 </li>    </nav>
+    <nav class="nav flex-column">
+<li class="nav-item">
+    <a class="nav-link" href=master/01-structure/file-system.html>File System</a>
+    <ul>
+    </ul>
+</li>    </nav>
                 </div>
             </nav>
             <main role="main" class="col-12 col-md-8 col-xl-6 py-sm-1 py-md-3 pl-md-5 content">
-                <h2 id="publishing-to-github-pages">Publishing to GitHub Pages</h2>
-<p>As the generated document site is static it only requires
-a web server capable of serving static file content. This
-makes publishing the site to GitHub Pages easy.</p>
-<p>Following is the recommended approach allowing you to keep
-your main branch clean of the generated static content. In
-this approach the static content is generated into a dedicated
-<code>gh-pages</code> branch by creating a orphaned branch from master.</p>
-<ol>
-<li>Create branch</li>
-</ol>
-<p>Create <code>gh-pages</code> branch orphaned from master</p>
-<blockquote class="blockquote">
-<p>Create a new orphan branch, named &lt;new_branch&gt;, started from
-&lt;start_point&gt; and switch to it. The first commit made on this
-new branch will have no parents and it will be the root of a new
-history totally disconnected from all the other branches and commits.</p>
-</blockquote>
-<pre><code class="language-bash">git checkout --orphan gh-pages
-git reset --hard
-# If there's any Git ignored content in the folder you might
-# want to clean it up before continuing.
-git commit --allow-empty -m &quot;Initialize&quot;
-git push origin gh-pages
-git checkout master
+                <h2 id="tanka-docs.yml">tanka-docs.yml</h2>
+<p>When <code>tanka-docs</code> command is executed if looks by convention for site configuration
+file called <code>tanka-docs.yml</code> from the current directory.</p>
+<p>Example</p>
+<pre><code class="language-yaml">base_path: &quot;/&quot;
+title: &quot;Site title&quot;
+index_page: xref://root@master:index.md
+output_path: &quot;gh-pages&quot;
+build_path: &quot;_build&quot;
+branches:
+  master:
+    input_path:
+      - ui-bundle
+      - docs
+      - src
+tags:
+  1.*:
+    input_path:
+      - ui-bundle
+      - docs
+      - src
 </code></pre>
-<ol start="2">
-<li>Checkout <code>gh-pages</code> branch as worktree into output folder</li>
-</ol>
-<pre><code class="language-bash">git worktree add -B gh-pages docs-html origin/gh-pages
-</code></pre>
-<ol start="3">
-<li>Generate docs to output folder</li>
-</ol>
-<pre><code class="language-bash">generate-docs
-</code></pre>
-<ol start="4">
-<li>Push your output folder to gh-pages branch</li>
-</ol>
-<pre><code class="language-bash">cd docs-html
-git push
-</code></pre>
+<table class="table">
+<thead>
+<tr>
+<th style="text-align: left;">Property</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">base_path</td>
+<td style="text-align: left;">HTML meta base tag value</td>
+</tr>
+<tr>
+<td style="text-align: left;">title</td>
+<td style="text-align: left;">Title of the site</td>
+</tr>
+<tr>
+<td style="text-align: left;">index_page</td>
+<td style="text-align: left;">Main index page of the site</td>
+</tr>
+<tr>
+<td style="text-align: left;">output_path</td>
+<td style="text-align: left;">Generated output, HTML pages</td>
+</tr>
+<tr>
+<td style="text-align: left;">build_path</td>
+<td style="text-align: left;">Temporary working folder</td>
+</tr>
+<tr>
+<td style="text-align: left;">branches</td>
+<td style="text-align: left;">Git branches used to look for sections</td>
+</tr>
+<tr>
+<td style="text-align: left;">tags</td>
+<td style="text-align: left;">Git tags used to look for sections</td>
+</tr>
+</tbody>
+</table>
                     
             </main>
         </div>
@@ -168,6 +206,6 @@ git push
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
     
-    <script type="text/javascript" src="0.8.0/prism.js"></script>
+    <script type="text/javascript" src="master/prism.js"></script>
 </body>
 </html>

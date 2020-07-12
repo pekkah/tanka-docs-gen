@@ -3,7 +3,7 @@
 
 <head>
     <base href="/tanka-docs-gen/">
-    <title>README - Tanka Docs Generator</title>
+    <title>Introduction - Tanka Docs Generator</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
@@ -74,13 +74,33 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="master/2-example/1-example.html">Example</a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link" href="master/index.html">Home</a>
                 </li>
-            <li class="nav-item">
+                <li class="nav-item">
+                    <a class="nav-link" href="master/01-structure/tanka-docs.html">Structure</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="master/02-syntax/xref.html">Syntax</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="master/03-versioning/tags-and-branches.html">Versioning</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="master/04-ui/ui-bundle.html">UI</a>
+                </li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+             <li class="nav-item">
                 <a class="nav-link" href="https://github.com/pekkah/tanka-docs-gen">GitHub</a>
+            </li>
+            <li class="nav-item dropdown justify-content-end">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    master
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="/0.8.0">0.8.0</a>
+                        <a class="dropdown-item" href="/master">master</a>
+                </div>
             </li>
         </ul>
         </div>
@@ -95,24 +115,32 @@
     <ul>
     </ul>
 </li>    </nav>
-    <nav class="nav flex-column">
-<li class="nav-item">
-    <a class="nav-link" href=master/1-instructions/1-usage.html>Instructions</a>
-    <ul>
-<li class="nav-item">
-    <a class="nav-link" href=master/1-instructions/1-usage.html>Usage</a>
-    <ul>
-    </ul>
-</li><li class="nav-item">
-    <a class="nav-link" href=master/1-instructions/2-publishing.html>Publish</a>
-    <ul>
-    </ul>
-</li>    </ul>
-</li>    </nav>
                 </div>
             </nav>
             <main role="main" class="col-12 col-md-8 col-xl-6 py-sm-1 py-md-3 pl-md-5 content">
-                                    
+                <p>Tanka Docs is a technical documentation generator inspired by the Antora project.</p>
+<p>Its main target is to provide easy way of writing versioned documentation for
+.NET Core projects but it's not limited to just that.</p>
+<p>Features</p>
+<ul>
+<li>Modular documentation structure using sections</li>
+<li>Generate documentation from Git repository with support for versioning using tags
+and branches</li>
+<li>Distributed as dotnet global tool</li>
+<li>Documents are written in Markdown syntax</li>
+<li>Supports including C# code snippets/files using <code>#include</code>-syntax (Uses Roslyn undercovers
+to find the requsted symbol when symbol requested)</li>
+<li>Handlebars templates are used as ui-bundle to wrap the HTML generated from Markdown documents</li>
+</ul>
+<h2 id="quickstart">Quickstart</h2>
+<ol>
+<li>Install <code>dotnet tool install --global Tanka.DocsGen</code></li>
+<li>Add <code>tanka-docs.yml</code> to root of yours repository (see this repo for example)</li>
+<li>Write your documentation</li>
+<li>Add <code>tanka-docs-section.yml</code> to root of your docs folder</li>
+<li>Run &quot;tanka-docs&quot; command to generate the documentation</li>
+</ol>
+                    
             </main>
         </div>
     </div>
