@@ -96,8 +96,8 @@ namespace Tanka.DocsTool.Catalogs
 
                             // If we have changes then we actually use the current folder
                             // as the source of the truth
-                            if (status.IsDirty)
-                            {
+                            //if (status.IsDirty)
+                            //{
                                 _logger.LogInformation(
                                     "Special branch HEAD is dirty and will fallback to using working copy");
                                 var inputDirectory = await _workFileSystem.GetDirectory(commonInputPath);
@@ -106,14 +106,14 @@ namespace Tanka.DocsTool.Catalogs
                                         _workFileSystem,
                                         "HEAD",
                                         inputDirectory.Path); // we're mounting the input path
-                            }
+                            /*}
                             else
                             {
                                 _logger.LogInformation("Using HEAD");
                                 var head = _git.Head();
                                 if (await head.GetDirectory(commonInputPath) != null)
                                     yield return new GitBranchContentSource(head, commonInputPath);
-                            }
+                            }*/
                         }
                         else
                         {

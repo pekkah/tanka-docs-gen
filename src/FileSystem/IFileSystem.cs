@@ -22,6 +22,8 @@ namespace Tanka.FileSystem
         public ValueTask<IFileSystem> Mount(Path path);
 
         Task DeleteDir(Path path);
+
+        Task CleanDirectory(Path path);
     }
 
     public interface IFile: IReadOnlyFile

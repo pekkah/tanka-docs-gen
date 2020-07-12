@@ -74,7 +74,7 @@ namespace Tanka.DocsTool.Pipelines
             await CacheFileSystem.GetOrCreateDirectory("content-html");
 
             var outputPath = GetRootedPath(CurrentPath, Site.OutputPath);
-            await FileSystem.DeleteDir(outputPath);
+            await FileSystem.CleanDirectory(outputPath);
             await FileSystem.GetOrCreateDirectory(outputPath);
 
             RawCache = await CacheFileSystem.Mount("content");

@@ -1,0 +1,5 @@
+﻿id: structure
+title: "Structure"
+index_page: xref://structure:tanka-docs.md
+nav:
+  - xref://nav.md

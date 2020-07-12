@@ -7,6 +7,7 @@
     <RootNamespace>tanka.generate.docs</RootNamespace>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-tanka-docs</ToolCommandName>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

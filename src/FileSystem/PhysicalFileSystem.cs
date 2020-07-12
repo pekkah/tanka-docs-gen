@@ -49,6 +49,26 @@ namespace Tanka.FileSystem
                 Directory.Delete(fullPath, true);
         }
 
+        public async Task CleanDirectory(Path path)
+        {
+            await Task.Yield();
+
+            var fullPath = GetFullPath(path);
+
+            if (!Directory.Exists(fullPath))
+                return;
+
+            foreach (var entry in Directory.EnumerateFiles(fullPath))
+            {
+                File.Delete(entry);
+            }
+
+            foreach (var directory in Directory.EnumerateDirectories(fullPath))
+            {
+                Directory.Delete(directory, true);
+            }
+        }
+
         public async ValueTask<IReadOnlyFile?> GetFile(Path path)
         {
             var fullPath = GetFullPath(path);
