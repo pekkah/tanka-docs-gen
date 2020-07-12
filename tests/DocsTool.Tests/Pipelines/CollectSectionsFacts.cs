@@ -71,7 +71,7 @@ namespace Tanka.DocsTool.Tests.Pipelines
             await collector.Collect(_catalog);
 
             /* Then */
-            Assert.Single(collector.Sections, section => section.Id == "example");
+            Assert.Single(collector.Sections, section => section.Id == "structure");
         }
 
         public void Dispose()
