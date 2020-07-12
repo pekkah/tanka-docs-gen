@@ -87,6 +87,11 @@ namespace Tanka.FileSystem.Memory
         {
             throw new NotImplementedException();
         }
+
+        public Task CleanDirectory(Path path)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class InMemoryDirectory : IDirectory

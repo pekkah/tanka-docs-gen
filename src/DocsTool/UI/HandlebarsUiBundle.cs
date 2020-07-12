@@ -200,7 +200,8 @@ namespace Tanka.DocsTool.UI
                               ?? throw new ArgumentNullException("arguments[0]");
 
                 var sections = router.Site.GetSectionsByVersion(version)
-                    .Where(s => s.Type == "doc");
+                    .Where(s => s.Type == "doc")
+                    .OrderBy(s => s.Path.ToString());
 
                 foreach (var section in sections)
                 {

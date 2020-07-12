@@ -27,7 +27,7 @@ namespace Tanka.DocsTool.Markdown
             // skip opening '['
             var current = slice.NextChar();
 
-            while (current.IsAlphaNumeric())
+            while (current != ']' && current != '\0')
             {
                 end = slice.Start;
                 current = slice.NextChar();
