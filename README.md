@@ -1,40 +1,28 @@
 ## Tanka Documentation Generator
 
-* [![master](https://dev.azure.com/tanka-ops/docs-gen/_apis/build/status/docs-gen?branchName=master)](https://dev.azure.com/tanka-ops/docs-gen/_build/latest?definitionId=2&branchName=master)
+- [![master](https://dev.azure.com/tanka-ops/docs-gen/_apis/build/status/docs-gen?branchName=master)](https://dev.azure.com/tanka-ops/docs-gen/_build/latest?definitionId=2&branchName=master)
 
-Beta
-* [Documentation](https://pekkah.github.io/tanka-docs-gen/beta/)
+Latest
 
-Release
-* [Documentation](https://pekkah.github.io/tanka-docs-gen/)
-
-
+- [Documentation](https://pekkah.github.io/tanka-docs-gen)
 
 ## Install
 
 1. Install the global tool
 
 ```bash
-dotnet tool install --global tanka.generate.docs
+dotnet tool install --global Tanka.DocsGen
 ```
 
-2. Add tanka-docs.yaml configuration file to root of your repo
-
-```yaml
-input: 'docs'
-output: 'gh-pages'
-solution: 'tanka-docs-gen.sln'
-basepath: '/'
-```
-
-3. Run the tool
+2. Add tanka-docs.yml configuration file to root of your repo
+3. Add some sections with markdown docs and tanka-docs-section.yml
+4. Run the tool in the directory with tanka-docs.yml
 
 ```bash
-generate-docs
+tanka-docs
 ```
 
 4. Output will be generated to output (example: `gh-pages`)
-
 
 ## Serve
 
