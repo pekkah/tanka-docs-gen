@@ -3,13 +3,13 @@
 
 <head>
     <base href="/tanka-docs-gen/">
-    <title>xref - Tanka Docs Generator</title>
+    <title>Introduction - Tanka Docs Generator</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-    <link rel="stylesheet" href="master/prism.css" />
+    <link rel="stylesheet" href="0.9.0/prism.css" />
     <style>
         body {
             height: 100%;
@@ -74,19 +74,19 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="master/index.html">Home</a>
+                    <a class="nav-link" href="0.9.0/index.html">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="master/01-structure/tanka-docs.html">Structure</a>
+                    <a class="nav-link" href="0.9.0/01-structure/tanka-docs.html">Structure</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="master/02-syntax/xref.html">Syntax</a>
+                    <a class="nav-link" href="0.9.0/02-syntax/xref.html">Syntax</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="master/03-versioning/tags-and-branches.html">Versioning</a>
+                    <a class="nav-link" href="0.9.0/03-versioning/tags-and-branches.html">Versioning</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="master/04-ui/ui-bundle.html">UI</a>
+                    <a class="nav-link" href="0.9.0/04-ui/ui-bundle.html">UI</a>
                 </li>
         </ul>
         <ul class="navbar-nav ml-auto">
@@ -95,7 +95,7 @@
             </li>
             <li class="nav-item dropdown justify-content-end">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    master
+                    0.9.0
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                         <a class="dropdown-item" href="/tanka-docs-gen/master">master</a>
@@ -112,32 +112,35 @@
                 <div class="sidebar-sticky">
     <nav class="nav flex-column">
 <li class="nav-item">
-    <a class="nav-link" href=master/02-syntax/xref.html>References</a>
-    <ul>
-    </ul>
-</li>    </nav>
-    <nav class="nav flex-column">
-<li class="nav-item">
-    <a class="nav-link" href=master/02-syntax/include.html>Include</a>
+    <a class="nav-link" href=0.9.0/index.html>Home</a>
     <ul>
     </ul>
 </li>    </nav>
                 </div>
             </nav>
             <main role="main" class="col-12 col-md-8 col-xl-6 py-sm-1 py-md-3 pl-md-5 content">
-                <h2 id="cross-references">Cross-references</h2>
-<p>To generate link to a document in another file you can use <code>xref</code> links. This avoids
-using a fully path to the document providing an easier way of reorganizing your documentation
-without breaking the links (or at least getting an error if you break one).</p>
-<p>Reference document in current section</p>
-<pre><code class="language-markdown">[title](xref://link.md)
-</code></pre>
-<p>Reference document in another section</p>
-<pre><code class="language-markdown">[title](xref://sectionId:link.md)
-</code></pre>
-<p>Reference document in another section and version</p>
-<pre><code class="language-markdown">[title](xref://sectionId@1.0.0:link.md)
-</code></pre>
+                <p>Tanka Docs is a technical documentation generator inspired by the Antora project.</p>
+<p>Its main target is to provide easy way of writing versioned documentation for
+.NET Core projects but it's not limited to just that.</p>
+<p>Features</p>
+<ul>
+<li>Modular documentation structure using sections</li>
+<li>Generate documentation from Git repository with support for versioning using tags
+and branches</li>
+<li>Distributed as dotnet global tool</li>
+<li>Documents are written in Markdown syntax</li>
+<li>Supports including C# code snippets/files using <code>#include</code>-syntax (Uses Roslyn undercovers
+to find the requsted symbol when symbol requested)</li>
+<li>Handlebars templates are used as ui-bundle to wrap the HTML generated from Markdown documents</li>
+</ul>
+<h2 id="quickstart">Quickstart</h2>
+<ol>
+<li>Install <code>dotnet tool install --global Tanka.DocsGen</code></li>
+<li>Add <code>tanka-docs.yml</code> to root of yours repository (see this repo for example)</li>
+<li>Write your documentation</li>
+<li>Add <code>tanka-docs-section.yml</code> to root of your docs folder</li>
+<li>Run &quot;tanka-docs&quot; command to generate the documentation</li>
+</ol>
                     
             </main>
         </div>
@@ -152,6 +155,6 @@ without breaking the links (or at least getting an error if you break one).</p>
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
     
-    <script type="text/javascript" src="master/prism.js"></script>
+    <script type="text/javascript" src="0.9.0/prism.js"></script>
 </body>
 </html>
