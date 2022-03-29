@@ -16,7 +16,6 @@ namespace Tanka.DocsTool.UI
             Section = section;
         }
 
-        //todo: should probably move this to Site
         public Xref FullyQualify(Xref xref)
         {
             var targetSection = Site.GetSectionByXref(xref, Section);

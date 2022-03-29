@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,7 +38,9 @@ namespace Tanka.DocsTool.Catalogs
 
         private async Task<IFileSystemNode> CacheFile(IReadOnlyFile sourceFile)
         {
-            //todo: check if cached
+            if (await _cache.GetFile(sourceFile.Path) != null)
+                throw new InvalidOperationException(
+                    $"File {sourceFile.Path} is already cached.");
 
             // create directory
             await _cache.GetOrCreateDirectory(sourceFile.Path.GetDirectoryPath());

@@ -1,4 +1,5 @@
-﻿using Tanka.DocsTool.Navigation;
+﻿using System.Text;
+using Tanka.DocsTool.Navigation;
 using Xunit;
 
 namespace Tanka.DocsTool.Tests.Navigation
@@ -120,6 +121,25 @@ namespace Tanka.DocsTool.Tests.Navigation
 
             /* When */
             var definition = LinkParser.Parse(link);
+
+            /* Then */
+            Assert.True(definition.IsXref);
+            Assert.False(definition.IsExternal);
+            Assert.Equal("link.md", definition.Xref?.Path);
+            Assert.Equal("section", definition.Xref?.SectionId);
+            Assert.Equal("release/1.0.0", definition.Xref?.Version);
+            Assert.Single(definition.Xref?.Query, kv => kv.Key == "abc" && kv.Value == "123_321");
+            Assert.Equal(1, definition.Xref?.Query.Count);
+        }
+
+        [Fact]
+        public void ParseXref_from_bytes()
+        {
+            /* Given */
+            var bytes = Encoding.UTF8.GetBytes("xref://section@release/1.0.0:link.md?abc=123_321");
+
+            /* When */
+            var definition = LinkParser.Parse(bytes);
 
             /* Then */
             Assert.True(definition.IsXref);

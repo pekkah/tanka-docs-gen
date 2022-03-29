@@ -76,7 +76,7 @@ namespace tanka.generate.docs.Markdig
             slice.NextChar();
             nextChar = slice.NextChar();
 
-            var contentBuilder = processor.StringBuilders.Get();
+            var contentBuilder = StringBuilderCache.Local();
             while (nextChar != '}')
             {
                 contentBuilder.Append(nextChar);
@@ -85,7 +85,6 @@ namespace tanka.generate.docs.Markdig
 
             if (slice.PeekChar() != ']')
             {
-                processor.StringBuilders.Release(contentBuilder);
                 return false;
             }
 

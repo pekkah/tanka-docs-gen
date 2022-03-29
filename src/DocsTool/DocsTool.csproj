@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>Tanka.DocsGen</AssemblyName>
     <RootNamespace>Tanka.DocsTool</RootNamespace>
     <PackAsTool>true</PackAsTool>
@@ -9,14 +9,14 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
-    <PackageReference Include="DotNet.Glob" Version="3.1.0" />
-    <PackageReference Include="Markdig" Version="0.20.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.6.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.5" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.5" />
+    <PackageReference Include="DotNet.Glob" Version="3.1.3" />
+    <PackageReference Include="Markdig" Version="0.27.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
     <PackageReference Include="MimeDb" Version="0.1.0" />
-    <PackageReference Include="YamlDotNet" Version="8.1.2" />
-    <PackageReference Include="Handlebars.Net" Version="1.11.5" />
+    <PackageReference Include="YamlDotNet" Version="11.2.1" />
+    <PackageReference Include="Handlebars.Net" Version="2.1.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FileSystem\FileSystem.csproj" />

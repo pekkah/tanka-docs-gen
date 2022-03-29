@@ -10,6 +10,7 @@ using Markdig;
 using Microsoft.DocAsCode.MarkdigEngine.Extensions;
 using Microsoft.Extensions.Configuration;
 using tanka.generate.docs.Markdig;
+using CodeExtension = tanka.generate.docs.Markdig.CodeExtension;
 
 namespace tanka.generate.docs
 {

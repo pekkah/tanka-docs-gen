@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
 using System.IO.Pipelines;
-using System.Text;
 using System.Threading.Tasks;
 using Tanka.DocsTool.Navigation;
 using Tanka.DocsTool.UI.Navigation;
@@ -56,14 +56,12 @@ namespace Tanka.DocsTool.Extensions
 
                         if (beforePosition.Length > 0)
                         {
-                            //todo: fix
                             var memory = writer.GetMemory((int) beforePosition.Length);
                             beforePosition.CopyTo(memory.Span);
                             writer.Advance((int) beforePosition.Length);
                             await writer.FlushAsync();
                         }
 
-                        //todo: lookup the included file and copy to writer
                         await WriteInclude(writer, include);
                         await writer.FlushAsync();
 
@@ -100,8 +98,11 @@ namespace Tanka.DocsTool.Extensions
             await includedContentReader.CompleteAsync();
         }
 
-        private bool TryReadInclude(ReadResult readResult, out SequencePosition start, out SequencePosition end,
-            out IncludeDirective? include)
+        private bool TryReadInclude(
+            ReadResult readResult, 
+            out SequencePosition start, 
+            out SequencePosition end,
+            [NotNullWhen(true)]out IncludeDirective? include)
         {
             var reader = new SequenceReader<byte>(readResult.Buffer);
 
@@ -123,7 +124,7 @@ namespace Tanka.DocsTool.Extensions
                     ParserConstants.ReturnAndNewLine.Span,
                     false))
                 {
-                    bytes = definitionBytes.ToArray();
+                    bytes = definitionBytes;
                 }
                 else
                 {
@@ -147,12 +148,7 @@ namespace Tanka.DocsTool.Extensions
 
         private IncludeDirective ParseInclude(in ReadOnlySpan<byte> bytes)
         {
-            var xrefSpan = bytes;
-
-            //todo: fix link parser so that it takes bytes as input
-            var temp = Encoding.UTF8.GetString(xrefSpan);
-
-            var xref = LinkParser.Parse(temp).Xref.Value;
+            var xref = LinkParser.Parse(bytes).Xref ?? throw new InvalidOperationException($"Could not parse link");
             return new IncludeDirective(xref);
         }
     }

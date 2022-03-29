@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Text;
 using Markdig.Helpers;
 
 namespace Tanka.DocsTool.Navigation
@@ -207,6 +209,15 @@ namespace Tanka.DocsTool.Navigation
         public static Link Parse(in ReadOnlySpan<char> link)
         {
             var parser = new LinkParser(in link);
+            return parser.Parse();
+        }
+
+        public static Link Parse(in ReadOnlySpan<byte> link)
+        {
+            var size = Encoding.UTF8.GetCharCount(link);
+            Span<char> chars = new char[size];
+            Encoding.UTF8.GetChars(link, chars);
+            var parser = new LinkParser(chars);
             return parser.Parse();
         }
     }
