@@ -20,6 +20,7 @@ namespace Tanka.DocsTool.UI
         public async Task BuildSite(Site site, ProgressContext progress)
         {
             var tasks = site.Versions
+                .OrderBy(v => v)
                 .ToDictionary(v => v, v => progress.AddTask($"Version: {v}", maxValue: 0));
 
             foreach (var version in site.Versions)
