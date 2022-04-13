@@ -1,7 +1,5 @@
-﻿using System;
-using Tanka.DocsTool.Navigation;
+﻿using Tanka.DocsTool.Navigation;
 using Tanka.DocsTool.Pipelines;
-using Tanka.FileSystem;
 
 namespace Tanka.DocsTool.UI
 {
@@ -40,7 +38,7 @@ namespace Tanka.DocsTool.UI
             if (targetSection == null)
                 throw new InvalidOperationException($"Section NotFound: {xref}");
 
-            Path path = xref.Path;
+            FileSystemPath path = xref.Path;
 
             if (path.GetExtension() == ".md")
                 path = path.ChangeExtension(".html");

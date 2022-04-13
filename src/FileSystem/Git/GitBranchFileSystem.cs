@@ -26,7 +26,7 @@ namespace Tanka.FileSystem.Git
                     $"Tag '{branch}' does not exists in repository: {Repo.Info.Path}");
         }
 
-        public ValueTask<IReadOnlyFile?> GetFile(Path path)
+        public ValueTask<IReadOnlyFile?> GetFile(FileSystemPath path)
         {
             var entry = Branch[path];
             if (entry.TargetType != TreeEntryTargetType.Blob)
@@ -39,7 +39,7 @@ namespace Tanka.FileSystem.Git
                 new GitFile(path, entry, blob));
         }
 
-        public async IAsyncEnumerable<IFileSystemNode> Enumerate(Path path)
+        public async IAsyncEnumerable<IFileSystemNode> Enumerate(FileSystemPath path)
         {
             await Task.Delay(0);
             var queue = new Queue<TreeEntry>();
@@ -77,7 +77,7 @@ namespace Tanka.FileSystem.Git
             } while (queue.Count > 0);
         }
 
-        public ValueTask<IReadOnlyDirectory?> GetDirectory(Path path)
+        public ValueTask<IReadOnlyDirectory?> GetDirectory(FileSystemPath path)
         {
             var gitPath = GetGitPath(path);
 
@@ -100,7 +100,7 @@ namespace Tanka.FileSystem.Git
                 new GitDirectory(this, gitPath, tree));
         }
 
-        private Path GetGitPath(in Path path)
+        private FileSystemPath GetGitPath(in FileSystemPath path)
         {
             if (path == ".")
                 return "";

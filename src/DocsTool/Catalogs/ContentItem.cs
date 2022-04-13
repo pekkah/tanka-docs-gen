@@ -1,6 +1,4 @@
-﻿using Tanka.FileSystem;
-
-namespace Tanka.DocsTool.Catalogs
+﻿namespace Tanka.DocsTool.Catalogs
 {
     public class ContentItem
     {
@@ -13,29 +11,25 @@ namespace Tanka.DocsTool.Catalogs
             _source = source;
         }
 
+        public const string SectionDefinitionType  = "tanka/section";
+
         public string Type { get; }
 
         public string Version => _source.Version;
 
-        public Path SourcePath => _source.Path;
+        public FileSystemPath SourcePath => _source.Path;
 
-        public Path SourceRelativePath => File.Path.GetRelative(SourcePath);
+        public FileSystemPath SourceRelativePath => File.Path.GetRelative(SourcePath);
 
         public IReadOnlyFile File { get; }
 
         public string Name => File.Path;
 
-        public override string ToString()
-        {
-            return $"{Type} {Name}@{Version}";
-        }
+        public override string ToString() => $"{Type} {Name}@{Version}";
 
-        public ContentItem WithFile(IFile file, string? type = null)
-        {
-            return new ContentItem(
+        public ContentItem WithFile(IFile file, string? type = null) => new ContentItem(
                 _source,
                 type ?? Type,
                 file);
-        }
     }
 }

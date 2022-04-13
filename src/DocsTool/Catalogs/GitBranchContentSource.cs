@@ -1,16 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using Tanka.FileSystem;
-using Tanka.FileSystem.Git;
+﻿using Tanka.FileSystem.Git;
 
 namespace Tanka.DocsTool.Catalogs
 {
     public class GitBranchContentSource : IContentSource
     {
         private readonly GitBranchFileSystem _branch;
-        private readonly Path _path;
+        private readonly FileSystemPath _path;
 
-        public GitBranchContentSource(GitBranchFileSystem branch, Path path)
+        public GitBranchContentSource(GitBranchFileSystem branch, FileSystemPath path)
         {
             _branch = branch;
             _path = path;
@@ -18,21 +15,18 @@ namespace Tanka.DocsTool.Catalogs
 
         public string Version => _branch.FriendlyName;
 
-        public Path Path => _path;
+        public FileSystemPath Path => _path;
 
-        public IAsyncEnumerable<IFileSystemNode> Enumerate(CancellationToken cancellationToken)
-        {
-            return _branch.Enumerate(_path);
-        }
+        public IAsyncEnumerable<IFileSystemNode> Enumerate(CancellationToken cancellationToken) => _branch.Enumerate(_path);
     }
 
     public class GitCommitContentSource : IContentSource
     {
         private readonly GitCommitFileSystem _commit;
         private readonly string _friendlyName;
-        private readonly Path _path;
+        private readonly FileSystemPath _path;
 
-        public GitCommitContentSource(GitCommitFileSystem commit, string friendlyName, Path path)
+        public GitCommitContentSource(GitCommitFileSystem commit, string friendlyName, FileSystemPath path)
         {
             _commit = commit;
             _friendlyName = friendlyName;
@@ -41,11 +35,8 @@ namespace Tanka.DocsTool.Catalogs
 
         public string Version => _friendlyName;
 
-        public Path Path => _path;
+        public FileSystemPath Path => _path;
 
-        public IAsyncEnumerable<IFileSystemNode> Enumerate(CancellationToken cancellationToken)
-        {
-            return _commit.Enumerate(_path);
-        }
+        public IAsyncEnumerable<IFileSystemNode> Enumerate(CancellationToken cancellationToken) => _commit.Enumerate(_path);
     }
 }

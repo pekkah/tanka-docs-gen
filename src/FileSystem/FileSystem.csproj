@@ -5,6 +5,8 @@
     <AssemblyName>Tanka.FileSystem</AssemblyName>
     <RootNamespace>Tanka.FileSystem</RootNamespace>
     <IsPackable>false</IsPackable>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

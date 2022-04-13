@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Pipelines;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.IO.Pipelines;
 using DotNet.Globbing;
-using Tanka.FileSystem;
 
 namespace Tanka.DocsTool.Extensions
 {
@@ -23,11 +18,11 @@ namespace Tanka.DocsTool.Extensions
             return this;
         }
 
-        public Func<Path, PipeReader, Task<PipeReader>> Build()
+        public Func<FileSystemPath, PipeReader, Task<PipeReader>> Build()
         {
             var dictionary = BuildDictionary();
 
-            return async (Path path, PipeReader reader) =>
+            return async (FileSystemPath path, PipeReader reader) =>
             {
                 var matchingProcessors = dictionary
                     .Where(kv => kv.Key.IsMatch(path))
@@ -49,13 +44,10 @@ namespace Tanka.DocsTool.Extensions
             };
         }
 
-        private IReadOnlyDictionary<Glob, List<IPreProcessor>> BuildDictionary()
-        {
-            return _preProcessors
+        private IReadOnlyDictionary<Glob, List<IPreProcessor>> BuildDictionary() => _preProcessors
                 .ToDictionary(
                     kv => Glob.Parse(kv.Key),
                     kv => kv.Value
                 );
-        }
     }
 }

@@ -27,7 +27,7 @@ namespace Tanka.FileSystem
     {
         private readonly string _fullPath;
 
-        public PhysicalFile(Path path, string fullPath)
+        public PhysicalFile(FileSystemPath path, string fullPath)
         {
             Path = path;
             _fullPath = fullPath;
@@ -38,7 +38,7 @@ namespace Tanka.FileSystem
             };
         }
 
-        public Path Path { get; }
+        public FileSystemPath Path { get; }
 
         public IReadOnlyDictionary<string, string> Metadata { get; }
 
@@ -50,7 +50,7 @@ namespace Tanka.FileSystem
 
         public ValueTask<Stream> OpenWrite()
         {
-            var stream = File.OpenWrite(_fullPath);
+            var stream = new FileStream(_fullPath, FileMode.Create);
             return new ValueTask<Stream>(stream);
         }
 

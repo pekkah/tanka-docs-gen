@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using Tanka.FileSystem;
+﻿using System.Runtime.CompilerServices;
 
 namespace Tanka.DocsTool.Catalogs
 {
@@ -20,10 +15,10 @@ namespace Tanka.DocsTool.Catalogs
 
         public string Version => _source.Version;
 
-        public Path Path => _source.Path;
+        public FileSystemPath Path => _source.Path;
 
         public async IAsyncEnumerable<IFileSystemNode> Enumerate(
-            [EnumeratorCancellation]CancellationToken cancellationToken)
+            [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             await foreach (var node in _source.Enumerate(cancellationToken))
             {

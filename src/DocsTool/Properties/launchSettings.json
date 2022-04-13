@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "DocsTool": {
+      "commandName": "Project",
+      "commandLineArgs": "build",
+      "workingDirectory": "$(SolutionDir)"
+    }
+  }
+}

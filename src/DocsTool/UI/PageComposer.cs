@@ -1,23 +1,9 @@
-﻿using System;
-using System.Buffers;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Pipelines;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
+﻿using System.IO.Pipelines;
 using Tanka.DocsTool.Catalogs;
-using Tanka.DocsTool.Extensions;
-using Tanka.DocsTool.Extensions.Roslyn;
 using Tanka.DocsTool.Markdown;
 using Tanka.DocsTool.Navigation;
 using Tanka.DocsTool.Pipelines;
-using Tanka.FileSystem;
-using Path = Tanka.FileSystem.Path;
+using FileSystemPath = Tanka.FileSystem.FileSystemPath;
 
 namespace Tanka.DocsTool.UI
 {
@@ -32,10 +18,10 @@ namespace Tanka.DocsTool.UI
         private readonly IUiBundle _uiBundle;
 
         public PageComposer(
-            Site site, 
-            Section section, 
-            IFileSystem cache, 
-            IFileSystem output, 
+            Site site,
+            Section section,
+            IFileSystem cache,
+            IFileSystem output,
             IUiBundle uiBundle,
             DocsMarkdownService renderer)
         {
@@ -50,16 +36,16 @@ namespace Tanka.DocsTool.UI
 
 
         public async Task<ContentItem> ComposePage(
-            Path relativePath, 
+            FileSystemPath relativePath,
             ContentItem page,
-            IReadOnlyCollection<NavigationItem> menu, 
+            IReadOnlyCollection<NavigationItem> menu,
             DocsSiteRouter router,
-            Func<Path, PipeReader, Task<PipeReader>> preprocessorPipe)
+            Func<FileSystemPath, PipeReader, Task<PipeReader>> preprocessorPipe)
         {
             var (partialHtmlPage, frontmatter) = await ComposePartialHtmlPage(
-                relativePath, 
-                page, 
-                router, 
+                relativePath,
+                page,
+                router,
                 preprocessorPipe);
 
             if (frontmatter == null)
@@ -75,7 +61,7 @@ namespace Tanka.DocsTool.UI
 
         private async Task<ContentItem> ComposeFullHtmlPage(
             ContentItem partialHtmlPage,
-            PageFrontmatter frontmatter, 
+            PageFrontmatter frontmatter,
             IReadOnlyCollection<NavigationItem> menu)
         {
             // open file streams
@@ -104,17 +90,18 @@ namespace Tanka.DocsTool.UI
             await using var outputStream = await outputFile.OpenWrite();
             await using var writer = new StreamWriter(outputStream);
             await writer.WriteAsync(fullPageHtml);
+            await writer.FlushAsync();
 
             return partialHtmlPage.WithFile(outputFile);
         }
 
         private async Task<(ContentItem Page, PageFrontmatter? Frontmatter)> ComposePartialHtmlPage(
-            Path relativePath,
+            FileSystemPath relativePath,
             ContentItem page,
-            DocsSiteRouter router, 
-            Func<Path, PipeReader, Task<PipeReader>> preprocessorPipe)
+            DocsSiteRouter router,
+            Func<FileSystemPath, PipeReader, Task<PipeReader>> preprocessorPipe)
         {
-            Path outputPath = router.GenerateRoute(new Xref(page.Version, _section.Id, relativePath))
+            FileSystemPath outputPath = router.GenerateRoute(new Xref(page.Version, _section.Id, relativePath))
                 ?? throw new InvalidOperationException($"Could not generate output path for '{page}'");
 
             // create output dir for page
@@ -131,7 +118,7 @@ namespace Tanka.DocsTool.UI
 
             // process preprocessor directives
             var reader = await preprocessorPipe(relativePath, PipeReader.Create(inputStream));
-            var writer = PipeWriter.Create(processedStream, new StreamPipeWriterOptions(leaveOpen:true));
+            var writer = PipeWriter.Create(processedStream, new StreamPipeWriterOptions(leaveOpen: true));
             await reader.CopyToAsync(writer);
             await reader.CompleteAsync();
             await writer.CompleteAsync();
@@ -144,9 +131,9 @@ namespace Tanka.DocsTool.UI
             return (page.WithFile(outputFile, "text/html"), frontmatter);
         }
 
-        public async Task ComposeRedirectPage(Path relativePath, Link redirectToPage)
+        public async Task ComposeRedirectPage(FileSystemPath relativePath, Link redirectToPage)
         {
-            string? target = redirectToPage.IsXref
+            var target = redirectToPage.IsXref
                 ? _router.GenerateRoute(redirectToPage.Xref.Value)
                 : redirectToPage.Uri;
 
@@ -157,10 +144,10 @@ namespace Tanka.DocsTool.UI
             var generatedHtml = string.Format(RedirectPageHtml, _site.BasePath, target);
 
             // create output dir for page
-            Path targetFilePath = _router.GenerateRoute(
+            FileSystemPath targetFilePath = _router.GenerateRoute(
                 new Xref(_section.Version, _section.Id, relativePath));
 
-            if (targetFilePath == new Path(target))
+            if (targetFilePath == new FileSystemPath(target))
                 throw new InvalidOperationException(
                     $"Cannot generate a index.html redirect page '{targetFilePath}'. " +
                     $"Redirect would point to same file as the generated file and would" +

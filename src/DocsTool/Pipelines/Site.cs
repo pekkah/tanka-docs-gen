@@ -1,70 +1,66 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Tanka.DocsTool.Definitions;
+﻿using Tanka.DocsTool.Definitions;
 using Tanka.DocsTool.Navigation;
 
-namespace Tanka.DocsTool.Pipelines
+namespace Tanka.DocsTool.Pipelines;
+
+public class Site
 {
-    public class Site
+    private readonly Dictionary<string, Dictionary<string, Section>> _sectionsByVersion;
+
+    public Site(SiteDefinition definition, Dictionary<string, Dictionary<string, Section>> sectionsByVersion)
     {
-        private readonly Dictionary<string, Dictionary<string, Section>> _sectionsByVersion;
+        _sectionsByVersion = sectionsByVersion;
+        Definition = definition;
+    }
 
-        public Site(SiteDefinition definition, Dictionary<string, Dictionary<string, Section>> sectionsByVersion)
-        {
-            _sectionsByVersion = sectionsByVersion;
-            Definition = definition;
-        }
+    public SiteDefinition Definition { get; }
 
-        public SiteDefinition Definition { get; }
+    public string Title => Definition.Title;
 
-        public string Title => Definition.Title;
+    public string BasePath => Definition.BasePath;
 
-        public string BasePath => Definition.BasePath;
+    public IReadOnlyCollection<string> Versions => _sectionsByVersion.Keys;
 
-        public IReadOnlyCollection<string> Versions => _sectionsByVersion.Keys;
+    public IEnumerable<Section> GetSectionsByVersion(string version)
+    {
+        if (_sectionsByVersion.TryGetValue(version, out var sectionsById))
+            return sectionsById.Values;
 
-        public IEnumerable<Section> GetSectionsByVersion(string version)
-        {
-            if (_sectionsByVersion.TryGetValue(version, out var sectionsById))
-                return sectionsById.Values;
+        return Enumerable.Empty<Section>();
+    }
 
-            return Enumerable.Empty<Section>();
-        }
+    public Section? GetSectionByXref(Xref xref, Section context)
+    {
+        if (xref.Version == null)
+            xref = xref.WithVersion(context.Version);
 
-        public Section? GetSectionByXref(Xref xref, Section context)
-        {
-            if (xref.Version == null)
-                xref = xref.WithVersion(context.Version);
+        if (xref.SectionId == null)
+            xref = xref.WithSectionId(context.Id);
 
-            if (xref.SectionId == null)
-                xref = xref.WithSectionId(context.Id);
+        return GetSectionByXref(xref);
+    }
 
-            return GetSectionByXref(xref);
-        }
+    public Section? GetSection(string version, string id)
+    {
+        if (_sectionsByVersion.TryGetValue(version, out var sectionsById))
+            if (sectionsById.TryGetValue(id, out var section))
+                return section;
 
-        public Section? GetSection(string version, string id)
-        {
-            if (_sectionsByVersion.TryGetValue(version, out var sectionsById))
-                if (sectionsById.TryGetValue(id, out var section))
-                    return section;
+        return null;
+    }
 
-            return null;
-        }
+    public Section? GetSectionByXref(in Xref xref)
+    {
+        if (xref.SectionId == null)
+            throw new ArgumentNullException(nameof(xref.SectionId));
 
-        public Section? GetSectionByXref(in Xref xref)
-        {
-            if (xref.SectionId == null)
-                throw new ArgumentNullException(nameof(xref.SectionId));
+        if (xref.Version == null)
+            throw new ArgumentNullException(nameof(xref.Version));
 
-            if (xref.Version == null)
-                throw new ArgumentNullException(nameof(xref.Version));
+        if (_sectionsByVersion.TryGetValue(xref.Version, out var sectionsById))
+            if (sectionsById.TryGetValue(xref.SectionId, out var section))
+                return section;
 
-            if (_sectionsByVersion.TryGetValue(xref.Version, out var sectionsById))
-                if (sectionsById.TryGetValue(xref.SectionId, out var section))
-                    return section;
-
-            return null;
-        }
+        return null;
     }
 }

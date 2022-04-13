@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using LibGit2Sharp;
+using Spectre.Console;
 using Tanka.DocsTool.Catalogs;
 using Tanka.DocsTool.Definitions;
 using Tanka.DocsTool.Pipelines;
@@ -34,44 +35,59 @@ namespace Tanka.DocsTool.Tests.Pipelines
                 }
             };
 
+            _console = AnsiConsole.Create(new AnsiConsoleSettings()
+            {
+                Interactive = InteractionSupport.No,
+            });
+
             _aggregator = new ContentAggregator(
                 site, 
                 git,
                 new PhysicalFileSystem(root),
-                new MimeDbClassifier());
+                new MimeDbClassifier(),
+                _console);
         }
 
         private readonly Catalog _catalog;
         private readonly Repository _repo;
+        private readonly IAnsiConsole _console;
         private readonly ContentAggregator _aggregator;
 
 
         [Fact]
-        public async Task From_root_of_the_path()
+        public Task From_root_of_the_path()
         {
-            /* Given */
-            var collector = new SectionCollector();
-            await _catalog.Add(_aggregator.Aggregate(CancellationToken.None));
+            return  _console.Progress()
+                .StartAsync(async progress => {             
+                    /* Given */
+                    var collector = new SectionCollector(_console, true);
+                    await _catalog.Add(_aggregator.Aggregate(progress, CancellationToken.None));
 
-            /* When */
-            await collector.Collect(_catalog);
+                    /* When */
+                    await collector.Collect(_catalog, progress);
 
-            /* Then */
-            Assert.Single(collector.Sections, section => section.Id == "root");
+                    /* Then */
+                    Assert.Single(collector.Sections, section => section.Id == "root");
+                });
+
         }
 
         [Fact]
-        public async Task From_subpath_of_the_root_path()
+        public Task From_subpath_of_the_root_path()
         {
-            /* Given */
-            var collector = new SectionCollector();
-            await _catalog.Add(_aggregator.Aggregate(CancellationToken.None));
+            return _console.Progress()
+                .StartAsync(async progress =>
+                {
+                    /* Given */
+                    var collector = new SectionCollector(_console);
+                    await _catalog.Add(_aggregator.Aggregate(progress, CancellationToken.None));
 
-            /* When */
-            await collector.Collect(_catalog);
+                    /* When */
+                    await collector.Collect(_catalog, progress);
 
-            /* Then */
-            Assert.Single(collector.Sections, section => section.Id == "structure");
+                    /* Then */
+                    Assert.Single(collector.Sections, section => section.Id == "structure");
+                });
         }
 
         public void Dispose()

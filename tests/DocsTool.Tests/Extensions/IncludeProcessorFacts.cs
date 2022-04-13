@@ -8,7 +8,7 @@ using Tanka.DocsTool.Catalogs;
 using Tanka.DocsTool.Extensions;
 using Tanka.FileSystem.Memory;
 using Xunit;
-using Path = Tanka.FileSystem.Path;
+using FileSystemPath = Tanka.FileSystem.FileSystemPath;
 
 namespace Tanka.DocsTool.Tests.Extensions
 {
@@ -21,7 +21,7 @@ namespace Tanka.DocsTool.Tests.Extensions
 
         private readonly InMemoryFileSystem _fileSystem;
 
-        private async Task<PipeReader> CreateContentItem(Path filePath, string content)
+        private async Task<PipeReader> CreateContentItem(FileSystemPath filePath, string content)
         {
             var file = await _fileSystem.GetOrCreateFile(filePath);
             await using var stream = await file.OpenWrite();

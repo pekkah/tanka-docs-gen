@@ -1,5 +1,7 @@
 mode: ContinuousDeployment
+next-version: 3.0
 branches:
   master:
-    regex: master
     tag: beta
+ignore:
+  sha: []

@@ -11,7 +11,7 @@ namespace Tanka.DocsTool
             WriteIndented = true
         };
 
-        public static void LogInformationJson<T>(this ILogger logger, string title,  T obj)
+        public static void LogInformationJson<T>(this ILogger logger, string title, T obj)
         {
             var json = JsonSerializer.Serialize(obj, Options);
             var builder = new StringBuilder();

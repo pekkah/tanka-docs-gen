@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using LibGit2Sharp;
+using Spectre.Console;
 using Tanka.DocsTool.Catalogs;
 using Tanka.DocsTool.Definitions;
 using Tanka.DocsTool.Pipelines;
@@ -34,35 +35,46 @@ namespace Tanka.DocsTool.Tests.Pipelines
                 }
             };
 
+            _console = AnsiConsole.Create(new AnsiConsoleSettings()
+            {
+                Interactive = InteractionSupport.No
+            });
+
             _aggregator = new ContentAggregator(
                 _site,
                 git,
                 new PhysicalFileSystem(root),
-                new MimeDbClassifier());
+                new MimeDbClassifier(),
+                _console);
         }
 
         private readonly Catalog _catalog;
         private readonly Repository _repo;
         private readonly ContentAggregator _aggregator;
         private readonly SiteDefinition _site;
-
+        private readonly IAnsiConsole _console;
 
         [Fact]
-        public async Task Build_site()
+        public Task Build_site()
         {
-            /* Given */
-            var collector = new SectionCollector();
-            await _catalog.Add(_aggregator.Aggregate(CancellationToken.None));
-            await collector.Collect(_catalog);
+            return _console.Progress()
+                   .StartAsync(async progress =>
+                   {
 
-            var sut = new SiteBuilder(_site);
-            
-            /* When */
-            var site = sut.Add(collector.Sections)
-                .Build();
+                       /* Given */
+                       var collector = new SectionCollector(_console);
+                       await _catalog.Add(_aggregator.Aggregate(progress, CancellationToken.None));
+                       await collector.Collect(_catalog, progress);
 
-            /* Then */
-            Assert.NotEmpty(site.Versions);
+                       var sut = new SiteBuilder(_site);
+
+                       /* When */
+                       var site = sut.Add(collector.Sections)
+                           .Build();
+
+                       /* Then */
+                       Assert.NotEmpty(site.Versions);
+                   });
 
         }
 

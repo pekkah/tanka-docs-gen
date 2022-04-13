@@ -1,11 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using Tanka.DocsTool.Navigation;
+﻿using Tanka.DocsTool.Navigation;
 using Tanka.DocsTool.Pipelines;
-using Tanka.FileSystem;
-using Path = Tanka.FileSystem.Path;
+using FileSystemPath = Tanka.FileSystem.FileSystemPath;
 
 namespace Tanka.DocsTool.UI
 {
@@ -13,23 +8,33 @@ namespace Tanka.DocsTool.UI
     {
         private readonly IFileSystem _cache;
         private readonly IFileSystem _output;
+        private readonly IAnsiConsole _console;
 
-        public UiBuilder(IFileSystem cache, IFileSystem output)
+        public UiBuilder(IFileSystem cache, IFileSystem output, IAnsiConsole console)
         {
             _cache = cache;
             _output = output;
+            _console = console;
         }
 
-        public async Task BuildSite(Site site)
+        public async Task BuildSite(Site site, ProgressContext progress)
         {
+            var tasks = site.Versions
+                .ToDictionary(v => v, v => progress.AddTask($"Version: {v}", maxValue: 0));
+
             foreach (var version in site.Versions)
             {
+                var sections = site.GetSectionsByVersion(version).ToList();
+                var task = tasks[version];
+                task.MaxValue = sections.Count;
+
                 // compose doc sections
-                foreach (var section in site.GetSectionsByVersion(version))
+                foreach (var section in sections)
                 {
+                    _console.LogInformation($"Building: {section}");
                     var uiBundleRef = LinkParser.Parse("xref://ui-bundle:tanka-docs-section.yml").Xref!.Value;
                     var uiContent = site.GetSectionByXref(uiBundleRef, section);
-                    
+
                     if (uiContent == null)
                         throw new InvalidOperationException($"Could not resolve ui-bundle. Xref '{uiBundleRef}' could not be resolved.'");
 
@@ -38,7 +43,12 @@ namespace Tanka.DocsTool.UI
 
                     var composer = new SectionComposer(site, _cache, _output, uiBundle);
                     await composer.ComposeSection(section);
+
+                    _console.LogInformation($"Built: {section}");
+                    task.Increment(1);
                 }
+
+                task.StopTask();
             }
 
             await ComposeIndexPage(site);
@@ -48,7 +58,7 @@ namespace Tanka.DocsTool.UI
         {
             var redirectoToPage = site.Definition.IndexPage;
 
-            string target = string.Empty;
+            string? target;
             if (redirectoToPage.IsXref)
             {
                 var xref = redirectoToPage.Xref.Value;
@@ -67,16 +77,16 @@ namespace Tanka.DocsTool.UI
                 target = redirectoToPage.Uri ?? string.Empty;
             }
 
-            
+
             var generatedHtml = string.Format(
                 PageComposer.RedirectPageHtml,
                 site.BasePath,
                 target);
 
             // create output dir for page
-            Path targetFilePath = "index.html";
+            FileSystemPath targetFilePath = "index.html";
 
-            if (targetFilePath == new Path(target))
+            if (targetFilePath == new FileSystemPath(target))
                 throw new InvalidOperationException(
                     $"Cannot generate a index.html redirect page '{targetFilePath}'. " +
                     $"Redirect would point to same file as the generated file and would" +

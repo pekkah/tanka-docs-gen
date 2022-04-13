@@ -13,7 +13,7 @@ namespace Tanka.FileSystem
             _root = root;
         }
 
-        public ValueTask<IFile> GetOrCreateFile(Path path)
+        public ValueTask<IFile> GetOrCreateFile(FileSystemPath path)
         {
             var fullPath = GetFullPath(path);
             return new ValueTask<IFile>(new PhysicalFile(
@@ -21,7 +21,7 @@ namespace Tanka.FileSystem
                 fullPath));
         }
 
-        public ValueTask<IDirectory> GetOrCreateDirectory(Path path)
+        public ValueTask<IDirectory> GetOrCreateDirectory(FileSystemPath path)
         {
             var fullPath = GetFullPath(path);
             Directory.CreateDirectory(fullPath);
@@ -33,13 +33,13 @@ namespace Tanka.FileSystem
                     fullPath));
         }
 
-        public ValueTask<IFileSystem> Mount(Path path)
+        public ValueTask<IFileSystem> Mount(FileSystemPath path)
         {
             var fullPath = GetFullPath(path);
             return new ValueTask<IFileSystem>(new PhysicalFileSystem(fullPath));
         }
 
-        public async Task DeleteDir(Path path)
+        public async Task DeleteDir(FileSystemPath path)
         {
             await Task.Yield();
 
@@ -49,7 +49,7 @@ namespace Tanka.FileSystem
                 Directory.Delete(fullPath, true);
         }
 
-        public async Task CleanDirectory(Path path)
+        public async Task CleanDirectory(FileSystemPath path)
         {
             await Task.Yield();
 
@@ -69,7 +69,7 @@ namespace Tanka.FileSystem
             }
         }
 
-        public async ValueTask<IReadOnlyFile?> GetFile(Path path)
+        public async ValueTask<IReadOnlyFile?> GetFile(FileSystemPath path)
         {
             var fullPath = GetFullPath(path);
             if (!File.Exists(fullPath))
@@ -78,7 +78,7 @@ namespace Tanka.FileSystem
             return await GetOrCreateFile(path);
         }
 
-        public async ValueTask<IReadOnlyDirectory?> GetDirectory(Path path)
+        public async ValueTask<IReadOnlyDirectory?> GetDirectory(FileSystemPath path)
         {
             var fullPath = GetFullPath(path);
 
@@ -88,7 +88,7 @@ namespace Tanka.FileSystem
             return await GetOrCreateDirectory(path);
         }
 
-        public async IAsyncEnumerable<IFileSystemNode> Enumerate(Path path)
+        public async IAsyncEnumerable<IFileSystemNode> Enumerate(FileSystemPath path)
         {
             await Task.Yield();
 
@@ -105,12 +105,12 @@ namespace Tanka.FileSystem
                     entry);
         }
 
-        protected Path GetRelativePath(in Path path)
+        protected FileSystemPath GetRelativePath(in FileSystemPath path)
         {
             return System.IO.Path.GetRelativePath(_root, path);
         }
 
-        protected Path GetFullPath(in Path path)
+        protected FileSystemPath GetFullPath(in FileSystemPath path)
         {
             if (path == "")
                 return _root;

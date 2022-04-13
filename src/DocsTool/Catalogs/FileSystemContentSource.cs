@@ -1,15 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using Tanka.FileSystem;
-
-namespace Tanka.DocsTool.Catalogs
+﻿namespace Tanka.DocsTool.Catalogs
 {
     public class FileSystemContentSource : IContentSource
     {
         private readonly IFileSystem _fileSystem;
         private readonly string _path;
 
-        public FileSystemContentSource(IFileSystem fileSystem, string version, Path path)
+        public FileSystemContentSource(IFileSystem fileSystem, string version, FileSystemPath path)
         {
             _fileSystem = fileSystem;
             _path = path;
@@ -17,11 +13,8 @@ namespace Tanka.DocsTool.Catalogs
         }
 
         public string Version { get; }
-        public Path Path => _path;
+        public FileSystemPath Path => _path;
 
-        public IAsyncEnumerable<IFileSystemNode> Enumerate(CancellationToken cancellationToken)
-        {
-            return _fileSystem.Enumerate(_path);
-        }
+        public IAsyncEnumerable<IFileSystemNode> Enumerate(CancellationToken cancellationToken) => _fileSystem.Enumerate(_path);
     }
 }

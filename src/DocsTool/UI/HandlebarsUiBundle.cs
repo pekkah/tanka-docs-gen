@@ -1,21 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using HandlebarsDotNet;
-using Tanka.DocsTool.Catalogs;
+﻿using HandlebarsDotNet;
 using Tanka.DocsTool.Navigation;
 using Tanka.DocsTool.Pipelines;
-using Tanka.FileSystem;
-using Path = Tanka.FileSystem.Path;
+using FileSystemPath = Tanka.FileSystem.FileSystemPath;
 
 namespace Tanka.DocsTool.UI
 {
     public class HandlebarsUiBundle : IUiBundle
     {
-        public static Path PartialsPath = "partials";
+        public static FileSystemPath PartialsPath = "partials";
 
         private readonly Dictionary<string, string> _templates =
             new Dictionary<string, string>();
@@ -53,7 +45,7 @@ namespace Tanka.DocsTool.UI
 
         public async Task PrepareAssets(DocsSiteRouter router)
         {
-            foreach (var (path, contentItem) in _uiBundle.GetContentItems(new Path[]
+            foreach (var (path, contentItem) in _uiBundle.GetContentItems(new FileSystemPath[]
             {
                 "**/*.js",
                 "**/*.css",
@@ -63,7 +55,7 @@ namespace Tanka.DocsTool.UI
             }))
             {
                 var xref = new Xref(_uiBundle.Version, _uiBundle.Id, path);
-                Path route = router.GenerateRoute(xref)
+                FileSystemPath route = router.GenerateRoute(xref)
                     ?? throw new InvalidOperationException($"Could not generate route for '{xref}'.");
 
                 await using var inputStream = await contentItem.File.OpenRead();
@@ -92,7 +84,7 @@ namespace Tanka.DocsTool.UI
     internal class HandlebarsPageRenderer : IPageRenderer
     {
         private readonly string _templateHbs;
-        private IHandlebars _handlebars;
+        private readonly IHandlebars _handlebars;
 
         public HandlebarsPageRenderer(string templateHbs, IReadOnlyDictionary<string, string> partials, DocsSiteRouter router)
         {
@@ -133,7 +125,7 @@ namespace Tanka.DocsTool.UI
                 var target = arguments[0];
 
                 string? url = null;
-                
+
                 if (target is string xrefStr)
                 {
                     target = LinkParser.Parse(xrefStr);
@@ -168,10 +160,10 @@ namespace Tanka.DocsTool.UI
                     throw new InvalidOperationException($"Section requires version and id. " +
                                                         $"Example: section \"head\" \"root\"");
 
-                var version = arguments[0]?.ToString() 
+                var version = arguments[0]?.ToString()
                               ?? throw new ArgumentNullException("arguments[0]");
 
-                var id = arguments[1]?.ToString() 
+                var id = arguments[1]?.ToString()
                          ?? throw new ArgumentNullException("arguments[1]");
 
                 var section = router.Site.GetSection(version, id);
@@ -222,13 +214,13 @@ namespace Tanka.DocsTool.UI
 
                 foreach (var version in versions)
                 {
-                    options.Template(output, new 
+                    options.Template(output, new
                     {
                         Version = version,
                         Sections = router.Site.GetSectionsByVersion(version)
                             .Where(s => s.Type == "doc")
-                            .Select(section => new 
-                            { 
+                            .Select(section => new
+                            {
                                 Id = section.Id,
                                 Title = section.Title,
                                 Type = section.Type,

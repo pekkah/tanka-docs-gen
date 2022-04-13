@@ -8,11 +8,11 @@ namespace Tanka.FileSystem.Memory
 {
     public class InMemoryFileSystem : IFileSystem, IDisposable
     {
-        private readonly ConcurrentDictionary<Path, InMemoryDirectory> _directories =
-            new ConcurrentDictionary<Path, InMemoryDirectory>();
+        private readonly ConcurrentDictionary<FileSystemPath, InMemoryDirectory> _directories =
+            new ConcurrentDictionary<FileSystemPath, InMemoryDirectory>();
 
-        private readonly ConcurrentDictionary<Path, InMemoryFile> _files =
-            new ConcurrentDictionary<Path, InMemoryFile>();
+        private readonly ConcurrentDictionary<FileSystemPath, InMemoryFile> _files =
+            new ConcurrentDictionary<FileSystemPath, InMemoryFile>();
 
 
         public InMemoryFileSystem()
@@ -25,21 +25,21 @@ namespace Tanka.FileSystem.Memory
             foreach (var file in _files) file.Value?.Dispose();
         }
 
-        public ValueTask<IReadOnlyFile?> GetFile(Path path)
+        public ValueTask<IReadOnlyFile?> GetFile(FileSystemPath path)
         {
             if (_files.TryGetValue(path, out var file)) return new ValueTask<IReadOnlyFile?>(file);
 
             return new ValueTask<IReadOnlyFile?>(default(IReadOnlyFile?));
         }
 
-        public ValueTask<IReadOnlyDirectory?> GetDirectory(Path path)
+        public ValueTask<IReadOnlyDirectory?> GetDirectory(FileSystemPath path)
         {
             if (_directories.TryGetValue(path, out var dir)) return new ValueTask<IReadOnlyDirectory?>(dir);
 
             return new ValueTask<IReadOnlyDirectory?>(default(IReadOnlyDirectory?));
         }
 
-        public async IAsyncEnumerable<IFileSystemNode> Enumerate(Path path)
+        public async IAsyncEnumerable<IFileSystemNode> Enumerate(FileSystemPath path)
         {
             await Task.Delay(0);
             foreach (var file in _files)
@@ -66,29 +66,29 @@ namespace Tanka.FileSystem.Memory
             }
         }
 
-        public ValueTask<IFile> GetOrCreateFile(Path path)
+        public ValueTask<IFile> GetOrCreateFile(FileSystemPath path)
         {
             var file = _files.GetOrAdd(path, p => new InMemoryFile(this, p));
             return new ValueTask<IFile>(file);
         }
 
-        public ValueTask<IDirectory> GetOrCreateDirectory(Path path)
+        public ValueTask<IDirectory> GetOrCreateDirectory(FileSystemPath path)
         {
             var dir = _directories.GetOrAdd(path, p => new InMemoryDirectory(this, p));
             return new ValueTask<IDirectory>(dir);
         }
 
-        public ValueTask<IFileSystem> Mount(Path path)
+        public ValueTask<IFileSystem> Mount(FileSystemPath path)
         {
             return new ValueTask<IFileSystem>(new InMemoryFileSystem());
         }
 
-        public Task DeleteDir(Path path)
+        public Task DeleteDir(FileSystemPath path)
         {
             throw new NotImplementedException();
         }
 
-        public Task CleanDirectory(Path path)
+        public Task CleanDirectory(FileSystemPath path)
         {
             throw new NotImplementedException();
         }
@@ -98,13 +98,13 @@ namespace Tanka.FileSystem.Memory
     {
         private readonly InMemoryFileSystem _fileSystem;
 
-        public InMemoryDirectory(InMemoryFileSystem fileSystem, in Path path)
+        public InMemoryDirectory(InMemoryFileSystem fileSystem, in FileSystemPath path)
         {
             _fileSystem = fileSystem;
             Path = path;
         }
 
-        public Path Path { get; }
+        public FileSystemPath Path { get; }
 
 
         public IAsyncEnumerable<IFileSystemNode> Enumerate()
@@ -119,7 +119,7 @@ namespace Tanka.FileSystem.Memory
 
         private InMemoryFileStream _stream;
 
-        public InMemoryFile(InMemoryFileSystem fileSystem, Path path)
+        public InMemoryFile(InMemoryFileSystem fileSystem, FileSystemPath path)
         {
             _fileSystem = fileSystem;
             Path = path;
@@ -130,7 +130,7 @@ namespace Tanka.FileSystem.Memory
             _stream?.DisposeInternal();
         }
 
-        public Path Path { get; }
+        public FileSystemPath Path { get; }
 
         public ValueTask<Stream> OpenRead()
         {
