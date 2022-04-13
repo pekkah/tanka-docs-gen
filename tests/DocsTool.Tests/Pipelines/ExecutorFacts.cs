@@ -19,7 +19,7 @@ namespace Tanka.DocsTool.Tests.Pipelines
 
         public string GitRootPath { get; set; }
 
-        [Fact]
+        [Fact(Skip ="Refactor so this runs on memory")]
         public async Task Execute()
         {
             /* Given */
