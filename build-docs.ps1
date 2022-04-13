@@ -67,7 +67,7 @@ $Basepath = "/tanka-docs-gen/"
 "Output: $DocsOutput"
 "BasePath: $Basepath"
 
-dotnet tanka-docs --output $DocsOutput --base $Basepath
+dotnet run --project ./src/DocsTool -- build --output $DocsOutput --base $Basepath
 EnsureLastExitCode("dotnet tanka-docs failed")
 
 "----------------------------------------"
