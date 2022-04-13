@@ -6,24 +6,24 @@ namespace Tanka.FileSystem
 {
     public interface IReadOnlyFileSystem
     {
-        public ValueTask<IReadOnlyFile?> GetFile(Path path);
+        public ValueTask<IReadOnlyFile?> GetFile(FileSystemPath path);
 
-        public ValueTask<IReadOnlyDirectory?> GetDirectory(Path path);
+        public ValueTask<IReadOnlyDirectory?> GetDirectory(FileSystemPath path);
 
-        public IAsyncEnumerable<IFileSystemNode> Enumerate(Path path);
+        public IAsyncEnumerable<IFileSystemNode> Enumerate(FileSystemPath path);
     }
 
     public interface IFileSystem: IReadOnlyFileSystem
     {
-        public ValueTask<IFile> GetOrCreateFile(Path path);
+        public ValueTask<IFile> GetOrCreateFile(FileSystemPath path);
 
-        public ValueTask<IDirectory> GetOrCreateDirectory(Path path);
+        public ValueTask<IDirectory> GetOrCreateDirectory(FileSystemPath path);
 
-        public ValueTask<IFileSystem> Mount(Path path);
+        public ValueTask<IFileSystem> Mount(FileSystemPath path);
 
-        Task DeleteDir(Path path);
+        Task DeleteDir(FileSystemPath path);
 
-        Task CleanDirectory(Path path);
+        Task CleanDirectory(FileSystemPath path);
     }
 
     public interface IFile: IReadOnlyFile
@@ -47,7 +47,7 @@ namespace Tanka.FileSystem
 
     public interface IFileSystemNode
     {
-        Path Path { get; }
+        FileSystemPath Path { get; }
 
         //public IReadOnlyDictionary<string, string> Metadata { get; }
     }

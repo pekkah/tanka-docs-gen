@@ -1,0 +1,67 @@
+name: Build docs
+
+on:
+  push:
+    branches:
+      - master
+      - release/**
+    tags:
+      - '*'
+  pull_request:
+    branches: [master]
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: |
+            3.1.x
+            6.0.x
+
+      - name: Build docs
+        shell: pwsh
+        run: |
+          ./build-docs.ps1 -Output ./artifacts/gh-pages -CurrentBranch $Env:GITHUB_REF_NAME
+      
+      - name: Publish build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Docs
+          path: |
+            ./artifacts/gh-pages
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    concurrency: ci-${{ github.ref }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: Docs
+          path: docs
+      
+      - run: ls -la ./docs
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4.2.3
+        if: github.ref_name == 'master' || startsWith(github.ref, 'refs/tags/')
+        with:
+          branch: gh-pages
+          folder: ./docs
+          commit-message: ${{github.ref_name}}
+          clean: true

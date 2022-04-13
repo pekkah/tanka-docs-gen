@@ -1,10 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 using DotNet.Globbing;
-using Tanka.FileSystem;
 
 namespace Tanka.DocsTool.Catalogs
 {
@@ -12,13 +7,10 @@ namespace Tanka.DocsTool.Catalogs
     {
         private readonly IFileSystem _fileSystem;
 
-        public FileSystemAggregator(IFileSystem fileSystem)
-        {
-            _fileSystem = fileSystem;
-        }
+        public FileSystemAggregator(IFileSystem fileSystem) => _fileSystem = fileSystem;
 
         public async IAsyncEnumerable<IReadOnlyFile> Aggregate(
-            Path path,
+            FileSystemPath path,
             [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var stack = new Stack<IReadOnlyDirectory>();
@@ -49,8 +41,8 @@ namespace Tanka.DocsTool.Catalogs
         }
 
         public async IAsyncEnumerable<IReadOnlyFile> Aggregate(
-            Path path,
-            IEnumerable<Path> filePatterns,
+            FileSystemPath path,
+            IEnumerable<FileSystemPath> filePatterns,
             [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var stack = new Stack<IReadOnlyDirectory>();

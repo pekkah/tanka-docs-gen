@@ -6,31 +6,9 @@ namespace Tanka.DocsTool
 {
     public static class Infra
     {
-        public static void Initialize(Options args)
+        public static void Initialize(ILoggerFactory loggerFactory)
         {
-            var debug = args.Debug;
-            LoggerFactory = Microsoft.Extensions.Logging
-                .LoggerFactory.Create(builder =>
-                {
-                    builder.AddConsole(console =>
-                    {
-                        console.DisableColors = false;
-                        console.IncludeScopes = true;
-                        console.LogToStandardErrorThreshold = LogLevel.Error;
-
-                    });
-
-                    builder.AddFilter(level =>
-                    {
-                        if (debug)
-                            return true;
-
-                        if (level < LogLevel.Information)
-                            return false;
-
-                        return true;
-                    });
-                });
+            LoggerFactory = loggerFactory;
         }
 
         public static ILoggerFactory LoggerFactory = new NullLoggerFactory(); 

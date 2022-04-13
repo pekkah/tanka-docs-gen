@@ -1,21 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28711.60
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "generate.docs", "src\generate.docs\generate.docs.csproj", "{FD9CD3FF-33FA-4291-BB88-DE767790101F}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9D95E672-E89C-4EC7-B6A3-E72498172AD4}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		.gitignore = .gitignore
 		docs\_template.html = docs\_template.html
 		azure-pipelines.yml = azure-pipelines.yml
 		build.cake = build.cake
 		Directory.Build.props = Directory.Build.props
 		GitVersion.yml = GitVersion.yml
+		README.md = README.md
 	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "generate.docs.facts", "tests\generate.docs.facts\generate.docs.facts.csproj", "{B9CCF197-A23B-41AC-94C8-2DF2691B901A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileSystem", "src\FileSystem\FileSystem.csproj", "{989EBE00-A742-4BA2-AF28-BEC2BFDE8ABC}"
 EndProject
@@ -31,14 +29,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FD9CD3FF-33FA-4291-BB88-DE767790101F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FD9CD3FF-33FA-4291-BB88-DE767790101F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FD9CD3FF-33FA-4291-BB88-DE767790101F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FD9CD3FF-33FA-4291-BB88-DE767790101F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B9CCF197-A23B-41AC-94C8-2DF2691B901A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B9CCF197-A23B-41AC-94C8-2DF2691B901A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B9CCF197-A23B-41AC-94C8-2DF2691B901A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B9CCF197-A23B-41AC-94C8-2DF2691B901A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{989EBE00-A742-4BA2-AF28-BEC2BFDE8ABC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{989EBE00-A742-4BA2-AF28-BEC2BFDE8ABC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{989EBE00-A742-4BA2-AF28-BEC2BFDE8ABC}.Release|Any CPU.ActiveCfg = Release|Any CPU

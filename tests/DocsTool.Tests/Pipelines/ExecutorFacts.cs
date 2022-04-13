@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using LibGit2Sharp;
+using Microsoft.Extensions.DependencyInjection;
+using Spectre.Console;
 using Tanka.DocsTool.Definitions;
 using Tanka.DocsTool.Pipelines;
 using Xunit;
@@ -17,7 +19,7 @@ namespace Tanka.DocsTool.Tests.Pipelines
 
         public string GitRootPath { get; set; }
 
-        [Fact]
+        [Fact(Skip ="Refactor so this runs on memory")]
         public async Task Execute()
         {
             /* Given */
@@ -42,12 +44,24 @@ namespace Tanka.DocsTool.Tests.Pipelines
                 }
             };
 
+            var services = new ServiceCollection()
+                .AddSingleton<IAnsiConsole>(AnsiConsole.Create(new AnsiConsoleSettings()
+                {
+                    Interactive = InteractionSupport.No
+                }))
+                .AddDefaultPipeline()
+                .BuildServiceProvider();
+
             /* When */
-            var executor = new Executor(
-                site, 
+            var executor = new PipelineExecutor(
+                new BuildSiteCommand.Settings()
+                );
+
+            await executor.Execute(new PipelineBuilder(services)
+                .UseDefault(), 
+                site,
                 GitRootPath);
-            
-            await executor.Execute();
+
             /* Then */
         }
 

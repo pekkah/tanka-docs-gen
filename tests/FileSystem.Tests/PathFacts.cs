@@ -9,7 +9,7 @@ namespace Tanka.FileSystem.Tests
         {
             /* Given */
             /* When */
-            Path path = "seg1\\seg2\\seg3";
+            FileSystemPath path = "seg1\\seg2\\seg3";
 
             /* When */
             Assert.Equal("seg1/seg2/seg3", path);
@@ -20,7 +20,7 @@ namespace Tanka.FileSystem.Tests
         {
             /* Given */
             /* When */
-            Path path = "seg1/seg2\\seg3";
+            FileSystemPath path = "seg1/seg2\\seg3";
 
             /* When */
             Assert.Equal("seg1/seg2/seg3", path);
@@ -31,7 +31,7 @@ namespace Tanka.FileSystem.Tests
         {
             /* Given */
             /* When */
-            Path path = ".gitattributes";
+            FileSystemPath path = ".gitattributes";
 
             /* When */
             Assert.Equal(".gitattributes", path);
@@ -42,7 +42,7 @@ namespace Tanka.FileSystem.Tests
         {
             /* Given */
             /* When */
-            Path path = "./files";
+            FileSystemPath path = "./files";
 
             /* When */
             Assert.Equal("files", path);
@@ -53,7 +53,7 @@ namespace Tanka.FileSystem.Tests
         {
             /* Given */
             /* When */
-            Path path = "/files";
+            FileSystemPath path = "/files";
 
             /* When */
             Assert.Equal("files", path);
@@ -65,15 +65,15 @@ namespace Tanka.FileSystem.Tests
         [InlineData("seg1", "seg1", "")]
         [InlineData("seg1/seg2", "seg3", "seg1/seg2")]
         [InlineData("file.txt", "file.txt", "")]
-        [InlineData("seg1/seg2/seg3", "seg1/seg2/seg3/seg4", "")] //todo: is this expected behavior?
+        [InlineData("seg1/seg2/seg3", "seg1/seg2/seg3/seg4", "")]
         public void Subtract_path(string leftStr, string rightStr, string expectedStr)
         {
             /* Given */
-            Path left = leftStr;
-            Path right = rightStr;
+            FileSystemPath left = leftStr;
+            FileSystemPath right = rightStr;
 
             /* When */
-            Path path = left - right;
+            FileSystemPath path = left - right;
 
             /* Then */
             Assert.Equal(expectedStr, path);

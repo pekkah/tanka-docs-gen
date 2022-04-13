@@ -14,7 +14,7 @@ using Tanka.DocsTool.Navigation;
 using Tanka.DocsTool.Pipelines;
 using Tanka.DocsTool.UI.Navigation;
 using Tanka.FileSystem;
-using Path = Tanka.FileSystem.Path;
+using FileSystemPath = Tanka.FileSystem.FileSystemPath;
 
 namespace Tanka.DocsTool.UI
 {
@@ -47,7 +47,7 @@ namespace Tanka.DocsTool.UI
             await ComposePages(section, menu, router, renderer, preprocessorPipe);
         }
 
-        private Func<Path, PipeReader, Task<PipeReader>> BuildPreProcessors(Section section)
+        private Func<FileSystemPath, PipeReader, Task<PipeReader>> BuildPreProcessors(Section section)
         {
             var builder = new PreProcessorPipelineBuilder();
             new RoslynExtension().ConfigurePreProcessors(_site, section, builder);
@@ -73,7 +73,7 @@ namespace Tanka.DocsTool.UI
                 await using var inputStream = await assetItem.File.OpenRead();
 
                 // create output dir for page
-                Path outputPath = router.GenerateRoute(new Xref(assetItem.Version, section.Id, relativePath))
+                FileSystemPath outputPath = router.GenerateRoute(new Xref(assetItem.Version, section.Id, relativePath))
                     ?? throw new InvalidOperationException($"Could not generate output path for '{outputPath}'.");
 
                 await _output.GetOrCreateDirectory(outputPath.GetDirectoryPath());
@@ -86,7 +86,7 @@ namespace Tanka.DocsTool.UI
             }
         }
 
-        private bool IsAsset(Path relativePath, ContentItem contentItem)
+        private bool IsAsset(FileSystemPath relativePath, ContentItem contentItem)
         {
             if (IsPage(relativePath, contentItem))
                 return false;
@@ -112,7 +112,7 @@ namespace Tanka.DocsTool.UI
             IReadOnlyCollection<NavigationItem> menu,
             DocsSiteRouter router,
             DocsMarkdownService renderer, 
-            Func<Path, PipeReader, Task<PipeReader>> preprocessorPipe)
+            Func<FileSystemPath, PipeReader, Task<PipeReader>> preprocessorPipe)
         {
             var pageComposer = new PageComposer(_site, section, _cache, _output, _uiBundle, renderer);
 
@@ -136,7 +136,7 @@ namespace Tanka.DocsTool.UI
             await pageComposer.ComposeRedirectPage("index.html", redirectToPage);
         }
 
-        private bool IsPage(Path relativePath, ContentItem contentItem)
+        private bool IsPage(FileSystemPath relativePath, ContentItem contentItem)
         {
             return relativePath.GetExtension() == ".md" && relativePath.GetFileName() != "nav.md";
         }

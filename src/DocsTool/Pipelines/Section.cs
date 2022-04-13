@@ -1,10 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using DotNet.Globbing;
+﻿using DotNet.Globbing;
 using Tanka.DocsTool.Catalogs;
 using Tanka.DocsTool.Definitions;
 using Tanka.DocsTool.Navigation;
-using Tanka.FileSystem;
 
 namespace Tanka.DocsTool.Pipelines
 {
@@ -13,9 +10,9 @@ namespace Tanka.DocsTool.Pipelines
         private readonly ContentItem _contentItem;
 
         public Section(
-            ContentItem contentItem, 
+            ContentItem contentItem,
             SectionDefinition definition,
-            IReadOnlyDictionary<Path, ContentItem> contentItems)
+            IReadOnlyDictionary<FileSystemPath, ContentItem> contentItems)
         {
             _contentItem = contentItem;
             Definition = definition;
@@ -34,16 +31,13 @@ namespace Tanka.DocsTool.Pipelines
 
         public string Title => Definition.Title;
 
-        public Path Path => _contentItem.SourceRelativePath.GetDirectoryPath();
+        public FileSystemPath Path => _contentItem.SourceRelativePath.GetDirectoryPath();
 
-        public IReadOnlyDictionary<Path, ContentItem> ContentItems { get; }
+        public IReadOnlyDictionary<FileSystemPath, ContentItem> ContentItems { get; }
 
-        public override string ToString()
-        {
-            return $"{Id}@{Version} '{Path}'";
-        }
+        public override string ToString() => $"{Id}@{Version} '{Path}'";
 
-        public ContentItem? GetContentItem(Path path)
+        public ContentItem? GetContentItem(FileSystemPath path)
         {
             if (ContentItems.TryGetValue(path, out var contentItem))
                 return contentItem;
@@ -51,7 +45,7 @@ namespace Tanka.DocsTool.Pipelines
             return null;
         }
 
-        public IEnumerable<(Path RelativePath, ContentItem ContentItem)> GetContentItems(params Path[] patterns)
+        public IEnumerable<(FileSystemPath RelativePath, ContentItem ContentItem)> GetContentItems(params FileSystemPath[] patterns)
         {
             var globs = patterns.Select(p => Glob.Parse(p))
                 .ToList();
@@ -65,7 +59,7 @@ namespace Tanka.DocsTool.Pipelines
 
         public Section WithContentItems(params ContentItem[] contentItems)
         {
-            var contentItemsByRelativePath = new Dictionary<Path, ContentItem>();
+            var contentItemsByRelativePath = new Dictionary<FileSystemPath, ContentItem>();
             foreach (var contentItem in contentItems)
             {
                 var relativePath = contentItem.File.Path.GetRelative(Path);

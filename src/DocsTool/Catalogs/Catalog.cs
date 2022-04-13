@@ -1,26 +1,18 @@
 ﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using DotNet.Globbing;
 using Microsoft.Extensions.Logging;
-using Tanka.FileSystem;
 
 namespace Tanka.DocsTool.Catalogs
 {
     public class Catalog
     {
-        public Catalog()
-        {
-            _logger = Infra.LoggerFactory.CreateLogger<Catalog>();
-        }
+        public Catalog() => _logger = Infra.LoggerFactory.CreateLogger<Catalog>();
 
         private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, BlockingCollection<ContentItem>>>
             _contentItems =
                 new ConcurrentDictionary<string, ConcurrentDictionary<string, BlockingCollection<ContentItem>>>();
 
-        private ILogger<Catalog> _logger;
+        private readonly ILogger<Catalog> _logger;
 
         public async Task Add(
             IAsyncEnumerable<ContentItem> aggregate,
@@ -81,7 +73,7 @@ namespace Tanka.DocsTool.Catalogs
             }
         }
 
-        public ContentItem? GetContentItem(string version, string type, Path path)
+        public ContentItem? GetContentItem(string version, string type, FileSystemPath path)
         {
             if (_contentItems.TryGetValue(version, out var versionCollection))
                 if (versionCollection.TryGetValue(type, out var typeCollection))
@@ -114,10 +106,7 @@ namespace Tanka.DocsTool.Catalogs
             return Enumerable.Empty<ContentItem>();
         }
 
-        public IEnumerable<ContentItem> GetContentItems(string version, string type, IEnumerable<Path> patterns)
-        {
-            return GetContentItems(version, type, patterns.Select(p => p.ToString()));
-        }
+        public IEnumerable<ContentItem> GetContentItems(string version, string type, IEnumerable<FileSystemPath> patterns) => GetContentItems(version, type, patterns.Select(p => p.ToString()));
 
         public IEnumerable<ContentItem> GetContentItems(string version, params string[] typePatterns)
         {
@@ -140,7 +129,7 @@ namespace Tanka.DocsTool.Catalogs
             }
         }
 
-        public IEnumerable<ContentItem> GetContentItems(string version, string[] typePatterns, params Path[] patterns)
+        public IEnumerable<ContentItem> GetContentItems(string version, string[] typePatterns, params FileSystemPath[] patterns)
 
         {
             var versionItems = GetContentItemsOfVersion(version);
@@ -166,9 +155,6 @@ namespace Tanka.DocsTool.Catalogs
             }
         }
 
-        public IEnumerable<string> GetVersions()
-        {
-            return _contentItems.Keys;
-        }
+        public IEnumerable<string> GetVersions() => _contentItems.Keys;
     }
 }

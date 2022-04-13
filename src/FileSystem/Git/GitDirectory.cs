@@ -7,7 +7,7 @@ namespace Tanka.FileSystem.Git
     {
         private readonly IReadOnlyFileSystem _fileSystem;
 
-        public GitDirectory(IReadOnlyFileSystem fileSystem, in Path path, Tree tree)
+        public GitDirectory(IReadOnlyFileSystem fileSystem, in FileSystemPath path, Tree tree)
         {
             Path = path;
             Tree = tree;
@@ -16,7 +16,7 @@ namespace Tanka.FileSystem.Git
 
         public Tree Tree { get; }
 
-        public Path Path { get; }
+        public FileSystemPath Path { get; }
 
         public IAsyncEnumerable<IFileSystemNode> Enumerate()
         {

@@ -24,14 +24,14 @@ namespace Tanka.DocsTool.Tests.UI.Navigation
         {
             var source = Substitute.For<IContentSource>();
             source.Version.Returns("TEST");
-            source.Path.Returns(new Path(""));
+            source.Path.Returns(new FileSystemPath(""));
 
             var section = new Section(new ContentItem(
                     source, null ,null),
                 new SectionDefinition()
                 {
                     Id = "sectionId"
-                }, new Dictionary<Path, ContentItem>()
+                }, new Dictionary<FileSystemPath, ContentItem>()
                 {
                     ["1-example.md"] = new ContentItem(source, null, null),
                     ["1-Subsection/1-first.md"] = new ContentItem(source, null, null),

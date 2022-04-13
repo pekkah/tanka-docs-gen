@@ -8,7 +8,7 @@ namespace Tanka.FileSystem
         private readonly PhysicalFileSystem _fileSystem;
         private readonly string _fullPath;
 
-        public PhysicalDirectory(PhysicalFileSystem fileSystem, Path path, string fullPath)
+        public PhysicalDirectory(PhysicalFileSystem fileSystem, FileSystemPath path, string fullPath)
         {
             Path = path;
             _fileSystem = fileSystem;
@@ -20,7 +20,7 @@ namespace Tanka.FileSystem
             };
         }
 
-        public Path Path { get; }
+        public FileSystemPath Path { get; }
         public IReadOnlyDictionary<string, string> Metadata { get; }
 
 

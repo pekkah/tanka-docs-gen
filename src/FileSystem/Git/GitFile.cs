@@ -8,7 +8,7 @@ namespace Tanka.FileSystem.Git
     {
         private readonly Blob _blob;
 
-        public GitFile(in Path path, TreeEntry entry, Blob blob)
+        public GitFile(in FileSystemPath path, TreeEntry entry, Blob blob)
         {
             _blob = blob;
             Path = path;
@@ -17,7 +17,7 @@ namespace Tanka.FileSystem.Git
 
         public TreeEntry Entry { get; }
 
-        public Path Path { get; }
+        public FileSystemPath Path { get; }
 
         public ValueTask<Stream> OpenRead()
         {
