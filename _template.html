@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <base href="/tanka-docs-gen/">
-    <title>Second - tanka-docs-gen</title>
+    <base href="{{BasePath}}">
+    <title>{{ Current.DisplayName }} - tanka-docs-gen</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
@@ -73,57 +73,13 @@
         <div class="row flex-xl-nowrap">
             <nav class="col-12 col-md-3 col-xl-2 sidebar">
                 <div class="sidebar-sticky">
-<ul class="nav flex-column" style="margin-left: 0.5rem; font-size: 96%;">
-<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
-    <a class="d-flex align-items-center text-muted" href="1-instructions/1-usage.html">Instructions</a>
-</h6>
-    <ul class="nav flex-column">
-        <li class="nav-item">
-            <a class="nav-link" href="1-instructions/1-usage.html">Usage</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="1-instructions/2-publishing.html">Publishing</a>
-        </li>
-    </ul>
-<ul class="nav flex-column" style="margin-left: 0.5rem; font-size: 96%;">
-</ul><h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
-    <a class="d-flex align-items-center text-muted" href="2-example/1-example.html">Example</a>
-</h6>
-    <ul class="nav flex-column">
-        <li class="nav-item">
-            <a class="nav-link" href="2-example/1-example.html">Example</a>
-        </li>
-    </ul>
-<ul class="nav flex-column" style="margin-left: 0.5rem; font-size: 96%;">
-<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
-    <a class="d-flex align-items-center text-muted" href="2-example/1-Subsection/1-first.html">Subsection</a>
-</h6>
-    <ul class="nav flex-column">
-        <li class="nav-item">
-            <a class="nav-link" href="2-example/1-Subsection/1-first.html">First</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link active bg-light" href="2-example/1-Subsection/SubSubSection/2-second.html">Second</a>
-        </li>
-    </ul>
-<ul class="nav flex-column" style="margin-left: 0.5rem; font-size: 96%;">
-<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-3 mb-1 text-muted">
-    <a class="d-flex align-items-center text-muted" href="2-example/1-Subsection/SubSubSection/1-first.html">SubSubSection</a>
-</h6>
-    <ul class="nav flex-column">
-        <li class="nav-item">
-            <a class="nav-link" href="2-example/1-Subsection/SubSubSection/1-first.html">First</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link active bg-light" href="2-example/1-Subsection/SubSubSection/2-second.html">Second</a>
-        </li>
-    </ul>
-<ul class="nav flex-column" style="margin-left: 0.5rem; font-size: 96%;">
-</ul></ul></ul></ul>                </div>
+                    {{#each Toc}}
+                       {{> category }}
+                    {{/each}}
+                </div>
             </nav>
             <main role="main" class="col-12 col-md-8 col-xl-6 py-sm-1 py-md-3 pl-md-5 content">
-                <p>example page</p>
-                    
+                {{{Content}}}                    
             </main>
         </div>
     </div>
