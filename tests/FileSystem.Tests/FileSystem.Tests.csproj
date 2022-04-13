@@ -21,6 +21,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+	<PackageReference Include="LibGit2Sharp" Version="0.26.2" />
+	<PackageReference Include="LibGit2Sharp.NativeBinaries" Version="2.0.315" />
   </ItemGroup>
 
   <ItemGroup>
