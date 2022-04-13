@@ -1,10 +1,13 @@
 <Project>
   <PropertyGroup>
-    <Authors>Pekka Heikura &lt;pekkah@gmail.com&gt;</Authors>
     <PackageProjectUrl>https://github.com/pekkah/tanka-docs-gen</PackageProjectUrl>
     <RepositoryUrl>https://github.com/pekkah/tanka-docs-gen</RepositoryUrl>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <TargetFramework>net6.0</TargetFramework>
+    <Description>Generate static technical documentation site from markdown files</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>tanka documentation docs tool generator roslyn markdown</PackageTags>
+    <Authors>Pekka Heikura</Authors>
+    
+	<TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <Language>latest</Language>
   </PropertyGroup>
