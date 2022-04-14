@@ -2,7 +2,7 @@
   "profiles": {
     "DocsTool": {
       "commandName": "Project",
-      "commandLineArgs": "build",
+      "commandLineArgs": "build -f tanka-docs.yml",
       "workingDirectory": "$(SolutionDir)"
     }
   }

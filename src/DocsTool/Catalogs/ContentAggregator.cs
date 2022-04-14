@@ -97,12 +97,12 @@ public class ContentAggregator
             {
                 if (branch == "HEAD")
                 {
-                    var status = _git.Repo.RetrieveStatus();
+                    //var status = _git.Repo.RetrieveStatus();
 
-                    // If we have changes then we actually use the current folder
-                    // as the source of the truth
-                    if (status.IsDirty)
-                    {
+                    //// If we have changes then we actually use the current folder
+                    //// as the source of the truth
+                    //if (status.IsDirty)
+                    //{
                         var inputDirectory = await _workFileSystem.GetDirectory(commonInputPath);
                         if (inputDirectory != null)
                         {
@@ -111,13 +111,13 @@ public class ContentAggregator
                                 "HEAD",
                                 inputDirectory.Path); // we're mounting the input path
                         }
-                    }
-                    else
-                    {
-                        var head = _git.Head();
-                        if (await head.GetDirectory(commonInputPath) != null)
-                            yield return new GitBranchContentSource(head, commonInputPath);
-                    }
+                    //}
+                    //else
+                    //{
+                    //    var head = _git.Head();
+                    //    if (await head.GetDirectory(commonInputPath) != null)
+                    //        yield return new GitBranchContentSource(head, commonInputPath);
+                    //}
                 }
                 else
                 {

@@ -110,7 +110,7 @@ namespace Tanka.DocsTool.UI
                 if (url == null)
                     url = "[TODO: MISSING LINK TARGET]";
 
-                options.Template(output, new
+                options.Template(in output, new
                 {
                     title,
                     url
@@ -148,7 +148,7 @@ namespace Tanka.DocsTool.UI
                 if (url == null)
                     url = "[TODO: MISSING LINK TARGET]";
 
-                options.Template(output, new
+                options.Template(in output, new
                 {
                     url
                 });
@@ -172,7 +172,7 @@ namespace Tanka.DocsTool.UI
                     throw new InvalidOperationException(
                         $"Could not find section '{id}@{version}'");
 
-                options.Template(output, new
+                options.Template(in output, new
                 {
                     Id = section.Id,
                     Title = section.Title,
@@ -197,7 +197,7 @@ namespace Tanka.DocsTool.UI
 
                 foreach (var section in sections)
                 {
-                    options.Template(output, new
+                    options.Template(in output, new
                     {
                         Id = section.Id,
                         Title = section.Title,
@@ -214,7 +214,7 @@ namespace Tanka.DocsTool.UI
 
                 foreach (var version in versions)
                 {
-                    options.Template(output, new
+                    options.Template(in output, new
                     {
                         Version = version,
                         Sections = router.Site.GetSectionsByVersion(version)

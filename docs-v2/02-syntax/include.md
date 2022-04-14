@@ -26,22 +26,12 @@ This allows including namespaces, classes, methods, properties.
 
 > Wrap includes into fenced code blocks to enable syntax highlighting.
 
-Include `Program` -class from Program.cs
+Include `ConfigurePreProcessors` -method from RoslynExtension class.
 
 ```markdown
-\#include::xref://src:DocsTool/Program.cs?s=Tanka.DocsTool.Program
+\#include::xref://src:DocsTool/Extensions/Roslyn/RoslynExtension.cs?s=Tanka.DocsTool.Extensions.Roslyn.RoslynExtension.ConfigurePreProcessors
 ```
 
 ```csharp
-#include::xref://src:DocsTool/Program.cs?s=Tanka.DocsTool.Program
-```
-
-Include `Program.Main` -method from Program.cs
-
-```markdown
-\#include::xref://src:DocsTool/Program.cs?s=Tanka.DocsTool.Program.Main
-```
-
-```csharp
-#include::xref://src:DocsTool/Program.cs?s=Tanka.DocsTool.Program.Main
+#include::xref://src:DocsTool/Extensions/Roslyn/RoslynExtension.cs?s=Tanka.DocsTool.Extensions.Roslyn.RoslynExtension.ConfigurePreProcessors
 ```

@@ -116,7 +116,7 @@ public class SectionCollector
 
                 if (catalog.GetContentItems(
                     contentItem.Version,
-                    "text/yaml",
+                    ContentItem.SectionDefinitionType,
                     possibleLocations).Any())
                 {
                     return false;
