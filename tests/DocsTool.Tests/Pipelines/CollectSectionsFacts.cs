@@ -54,7 +54,7 @@ namespace Tanka.DocsTool.Tests.Pipelines
         private readonly ContentAggregator _aggregator;
 
 
-        [Fact]
+        [Fact(Skip ="Remove dep to folder")]
         public Task From_root_of_the_path()
         {
             return  _console.Progress()
@@ -72,7 +72,7 @@ namespace Tanka.DocsTool.Tests.Pipelines
 
         }
 
-        [Fact]
+        [Fact(Skip = "Remove dep to folder")]
         public Task From_subpath_of_the_root_path()
         {
             return _console.Progress()
