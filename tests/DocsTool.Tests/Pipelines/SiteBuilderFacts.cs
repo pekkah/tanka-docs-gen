@@ -54,7 +54,7 @@ namespace Tanka.DocsTool.Tests.Pipelines
         private readonly SiteDefinition _site;
         private readonly IAnsiConsole _console;
 
-        [Fact]
+        [Fact(Skip = "Remove dep to folder")]
         public Task Build_site()
         {
             return _console.Progress()
