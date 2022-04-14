@@ -47,10 +47,10 @@ namespace Tanka.FileSystem.Tests.Git
             var canEnumerate = false;
 
             /* When */
-            var docsDir = await fs.GetDirectory("docs");
+            var docsDir = await fs.GetDirectory("docs-v2");
             await foreach (var node in docsDir!.Enumerate())
             {
-                Assert.StartsWith("docs/", node.Path);
+                Assert.StartsWith("docs-v2/", node.Path);
                 canEnumerate = true;
             }
 
