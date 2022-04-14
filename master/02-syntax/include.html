@@ -9,7 +9,9 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-    
+    <!-- prism -->
+    <link rel="stylesheet" href="master/prism.css" />
+
     <style>
         body {
             height: 100%;
@@ -112,7 +114,13 @@
                 <div class="sidebar-sticky">
     <nav class="nav flex-column">
 <li class="nav-item">
-    <a class="nav-link" href=master/index.html>Home</a>
+    <a class="nav-link" href=master/02-syntax/xref.html>References</a>
+    <ul>
+    </ul>
+</li>    </nav>
+    <nav class="nav flex-column">
+<li class="nav-item">
+    <a class="nav-link" href=master/02-syntax/include.html>Include</a>
     <ul>
     </ul>
 </li>    </nav>
@@ -179,15 +187,15 @@ This allows including namespaces, classes, methods, properties.</p>
 <blockquote class="blockquote">
 <p>Wrap includes into fenced code blocks to enable syntax highlighting.</p>
 </blockquote>
-<p>Include <code>Program</code> -class from Program.cs</p>
-<pre><code class="language-markdown">\#include::xref://src:DocsTool/Program.cs?s=Tanka.DocsTool.Program
+<p>Include <code>ConfigurePreProcessors</code> -method from RoslynExtension class.</p>
+<pre><code class="language-markdown">\#include::xref://src:DocsTool/Extensions/Roslyn/RoslynExtension.cs?s=Tanka.DocsTool.Extensions.Roslyn.RoslynExtension.ConfigurePreProcessors
 </code></pre>
-<pre><code class="language-csharp">Tanka.DocsTool.Program
-</code></pre>
-<p>Include <code>Program.Main</code> -method from Program.cs</p>
-<pre><code class="language-markdown">\#include::xref://src:DocsTool/Program.cs?s=Tanka.DocsTool.Program.Main
-</code></pre>
-<pre><code class="language-csharp">Tanka.DocsTool.Program.Main
+<pre><code class="language-csharp">        public override Task ConfigurePreProcessors(Site site, Section section, PreProcessorPipelineBuilder builder)
+        {
+            builder.Add(&quot;**/*.md&quot;, new IncludeProcessor(xref =&gt; Resolver(site, section, xref)));
+            return Task.CompletedTask;
+        }
+
 </code></pre>
                     
             </main>
@@ -203,6 +211,7 @@ This allows including namespaces, classes, methods, properties.</p>
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
     
-    
+    <!-- prism -->
+    <script type="text/javascript" src="master/prism.js"></script>
 </body>
 </html>
