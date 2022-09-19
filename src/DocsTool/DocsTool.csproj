@@ -19,7 +19,7 @@
     <PackageReference Include="MimeDb" Version="0.1.0" />
     <PackageReference Include="Spectre.Console" Version="0.44.0" />
     <PackageReference Include="vertical-spectreconsolelogger" Version="0.10.0-dev.20220213.9" />
-    <PackageReference Include="YamlDotNet" Version="11.2.1" />
+    <PackageReference Include="YamlDotNet" Version="12.0.1" />
     <PackageReference Include="Handlebars.Net" Version="2.1.2" />
     <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="2.0.306" />
   </ItemGroup>
