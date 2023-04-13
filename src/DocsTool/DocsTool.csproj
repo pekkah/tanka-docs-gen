@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
@@ -21,7 +21,7 @@
     <PackageReference Include="vertical-spectreconsolelogger" Version="0.10.0-dev.20220213.9" />
     <PackageReference Include="YamlDotNet" Version="13.0.2" />
     <PackageReference Include="Handlebars.Net" Version="2.1.2" />
-    <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="2.0.306" />
+    <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="2.0.320" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FileSystem\FileSystem.csproj" />
