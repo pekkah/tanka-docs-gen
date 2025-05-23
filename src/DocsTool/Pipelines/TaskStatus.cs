@@ -4,7 +4,7 @@ namespace Tanka.DocsTool.Pipelines;
 
 public class TaskStatus
 {
-    public string Name { get; set; }
+    public string? Name { get; set; } // CS8618
 
     public Status? Status { get; }
 

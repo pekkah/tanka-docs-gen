@@ -78,8 +78,10 @@ namespace Tanka.DocsTool.UI
             if (string.IsNullOrEmpty(frontmatter.Title))
                 frontmatter.Title = outputFile.Path.GetFileName().ChangeExtension(null);
 
-            var fullPageHtml = _uiBundle.GetPageRenderer(frontmatter.Template, _router)
-                .Render(new PageRenderingContext(
+            var templateName = frontmatter.Template ?? _uiBundle.DefaultTemplate;
+            var pageRenderer = _uiBundle.GetPageRenderer(templateName!, _router); // CS8604 - Assuming DefaultTemplate is non-null or GetPageRenderer handles null
+            
+            var fullPageHtml = pageRenderer.Render(new PageRenderingContext(
                     _site,
                     _section,
                     menu,
@@ -101,8 +103,9 @@ namespace Tanka.DocsTool.UI
             DocsSiteRouter router,
             Func<FileSystemPath, PipeReader, Task<PipeReader>> preprocessorPipe)
         {
-            FileSystemPath outputPath = router.GenerateRoute(new Xref(page.Version, _section.Id, relativePath))
-                ?? throw new InvalidOperationException($"Could not generate output path for '{page}'");
+            var pageXref = new Xref(page.Version, _section.Id, relativePath); // For exception message
+            FileSystemPath outputPath = router.GenerateRoute(pageXref)
+                ?? throw new InvalidOperationException($"Could not generate output path for '{pageXref}'.");
 
             // create output dir for page
             await _cache.GetOrCreateDirectory(outputPath.GetDirectoryPath());
@@ -133,9 +136,17 @@ namespace Tanka.DocsTool.UI
 
         public async Task ComposeRedirectPage(FileSystemPath relativePath, Link redirectToPage)
         {
-            var target = redirectToPage.IsXref
-                ? _router.GenerateRoute(redirectToPage.Xref.Value)
-                : redirectToPage.Uri;
+            string? target;
+            if (redirectToPage.IsXref)
+            {
+                if (redirectToPage.Xref == null) // CS8629
+                    throw new InvalidOperationException("Redirect link is Xref but Xref value is null.");
+                target = _router.GenerateRoute(redirectToPage.Xref.Value);
+            }
+            else
+            {
+                target = redirectToPage.Uri;
+            }
 
             if (target == null)
                 throw new InvalidOperationException(
@@ -147,7 +158,10 @@ namespace Tanka.DocsTool.UI
             FileSystemPath targetFilePath = _router.GenerateRoute(
                 new Xref(_section.Version, _section.Id, relativePath));
 
-            if (targetFilePath == new FileSystemPath(target))
+            if (target == null) // Should have been caught by previous check, but defensive.
+                throw new InvalidOperationException($"Redirect target URI resolved to null for '{redirectToPage}'.");
+
+            if (targetFilePath == new FileSystemPath(target)) // CS8604 if target is null
                 throw new InvalidOperationException(
                     $"Cannot generate a index.html redirect page '{targetFilePath}'. " +
                     $"Redirect would point to same file as the generated file and would" +

@@ -75,8 +75,8 @@ namespace Tanka.DocsTool.Extensions.Roslyn
                     if (symbol == null)
                         return false;
 
-                    var name = model.GetDeclaredSymbol(n)
-                        .ToDisplayString(NameMatchFormat);
+                    // CS8602: Use the 'symbol' variable that's already checked for null.
+                    var name = symbol.ToDisplayString(NameMatchFormat);
 
                     return name == symbolName;
                 });

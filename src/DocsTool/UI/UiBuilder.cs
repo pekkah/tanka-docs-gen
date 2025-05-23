@@ -33,7 +33,10 @@ namespace Tanka.DocsTool.UI
                 foreach (var section in sections)
                 {
                     _console.LogInformation($"Building: {section}");
-                    var uiBundleRef = LinkParser.Parse("xref://ui-bundle:tanka-docs-section.yml").Xref!.Value;
+                    var parsedBundleLink = LinkParser.Parse("xref://ui-bundle:tanka-docs-section.yml");
+                    if (parsedBundleLink.Xref == null)
+                        throw new InvalidOperationException("Could not parse ui-bundle Xref link.");
+                    var uiBundleRef = parsedBundleLink.Xref.Value;
                     var uiContent = site.GetSectionByXref(uiBundleRef, section);
 
                     if (uiContent == null)
@@ -62,7 +65,9 @@ namespace Tanka.DocsTool.UI
             string? target;
             if (redirectoToPage.IsXref)
             {
-                var xref = redirectoToPage.Xref.Value;
+                if (redirectoToPage.Xref == null)
+                    throw new InvalidOperationException("IndexPage Xref link is null despite IsXref being true.");
+                var xref = redirectoToPage.Xref.Value; // CS8629
                 var targetSection = site.GetSectionByXref(xref);
 
                 if (targetSection == null)

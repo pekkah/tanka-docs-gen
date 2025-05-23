@@ -2,11 +2,11 @@
 {
     public class SourceCode
     {
-        public string Text { get; set; }
+        public string? Text { get; set; } // CS8618
 
-        public string FileName { get; set; }
+        public string? FileName { get; set; } // CS8618
 
-        public string Span { get; set; }
+        public string? Span { get; set; } // CS8618
 
         public bool NotFound { get; set; }
     }

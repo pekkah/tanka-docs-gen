@@ -12,7 +12,7 @@ public class GitFileSystemRoot: GitBranchFileSystem
         _repo = repository;
     }
 
-    public GitBranchFileSystem Branch(string name)
+    public new GitBranchFileSystem Branch(string name)
     {
         return new GitBranchFileSystem(_repo, _repo.Branches[name]);
     }

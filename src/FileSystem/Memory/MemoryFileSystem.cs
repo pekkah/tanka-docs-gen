@@ -162,7 +162,7 @@ namespace Tanka.FileSystem.Memory
 
         public InMemoryFileStream()
         {
-            _actualStream = new MemoryStream();
+            _actualStream = new MemoryStream(); // Actual initialization
         }
 
         public override void Flush()

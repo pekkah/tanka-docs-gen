@@ -73,13 +73,17 @@ namespace Tanka.DocsTool.UI
                 await using var inputStream = await assetItem.File.OpenRead();
 
                 // create output dir for page
-                FileSystemPath outputPath = router.GenerateRoute(new Xref(assetItem.Version, section.Id, relativePath))
-                    ?? throw new InvalidOperationException($"Could not generate output path for '{outputPath}'.");
+                var assetXref = new Xref(assetItem.Version, section.Id, relativePath); // CS8887 fix: define xref for use in exception
+                FileSystemPath? outputPathNullable = router.GenerateRoute(assetXref)
+                    ?? throw new InvalidOperationException($"Could not generate output path for '{assetXref}'.");
+                
+                // Ensure outputPath is treated as non-nullable for subsequent calls
+                var outputPath = outputPathNullable!;
 
-                await _output.GetOrCreateDirectory(outputPath.GetDirectoryPath());
+                await _output.GetOrCreateDirectory(outputPath.GetDirectoryPath()); 
 
                 // create output file
-                var outputFile = await _output.GetOrCreateFile(outputPath);
+                var outputFile = await _output.GetOrCreateFile(outputPath); 
                 await using var outputStream = await outputFile.OpenWrite();
 
                 await inputStream.CopyToAsync(outputStream);

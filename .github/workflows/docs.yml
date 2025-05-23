@@ -18,12 +18,12 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
 
@@ -33,7 +33,7 @@ jobs:
           ./build-docs.ps1 -Output ./artifacts/gh-pages -CurrentBranch $Env:GITHUB_REF_NAME
       
       - name: Publish build artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Docs
           path: |
@@ -44,11 +44,11 @@ jobs:
     needs: build
     concurrency: ci-${{ github.ref }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: Docs
           path: docs
@@ -56,7 +56,7 @@ jobs:
       - run: ls -la ./docs
 
       - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@v4.2.3
+        uses: JamesIves/github-pages-deploy-action@v4.6.0
         if: github.ref_name == 'master' || startsWith(github.ref, 'refs/tags/')
         with:
           branch: gh-pages

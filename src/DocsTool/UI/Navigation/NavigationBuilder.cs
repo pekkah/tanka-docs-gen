@@ -91,14 +91,14 @@ namespace Tanka.DocsTool.UI.Navigation
 
         private DisplayLink ParseParagraph(ParagraphBlock paragraphBlock)
         {
-            switch (paragraphBlock.Inline.FirstChild)
+            // CS8602: paragraphBlock.Inline could be null
+            if (paragraphBlock.Inline?.FirstChild is DisplayLinkInline inlineLink)
             {
-                case DisplayLinkInline inlineLink:
-                    return ParseInlineLink(inlineLink);
-                default:
-                    throw new InvalidOperationException(
-                        $"Document contains invalid navigation document syntax at {paragraphBlock.ToPositionText()}. Expected inline link.");
+                return ParseInlineLink(inlineLink);
             }
+            
+            throw new InvalidOperationException(
+                $"Document contains invalid navigation document syntax at {paragraphBlock.ToPositionText()}. Expected inline link.");
         }
 
         private DisplayLink ParseInlineLink(DisplayLinkInline inlineLink)

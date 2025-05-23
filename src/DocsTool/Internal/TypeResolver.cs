@@ -8,12 +8,12 @@ public sealed class TypeResolver : ITypeResolver, IDisposable
 
     public TypeResolver(IServiceProvider provider) => _provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
-    public object Resolve(Type type)
+    public object? Resolve(Type? type) // CS8767
     {
         if (type == null)
             return null;
 
-        return _provider.GetService(type);
+        return _provider.GetService(type); // CS8603 handled by nullable return type
     }
 
     public void Dispose()
