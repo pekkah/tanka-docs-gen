@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
-using Spectre.Console.Rendering;
+using Spectre.Console; // For RenderOptions if not covered by global usings
+using Spectre.Console.Rendering; // For IRenderable
 
 namespace Tanka.DocsTool.Internal;
 
@@ -11,7 +12,7 @@ public sealed class ItemCountColumn : ProgressColumn
     public CultureInfo? Culture { get; set; }
 
     /// <inheritdoc/>
-    public override IRenderable Render(RenderContext context, ProgressTask task, TimeSpan deltaTime)
+    public override IRenderable Render(RenderOptions options, ProgressTask task, TimeSpan deltaTime)
     {
         var total = task.MaxValue;
 
