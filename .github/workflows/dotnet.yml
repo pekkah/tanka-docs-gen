@@ -27,6 +27,24 @@ jobs:
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.106'
+          check-latest: false
+          dotnet-quality: 'preview'
+
+      - name: Verify .NET SDK
+        run: |
+          echo "Running on: $(uname -a)"
+          echo "Runner environment: $RUNNER_ENVIRONMENT"
+          echo "Installed SDKs:"
+          dotnet --list-sdks
+          echo "dotnet --version:"
+          dotnet --version
+          echo "global.json content:"
+          cat global.json || echo "global.json not found"
+          echo "PATH: $PATH"
+          echo "DOTNET_ROOT: $DOTNET_ROOT"
+          which dotnet
 
       - name: Build packages
         shell: pwsh
