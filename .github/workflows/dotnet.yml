@@ -28,9 +28,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.106'
-          check-latest: false
-          dotnet-quality: 'preview'
+          dotnet-version: '9.0.x'
 
       - name: Verify .NET SDK
         run: |
