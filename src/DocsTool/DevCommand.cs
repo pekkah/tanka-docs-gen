@@ -1,5 +1,7 @@
 ﻿using Spectre.Console;
 using Spectre.Console.Cli;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 public class DevCommand : AsyncCommand<DevCommand.Settings>
 {

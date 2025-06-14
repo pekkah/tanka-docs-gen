@@ -37,7 +37,7 @@ namespace Tanka.DocsTool.Pipelines
                 return type == typeof(Link) || type == typeof(Link?);
             }
 
-            public object? ReadYaml(IParser parser, Type type)
+            public object? ReadYaml(IParser parser, Type type, ObjectDeserializer nestedObjectDeserializer)
             {
                 // should be string
                 var value = parser.Consume<Scalar>().Value;
@@ -49,7 +49,7 @@ namespace Tanka.DocsTool.Pipelines
                 return link;
             }
 
-            public void WriteYaml(IEmitter emitter, object? value, Type type)
+            public void WriteYaml(IEmitter emitter, object? value, Type type, ObjectSerializer nestedObjectSerializer)
             {
                 throw new NotImplementedException();
             }
