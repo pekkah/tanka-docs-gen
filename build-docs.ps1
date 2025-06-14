@@ -16,9 +16,14 @@ function EnsureLastExitCode($message){
 $Location = Get-Location
 "Location: $Location"
 
-if ((Test-Path $output) -eq $True) {
+if ((Test-Path $Output) -eq $True) {
     "Clean: $Output"
     Remove-Item -Recurse -Force $Output
+}
+
+# Ensure output directory exists
+if (-not (Test-Path $Output)) {
+    New-Item -ItemType Directory -Path $Output | Out-Null
 }
 
 # Git Information

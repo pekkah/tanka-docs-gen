@@ -18,10 +18,17 @@ $Location = Get-Location
 "Location: $Location"
 "OnlyBuild: $OnlyBuild"
 
-if ((Test-Path $output) -eq $True) {
+if ((Test-Path $Output) -eq $True) {
     "Clean: $Output"
     Remove-Item -Recurse -Force $Output
 }
+
+# Ensure output directory exists and get absolute path
+if (-not (Test-Path $Output)) {
+    New-Item -ItemType Directory -Path $Output | Out-Null
+}
+
+$ResultsDir = (Resolve-Path $Output).Path
 
 # Git Information
 if ($CurrentBranch -eq '') {
@@ -71,7 +78,7 @@ EnsureLastExitCode("dotnet build failed")
 if ($OnlyBuild -eq $False) {
     "----------------------------------------"
     "Run tests"
-    dotnet test -c Release --logger trx -r $Output --no-restore --no-build
+    dotnet test -c Release --logger trx --results-directory $ResultsDir --no-restore --no-build
     EnsureLastExitCode("dotnet test failed")
 
     "----------------------------------------"
