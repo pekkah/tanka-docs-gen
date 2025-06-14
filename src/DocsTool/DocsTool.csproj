@@ -16,10 +16,10 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.6" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.6" />
-    <PackageReference Include="MimeDb" Version="0.3.0" />
+    <PackageReference Include="MimeDb" Version="0.4.0" />
     <PackageReference Include="Spectre.Console" Version="0.50.0" />
     <PackageReference Include="Spectre.Console.Cli" Version="0.50.0" />
-    <PackageReference Include="vertical-spectreconsolelogger" Version="0.10.0-dev.20220213.9" />
+    <PackageReference Include="vertical-spectreconsolelogger" Version="0.10.1-dev.20241201.35" />
     <PackageReference Include="YamlDotNet" Version="16.3.0" />
     <PackageReference Include="Handlebars.Net" Version="2.1.6" />
     <PackageReference Include="LibGit2Sharp" Version="0.31.0" />
