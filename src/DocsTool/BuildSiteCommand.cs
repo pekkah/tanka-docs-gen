@@ -15,8 +15,8 @@ public class BuildSiteCommand : AsyncCommand<BuildSiteCommand.Settings>
     }
 
     public async override Task<int> ExecuteAsync(
-        [NotNull] CommandContext context,
-        [NotNull] Settings settings)
+        CommandContext context,
+        Settings settings)
     {
         try
         {
@@ -103,23 +103,23 @@ public class BuildSiteCommand : AsyncCommand<BuildSiteCommand.Settings>
 
     public class Settings : CommandSettings
     {
-        [CommandOption("--debug")]
+        [CommandOption("--debug <DEBUG>")]
         [Description("Set output to verbose messages.")]
         public bool Debug { get; set; }
 
-        [CommandOption("-f|--file")]
+        [CommandOption("-f|--file <FILE>")]
         [Description("tanka-docs.yml file path.")]
         public string? ConfigFile { get; set; }
 
-        [CommandOption("-o|--output")]
+        [CommandOption("-o|--output <OUTPUT>")]
         [Description("Output directory.")]
         public string? OutputPath { get; set; }
 
-        [CommandOption("-b|--build")]
+        [CommandOption("-b|--build <BUILD>")]
         [Description("Build directory.")]
         public string? BuildPath { get; set; }
 
-        [CommandOption("--base")]
+        [CommandOption("--base <BASE>")]
         [Description("Set the base href meta for the generated html pages.")]
         public string? Base { get; set; }
     }

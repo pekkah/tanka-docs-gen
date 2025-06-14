@@ -16,9 +16,14 @@ function EnsureLastExitCode($message){
 $Location = Get-Location
 "Location: $Location"
 
-if ((Test-Path $output) -eq $True) {
+if ((Test-Path $Output) -eq $True) {
     "Clean: $Output"
     Remove-Item -Recurse -Force $Output
+}
+
+# Ensure output directory exists
+if (-not (Test-Path $Output)) {
+    New-Item -ItemType Directory -Path $Output | Out-Null
 }
 
 # Git Information
@@ -67,8 +72,13 @@ $Basepath = "/tanka-docs-gen/"
 "Output: $DocsOutput"
 "BasePath: $Basepath"
 
-dotnet run --project ./src/DocsTool -- build --output $DocsOutput --base $Basepath
-EnsureLastExitCode("dotnet tanka-docs failed")
+"Publishing DocsTool..."
+dotnet publish ./src/DocsTool --runtime win-x64 --output ./temp/DocsTool --no-self-contained
+EnsureLastExitCode("dotnet publish DocsTool failed")
+
+"Running published DocsTool..."
+dotnet ./temp/DocsTool/Tanka.DocsGen.dll build --output $DocsOutput --base $Basepath
+EnsureLastExitCode("DocsTool execution failed")
 
 "----------------------------------------"
 "DONE"

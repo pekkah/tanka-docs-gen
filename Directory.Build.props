@@ -7,7 +7,7 @@
     <PackageTags>tanka documentation docs tool generator roslyn markdown</PackageTags>
     <Authors>Pekka Heikura</Authors>
     
-	<TargetFramework>net6.0</TargetFramework>
+	<TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <Language>latest</Language>
   </PropertyGroup>

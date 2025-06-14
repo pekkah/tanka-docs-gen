@@ -6,7 +6,7 @@ using Vertical.SpectreLogger;
 var console = AnsiConsole.Create(new AnsiConsoleSettings());
 console.Write(
     new FigletText("Tanka Docs")
-        .LeftAligned()
+        .LeftJustified()
         .Color(Color.Green)
         );
 
