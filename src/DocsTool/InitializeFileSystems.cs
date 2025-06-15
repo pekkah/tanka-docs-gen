@@ -59,14 +59,31 @@ public class InitializeFileSystems : IMiddleware
 
     private static FileSystemPath GetRootedPath(string rootPath, string? inputPath)
     {
+    // Using Console.WriteLine for simplicity as IAnsiConsole is not directly available in this static method.
+    // These logs will go to standard output and should be visible in GitHub Actions.
+    Console.WriteLine($"[GetRootedPath] Received rootPath: '{rootPath}', inputPath: '{inputPath ?? "null"}'");
+
         if (!string.IsNullOrEmpty(inputPath))
         {
             if (Path.IsPathRooted(inputPath))
+        {
+            Console.WriteLine($"[GetRootedPath] inputPath ('{inputPath}') is rooted. Using it as new rootPath.");
                 rootPath = inputPath;
+        }
             else
+        {
+            Console.WriteLine($"[GetRootedPath] inputPath ('{inputPath}') is relative. Calling Path.GetFullPath(inputPath, \"{rootPath}\").");
+            // The following line is where the error occurs (line 67 in previous logs)
                 rootPath = Path.GetFullPath(inputPath, rootPath);
+            Console.WriteLine($"[GetRootedPath] Path.GetFullPath resolved to: '{rootPath}'");
+        }
+    }
+    else
+    {
+        Console.WriteLine($"[GetRootedPath] inputPath is null or empty. Returning original rootPath: '{rootPath}'");
         }
 
-        return rootPath;
+    Console.WriteLine($"[GetRootedPath] Returning final path: '{rootPath}'");
+    return rootPath; // Implicit conversion from string to FileSystemPath
     }
 }
