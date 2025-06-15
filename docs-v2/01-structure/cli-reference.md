@@ -1,0 +1,178 @@
+---
+title: Command Line Interface Reference
+---
+
+# Command Line Interface Reference
+
+Tanka Docs provides a command-line interface (CLI) that allows you to build and manage your documentation projects. The tool is distributed as a .NET Global Tool and can be invoked using the `tanka-docs` command.
+
+## Installation
+
+First, install the tool globally:
+
+```bash
+dotnet tool install --global Tanka.DocsGen
+```
+
+To update to the latest version:
+
+```bash
+dotnet tool update --global Tanka.DocsGen
+```
+
+## Commands
+
+### `tanka-docs build`
+
+The primary command for generating static documentation from your source files.
+
+**Syntax:**
+```bash
+tanka-docs build [options]
+```
+
+**Options:**
+
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `--debug` | | Enable verbose output for troubleshooting | `false` |
+| `--file <FILE>` | `-f` | Path to the `tanka-docs.yml` configuration file | `./tanka-docs.yml` |
+| `--output <OUTPUT>` | `-o` | Output directory for generated site | From config file |
+| `--build <BUILD>` | `-b` | Build/cache directory for intermediate files | From config file |
+| `--base <BASE>` | | Base href for generated HTML pages (useful for subdirectory deployments) | From config file |
+
+**Examples:**
+
+```bash
+# Basic build using default configuration
+tanka-docs build
+
+# Build with custom configuration file
+tanka-docs build -f ./custom-config.yml
+
+# Build with custom output directory
+tanka-docs build -o ./custom-output
+
+# Build with debug output
+tanka-docs build --debug
+
+# Build for deployment to subdirectory
+tanka-docs build --base "/my-docs/"
+
+# Combine multiple options
+tanka-docs build -f ./config.yml -o ./dist --debug
+```
+
+### `tanka-docs dev`
+
+Development server mode for live preview during documentation writing.
+
+**Syntax:**
+```bash
+tanka-docs dev [options]
+```
+
+**Status:** 🚧 This command is currently in development and not fully functional.
+
+**Planned Features:**
+- Live reload when files change
+- Development server with hot refresh
+- Faster incremental builds
+- Preview mode for draft content
+
+## Configuration File Resolution
+
+When you run `tanka-docs build`, the tool looks for configuration files in the following order:
+
+1. **Explicit path**: If you specify `-f` or `--file`, it uses that exact path
+2. **Current directory**: Looks for `tanka-docs.yml` in the current working directory
+3. **Error**: If no configuration file is found, the command fails with an error
+
+## Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| `0` | Success |
+| `-1` | General error (configuration not found, build failed, etc.) |
+| `1` | Command-specific error |
+
+## Common Usage Patterns
+
+### Local Development
+
+```bash
+# Build and output to default location
+tanka-docs build
+
+# Build with debug output to see detailed logs
+tanka-docs build --debug
+```
+
+### CI/CD Integration
+
+```bash
+# Build for production deployment
+tanka-docs build --output ./dist --base "/docs/"
+
+# Build with custom configuration for different environments
+tanka-docs build -f ./config/production.yml -o ./dist
+```
+
+### Multiple Configurations
+
+```bash
+# Development build
+tanka-docs build -f ./config/dev.yml -o ./dev-output
+
+# Production build
+tanka-docs build -f ./config/prod.yml -o ./prod-output --base "/api-docs/"
+```
+
+## Working Directory
+
+The tool uses the directory containing the configuration file as the working directory for resolving relative paths. This means:
+
+- If you specify `-f ./config/tanka-docs.yml`, the working directory becomes `./config/`
+- All relative paths in the configuration are resolved relative to this directory
+- Source paths, output paths, and other file references are resolved from this base
+
+## Troubleshooting
+
+### Common Issues
+
+**Configuration file not found:**
+```bash
+Could not load configuration: 'tanka-docs.yml'
+```
+- Ensure the configuration file exists
+- Check the file path if using `-f` option
+- Verify you're in the correct directory
+
+**Build failures:**
+- Use `--debug` flag to get detailed error information
+- Check that all referenced files and directories exist
+- Verify the syntax of your configuration files
+
+**Permission errors:**
+- Ensure you have write permissions to the output directory
+- Check that the build directory is writable
+
+### Getting Help
+
+```bash
+# Show available commands and options
+tanka-docs --help
+
+# Show help for specific command
+tanka-docs build --help
+```
+
+## Environment Variables
+
+Currently, Tanka Docs does not use environment variables for configuration. All settings must be specified through command-line options or configuration files.
+
+## Performance Tips
+
+- Use `--debug` sparingly in production builds as it generates more output
+- Consider using a dedicated build directory (separate from output) for better performance
+- Ensure your Git repository is clean and has proper tags/branches for version detection 
