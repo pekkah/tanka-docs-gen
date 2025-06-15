@@ -14,8 +14,8 @@ Features
   and branches
 - Distributed as dotnet global tool
 - Documents are written in Markdown syntax
-- Supports including C# code snippets/files using `#include`-syntax (Uses Roslyn undercovers
-  to find the requsted symbol when symbol requested)
+- Supports including C# code snippets/files using `#include`-syntax (Uses Roslyn internally
+  to find the requested symbol when a symbol is requested)
 - Handlebars templates are used as ui-bundle to wrap the HTML generated from Markdown documents
 
 ## Quickstart
