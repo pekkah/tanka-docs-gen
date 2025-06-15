@@ -67,14 +67,14 @@ $IsPreRelease = $PreReleaseTag -ne ''
 "----------------------------------------"
 "Docs"
 $DocsOutput = $Output
-$Basepath = "/"
+$Basepath = "/tanka-docs-gen/"
 
 
 "Output: $DocsOutput"
 "BasePath: $Basepath"
 
 "Publishing DocsTool..."
-dotnet publish ./src/DocsTool --runtime win-x64 --output ./temp/DocsTool --no-self-contained
+dotnet publish ./src/DocsTool --output ./temp/DocsTool
 EnsureLastExitCode("dotnet publish DocsTool failed")
 
 "Running published DocsTool..."
