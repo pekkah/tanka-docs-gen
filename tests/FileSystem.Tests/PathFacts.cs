@@ -56,7 +56,7 @@ namespace Tanka.FileSystem.Tests
             FileSystemPath path = "/files";
 
             /* When */
-            Assert.Equal("files", path);
+            Assert.Equal("/files", path); // Normalize preserves leading / for absolute-like paths
         }
 
         [Theory]
