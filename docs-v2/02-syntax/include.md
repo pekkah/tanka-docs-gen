@@ -9,7 +9,7 @@ This feature is useful for reusing content, maintaining single sources of truth 
 The basic syntax for an include is:
 
 ```markdown
-#include::xref://[sectionId@version:]path/to/your/file.ext
+\#include::xref://[sectionId@version:]path/to/your/file.ext
 ```
 
 - The `xref` part works similarly to how cross-references for links work, allowing you to target files in the current section, different sections, or different versions of sections.
@@ -33,7 +33,7 @@ You can include it in another Markdown file like this:
 ```markdown
 This is some introductory text.
 
-#include::xref://_partials:important-notice.md
+\#include::xref://_partials:important-notice.md
 
 And here is some text after the included notice.
 ```
@@ -44,9 +44,9 @@ This will result in the content of `important-notice.md` being placed between th
 To include an entire C# file and have it displayed with C# syntax highlighting:
 
 ```markdown
-```csharp
-#include::xref://src:DocsTool/Program.cs
-```
+\`\`\`csharp
+\#include::xref://src:DocsTool/Program.cs
+\`\`\`
 ```
 This will render the full content of `Program.cs` inside a C# code block.
 
@@ -60,15 +60,15 @@ To use this feature:
 
 **Syntax:**
 ```markdown
-#include::xref://path/to/your/file.cs?s=Your.Namespace.ClassName.MethodName
+\#include::xref://path/to/your/file.cs?s=Your.Namespace.ClassName.MethodName
 ```
 Or for a property:
 ```markdown
-#include::xref://path/to/your/file.cs?s=Your.Namespace.ClassName.PropertyName
+\#include::xref://path/to/your/file.cs?s=Your.Namespace.ClassName.PropertyName
 ```
 Or for an entire class:
 ```markdown
-#include::xref://path/to/your/file.cs?s=Your.Namespace.ClassName
+\#include::xref://path/to/your/file.cs?s=Your.Namespace.ClassName
 ```
 
 **Example: Including a Specific Method**
@@ -76,9 +76,9 @@ Or for an entire class:
 To include the `ConfigurePreProcessors` method from the `RoslynExtension.cs` file:
 
 ```markdown
-```csharp
-#include::xref://src:DocsTool/Extensions/Roslyn/RoslynExtension.cs?s=Tanka.DocsTool.Extensions.Roslyn.RoslynExtension.ConfigurePreProcessors
-```
+\`\`\`csharp
+\#include::xref://src:DocsTool/Extensions/Roslyn/RoslynExtension.cs?s=Tanka.DocsTool.Extensions.Roslyn.RoslynExtension.ConfigurePreProcessors
+\`\`\`
 ```
 Tanka Docs will use Roslyn to find the `ConfigurePreProcessors` method within the specified file and insert its source code. This ensures your documentation always reflects the latest version of the code.
 
@@ -91,4 +91,3 @@ Tanka Docs will use Roslyn to find the `ConfigurePreProcessors` method within th
 - Events
 
 When including larger elements like classes or namespaces, their entire definition, including all members, will be inserted.
-```

@@ -106,7 +106,7 @@ namespace Tanka.DocsTool.Extensions
         {
             var reader = new SequenceReader<byte>(readResult.Buffer);
 
-            while (reader.TryReadTo(out ReadOnlySpan<byte> _, (byte) '#', (byte) '\\', false))
+            while (reader.TryReadTo(out ReadOnlySpan<byte> beforeHash, (byte) '#', (byte) '\\', false))
             {
                 start = reader.Position;
 
