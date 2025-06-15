@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Tanka.FileSystem
 {
@@ -6,47 +6,89 @@ namespace Tanka.FileSystem
     {
         public static string Normalize(string path)
         {
-            var original = path.AsSpan();
-
-            if (original.IsEmpty)
+            if (string.IsNullOrEmpty(path))
                 return string.Empty;
 
-            Span<char> target = original.Length < 256 
-                ? stackalloc char[original.Length]
-                : new char[original.Length];
+            // Step 1: Replace all backslashes with forward slashes.
+            string normalizedPath = path.Replace('\\', '/');
 
-            // replace '\' with '/'
-            for (int i=0; i < original.Length; i++)
+            // Step 2: Determine if it's intended to be a Unix-style absolute path.
+            bool isUnixAbsolute = normalizedPath.StartsWith("/");
+
+            // Step 3: Handle "./" at the beginning of path segments.
+            if (isUnixAbsolute && normalizedPath.Length >= 2 && normalizedPath[1] == '.')
             {
-                var code = original[i];
-
-                // replace \ with /
-                if (code == '\\')
+                if (normalizedPath.Length == 2) // path is "/."
                 {
-                    target[i] = '/';
+                    // Path.GetFullPath("/.") on Linux results in "/"
+                    // Let's ensure it becomes "/"
+                    normalizedPath = "/";
+                }
+                else if (normalizedPath[2] == '/') // path is "/./<something>"
+                {
+                    normalizedPath = "/" + normalizedPath.Substring(3);
+                }
+                // else path is "/.filename", which is a valid filename starting with "." in root.
+            }
+            else if (!isUnixAbsolute && normalizedPath.StartsWith("./"))
+            {
+                if (normalizedPath.Length == 2) // path is "./"
+                {
+                    normalizedPath = "";
                 }
                 else
                 {
-                    target[i] = original[i];
+                    normalizedPath = normalizedPath.Substring(2);
                 }
             }
-
             
-            // trim starting '/' and "./"
-            var trimSequence = new [] {'.', '/'};
-            if (target.StartsWith(trimSequence))
+            // Step 4: Handle leading slashes.
+            if (isUnixAbsolute)
             {
-                target = target.Slice(2);
+                int firstNonSlash = 0;
+                while (firstNonSlash < normalizedPath.Length && normalizedPath[firstNonSlash] == '/')
+                {
+                    firstNonSlash++;
+                }
+
+                if (firstNonSlash == normalizedPath.Length && firstNonSlash > 0) // All slashes e.g. "///"
+                {
+                    normalizedPath = "/";
+                }
+                else if (firstNonSlash > 0) // Starts with multiple slashes e.g. "//foo"
+                {
+                     normalizedPath = "/" + normalizedPath.Substring(firstNonSlash);
+                }
+                // If firstNonSlash is 0, it means it didn't start with a slash,
+                // which contradicts isUnixAbsolute. This case should ideally not be hit
+                // if isUnixAbsolute is true. If path was just "/", firstNonSlash is 1, Substring(1) is empty, result is "/".
             }
-
-            target = target.TrimStart('/');
-
-            return target.ToString();
+            else
+            {
+                normalizedPath = normalizedPath.TrimStart('/');
+            }
+            return normalizedPath;
         }
 
         public static string Combine(string left, string right)
         {
-            return System.IO.Path.Combine(left, right);
+            if (string.IsNullOrEmpty(left)) return Normalize(right);
+            if (string.IsNullOrEmpty(right)) return Normalize(left);
+
+            string normLeft = Normalize(left);
+            string normRight = Normalize(right);
+
+            if (normRight.StartsWith("/"))
+                 return normRight;
+
+            if (normLeft.EndsWith("/"))
+                return normLeft + normRight;
+
+            // Handle case where normLeft might be empty after normalization (e.g. if it was "./")
+            if (string.IsNullOrEmpty(normLeft))
+                return normRight;
+
+            return normLeft + "/" + normRight;
         }
     }
 }

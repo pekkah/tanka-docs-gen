@@ -45,6 +45,9 @@ public class BuildSiteCommand : AsyncCommand<BuildSiteCommand.Settings>
             _console.LogInformation($"[bold]CurrentPath[/]: {currentPath}");
             _console.LogInformation($"[bold]ConfigFilePath[/]: {configFilePath}");
 
+            currentPath = Path.GetFullPath(currentPath);
+            _console.LogInformation($"[bold]Ensured Absolute CurrentPath[/]: {currentPath}");
+
             if (!File.Exists(configFilePath))
             {
                 _console.MarkupLine($"Could not load configuration: '{configFilePath}'");

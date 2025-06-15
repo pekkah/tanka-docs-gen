@@ -17,7 +17,10 @@ public class InitializeFileSystems : IMiddleware
             .Spinner(Spinner.Known.Dots)
             .StartAsync("Creating file systems", async status =>
             {
-                context.GitRoot = GitFileSystemRoot.Discover(context.WorkPath);
+                string gitDiscoveryPath = Path.GetFullPath(Directory.GetCurrentDirectory()).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                _console.LogInformation($"Using path for Git discovery: '{gitDiscoveryPath}'. (Derived from Directory.GetCurrentDirectory())");
+
+                context.GitRoot = GitFileSystemRoot.Discover(gitDiscoveryPath);
                 _console.LogInformation($"Initialized git file system '{context.GitRoot.Path}'");
 
                 context.FileSystem = new PhysicalFileSystem(context.WorkPath);
@@ -56,14 +59,30 @@ public class InitializeFileSystems : IMiddleware
 
     private static FileSystemPath GetRootedPath(string rootPath, string? inputPath)
     {
+    // rootPath is now assumed to be absolute due to changes in BuildSiteCommand.cs
+    Console.WriteLine($"[GetRootedPath] Received rootPath: '{rootPath}', inputPath: '{inputPath ?? "null"}'");
+
         if (!string.IsNullOrEmpty(inputPath))
         {
             if (Path.IsPathRooted(inputPath))
-                rootPath = inputPath;
+        {
+            Console.WriteLine($"[GetRootedPath] inputPath ('{inputPath}') is rooted. Using it as new rootPath.");
+            rootPath = inputPath; // inputPath is already absolute and becomes the new root.
+        }
             else
+        {
+            // rootPath is assumed to be absolute here.
+            Console.WriteLine($"[GetRootedPath] inputPath ('{inputPath}') is relative. Calling Path.GetFullPath(\"{inputPath}\", \"{rootPath}\").");
                 rootPath = Path.GetFullPath(inputPath, rootPath);
+            Console.WriteLine($"[GetRootedPath] Path.GetFullPath resolved to: '{rootPath}'");
+        }
+    }
+    else
+    {
+        Console.WriteLine($"[GetRootedPath] inputPath is null or empty. Using rootPath: '{rootPath}'");
         }
 
-        return rootPath;
+    Console.WriteLine($"[GetRootedPath] Returning final path: '{rootPath}'");
+    return rootPath; // Implicit conversion from string to FileSystemPath
     }
 }
