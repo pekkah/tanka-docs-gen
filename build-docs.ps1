@@ -77,13 +77,29 @@ $Basepath = "/tanka-docs-gen/"
 dotnet publish ./src/DocsTool --output ./temp/DocsTool
 EnsureLastExitCode("dotnet publish DocsTool failed")
 
+"----------------------------------------"
+"Inspecting checkout directory before running DocsTool..."
+$checkoutPath = Get-Location
+Write-Host "Current directory (should be repo root): $checkoutPath"
+Write-Host "Listing contents of $checkoutPath:"
+Get-ChildItem -Path $checkoutPath -Force | ForEach-Object { Write-Host "  $($_.Mode) $($_.Name)" }
+
+$gitPath = Join-Path $checkoutPath ".git"
+Write-Host "Checking for .git directory at: $gitPath"
+if (Test-Path $gitPath) {
+    Write-Host ".git directory EXISTS."
+    Write-Host "Listing contents of .git directory:"
+    Get-ChildItem -Path $gitPath -Recurse -Force | ForEach-Object { Write-Host "  $($_.Mode) $($_.FullName.Replace($checkoutPath, ''))" }
+} else {
+    Write-Host ".git directory DOES NOT EXIST."
+}
+Write-Host "Finished inspecting checkout directory."
+"----------------------------------------"
+
 "Running published DocsTool..."
 dotnet ./temp/DocsTool/Tanka.DocsGen.dll build --output $DocsOutput --base $Basepath
 EnsureLastExitCode("DocsTool execution failed")
 
 "----------------------------------------"
-Write-Host "Listing contents of output directory:"
-Get-ChildItem -Path $DocsOutput -Recurse
-
 "DONE"
 Set-Location $Location
