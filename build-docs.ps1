@@ -96,6 +96,10 @@ if (Test-Path $gitPath) {
 Write-Host "Finished inspecting checkout directory."
 "----------------------------------------"
 
+$gitDirPath = Join-Path (Get-Location).Path ".git"
+$env:GIT_DIR = $gitDirPath
+Write-Host "Setting GIT_DIR environment variable to: $env:GIT_DIR"
+
 "Running published DocsTool..."
 dotnet ./temp/DocsTool/Tanka.DocsGen.dll build --output $DocsOutput --base $Basepath
 EnsureLastExitCode("DocsTool execution failed")
