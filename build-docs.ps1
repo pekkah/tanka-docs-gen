@@ -82,5 +82,8 @@ dotnet ./temp/DocsTool/Tanka.DocsGen.dll build --output $DocsOutput --base $Base
 EnsureLastExitCode("DocsTool execution failed")
 
 "----------------------------------------"
+Write-Host "Listing contents of output directory:"
+Get-ChildItem -Path $DocsOutput -Recurse
+
 "DONE"
 Set-Location $Location
