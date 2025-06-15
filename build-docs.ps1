@@ -67,7 +67,7 @@ $IsPreRelease = $PreReleaseTag -ne ''
 "----------------------------------------"
 "Docs"
 $DocsOutput = $Output
-$Basepath = "/"
+$Basepath = "/tanka-docs-gen/"
 
 
 "Output: $DocsOutput"
