@@ -1,1 +1,5 @@
-- [Home](xref://index.md)
+- [Home](xref://root:index.md)
+- [Structure](xref://structure:tanka-docs.md)
+- [Syntax](xref://syntax:xref.md)
+- [Versioning](xref://versioning:tags-and-branches.md)
+- [UI](xref://ui:ui-bundle.md)

@@ -1,4 +1,4 @@
 - [Configuration](xref://configuration.md)
-  - [Site](xref://tanka-docs.md)
-  - [Section](xref://tanka-docs-section.md)
+  - [Site (tanka-docs.yml)](xref://tanka-docs-yml.md)
+  - [Section (tanka-docs-section.yml)](xref://tanka-docs-section.md)
 - [File System](xref://file-system.md)
