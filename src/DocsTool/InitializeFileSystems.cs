@@ -17,10 +17,10 @@ public class InitializeFileSystems : IMiddleware
             .Spinner(Spinner.Known.Dots)
             .StartAsync("Creating file systems", async status =>
             {
-                string normalizedWorkPath = Path.GetFullPath(context.WorkPath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-                _console.LogInformation($"Normalized Git WorkPath for discovery. Original: '{context.WorkPath}', Normalized: '{normalizedWorkPath}'");
+                string gitDiscoveryPath = Path.GetFullPath(Directory.GetCurrentDirectory()).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                _console.LogInformation($"Using path for Git discovery: '{gitDiscoveryPath}'. (Derived from Directory.GetCurrentDirectory())");
 
-                context.GitRoot = GitFileSystemRoot.Discover(normalizedWorkPath);
+                context.GitRoot = GitFileSystemRoot.Discover(gitDiscoveryPath);
                 _console.LogInformation($"Initialized git file system '{context.GitRoot.Path}'");
 
                 context.FileSystem = new PhysicalFileSystem(context.WorkPath);
