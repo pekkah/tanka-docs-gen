@@ -59,28 +59,36 @@ public class InitializeFileSystems : IMiddleware
 
     private static FileSystemPath GetRootedPath(string rootPath, string? inputPath)
     {
-    // Using Console.WriteLine for simplicity as IAnsiConsole is not directly available in this static method.
-    // These logs will go to standard output and should be visible in GitHub Actions.
-    Console.WriteLine($"[GetRootedPath] Received rootPath: '{rootPath}', inputPath: '{inputPath ?? "null"}'");
+    Console.WriteLine($"[GetRootedPath] Initial rootPath: '{rootPath}', inputPath: '{inputPath ?? "null"}'");
+
+    // Ensure rootPath is absolute before using it as a base for other paths,
+    // or as a return value if inputPath is null/empty.
+    if (!Path.IsPathRooted(rootPath))
+    {
+        Console.WriteLine($"[GetRootedPath] Initial rootPath ('{rootPath}') is not rooted. Making it absolute using Path.GetFullPath(rootPath).");
+        // This resolves rootPath against the current working directory.
+        rootPath = Path.GetFullPath(rootPath);
+        Console.WriteLine($"[GetRootedPath] Absolutified rootPath: '{rootPath}'");
+    }
 
         if (!string.IsNullOrEmpty(inputPath))
         {
             if (Path.IsPathRooted(inputPath))
         {
             Console.WriteLine($"[GetRootedPath] inputPath ('{inputPath}') is rooted. Using it as new rootPath.");
-                rootPath = inputPath;
+            rootPath = inputPath; // inputPath is already absolute and becomes the new root.
         }
             else
         {
-            Console.WriteLine($"[GetRootedPath] inputPath ('{inputPath}') is relative. Calling Path.GetFullPath(inputPath, \"{rootPath}\").");
-            // The following line is where the error occurs (line 67 in previous logs)
+            // Now, rootPath is guaranteed to be absolute here.
+            Console.WriteLine($"[GetRootedPath] inputPath ('{inputPath}') is relative. Calling Path.GetFullPath(\"{inputPath}\", \"{rootPath}\").");
                 rootPath = Path.GetFullPath(inputPath, rootPath);
             Console.WriteLine($"[GetRootedPath] Path.GetFullPath resolved to: '{rootPath}'");
         }
     }
     else
     {
-        Console.WriteLine($"[GetRootedPath] inputPath is null or empty. Returning original rootPath: '{rootPath}'");
+        Console.WriteLine($"[GetRootedPath] inputPath is null or empty. Using (potentially absolutified) rootPath: '{rootPath}'");
         }
 
     Console.WriteLine($"[GetRootedPath] Returning final path: '{rootPath}'");
