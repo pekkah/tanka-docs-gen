@@ -80,12 +80,12 @@ EnsureLastExitCode("dotnet publish DocsTool failed")
 "----------------------------------------"
 "Inspecting checkout directory before running DocsTool..."
 $checkoutPath = Get-Location
-Write-Host "Current directory (should be repo root): $checkoutPath"
-Write-Host "Listing contents of $checkoutPath:"
+Write-Host "Current directory (should be repo root): ${checkoutPath}"
+Write-Host "Listing contents of ${checkoutPath}:"
 Get-ChildItem -Path $checkoutPath -Force | ForEach-Object { Write-Host "  $($_.Mode) $($_.Name)" }
 
 $gitPath = Join-Path $checkoutPath ".git"
-Write-Host "Checking for .git directory at: $gitPath"
+Write-Host "Checking for .git directory at: ${gitPath}"
 if (Test-Path $gitPath) {
     Write-Host ".git directory EXISTS."
     Write-Host "Listing contents of .git directory:"
