@@ -59,17 +59,8 @@ public class InitializeFileSystems : IMiddleware
 
     private static FileSystemPath GetRootedPath(string rootPath, string? inputPath)
     {
-    Console.WriteLine($"[GetRootedPath] Initial rootPath: '{rootPath}', inputPath: '{inputPath ?? "null"}'");
-
-    // Ensure rootPath is absolute before using it as a base for other paths,
-    // or as a return value if inputPath is null/empty.
-    if (!Path.IsPathRooted(rootPath))
-    {
-        Console.WriteLine($"[GetRootedPath] Initial rootPath ('{rootPath}') is not rooted. Making it absolute using Path.GetFullPath(rootPath).");
-        // This resolves rootPath against the current working directory.
-        rootPath = Path.GetFullPath(rootPath);
-        Console.WriteLine($"[GetRootedPath] Absolutified rootPath: '{rootPath}'");
-    }
+    // rootPath is now assumed to be absolute due to changes in BuildSiteCommand.cs
+    Console.WriteLine($"[GetRootedPath] Received rootPath: '{rootPath}', inputPath: '{inputPath ?? "null"}'");
 
         if (!string.IsNullOrEmpty(inputPath))
         {
@@ -80,7 +71,7 @@ public class InitializeFileSystems : IMiddleware
         }
             else
         {
-            // Now, rootPath is guaranteed to be absolute here.
+            // rootPath is assumed to be absolute here.
             Console.WriteLine($"[GetRootedPath] inputPath ('{inputPath}') is relative. Calling Path.GetFullPath(\"{inputPath}\", \"{rootPath}\").");
                 rootPath = Path.GetFullPath(inputPath, rootPath);
             Console.WriteLine($"[GetRootedPath] Path.GetFullPath resolved to: '{rootPath}'");
@@ -88,7 +79,7 @@ public class InitializeFileSystems : IMiddleware
     }
     else
     {
-        Console.WriteLine($"[GetRootedPath] inputPath is null or empty. Using (potentially absolutified) rootPath: '{rootPath}'");
+        Console.WriteLine($"[GetRootedPath] inputPath is null or empty. Using rootPath: '{rootPath}'");
         }
 
     Console.WriteLine($"[GetRootedPath] Returning final path: '{rootPath}'");
