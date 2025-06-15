@@ -1,3 +1,5 @@
-﻿id: ui
+id: ui
 title: "UI"
 index_page: xref://ui:ui-bundle.md
+nav:
+  - xref://nav.md
