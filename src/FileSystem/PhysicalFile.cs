@@ -44,8 +44,8 @@ namespace Tanka.FileSystem
 
         public ValueTask<Stream> OpenRead()
         {
-            var stream = File.OpenRead(_fullPath);
-            return new ValueTask<Stream>(stream);
+            return new ValueTask<Stream>(
+                new FileStream(_fullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
         }
 
         public ValueTask<Stream> OpenWrite()

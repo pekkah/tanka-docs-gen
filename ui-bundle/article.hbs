@@ -122,5 +122,45 @@
     
     <!-- prism -->
     {{#xref "xref://ui-bundle:prism.js"}}<script type="text/javascript" src="{{url}}"></script>{{/xref}}
+
+    <script>
+        (function() {
+            if (window.location.hostname !== 'localhost') {
+                return;
+            }
+
+            const port = window.location.port || '80';
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const socketUrl = `${protocol}//${window.location.hostname}:${port}/ws`;
+            let socket;
+
+            function connect() {
+                socket = new WebSocket(socketUrl);
+
+                socket.addEventListener('open', () => {
+                    console.log('Live reload connected.');
+                });
+
+                socket.addEventListener('message', (event) => {
+                    if (event.data === 'reload') {
+                        console.log('Reloading page...');
+                        window.location.reload(true);
+                    }
+                });
+
+                socket.addEventListener('close', () => {
+                    console.log('Live reload disconnected. Trying to reconnect in 2 seconds...');
+                    setTimeout(connect, 2000);
+                });
+
+                socket.addEventListener('error', (err) => {
+                    console.error('Live reload error:', err);
+                    socket.close();
+                });
+            }
+
+            connect();
+        })();
+    </script>
 </body>
 </html>

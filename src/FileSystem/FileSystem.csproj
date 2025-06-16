@@ -2,16 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <AssemblyName>Tanka.FileSystem</AssemblyName>
-    <RootNamespace>Tanka.FileSystem</RootNamespace>
-    <IsPackable>false</IsPackable>
-	<ImplicitUsings>enable</ImplicitUsings>
-	<Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="LibGit2Sharp" Version="0.31.0" />
-    <PackageReference Include="System.IO.Pipelines" Version="6.0.2" />
   </ItemGroup>
 
 </Project>

@@ -29,14 +29,15 @@ dotnet tool install --global Tanka.DocsGen
 1. **Create configuration file** - Add a `tanka-docs.yml` file to your repository root
 2. **Set up documentation sections** - Create folders for your docs with `tanka-docs-section.yml` files
 3. **Write your documentation** - Create Markdown files in your sections
-4. **Generate your site** - Run the `tanka-docs` command
+4. **Navigation** - Add navigation files
+5. **Generate your site** - Run the `tanka-docs` command
 
 ```bash
 # Generate documentation
 tanka-docs build
 
 # Development mode (work in progress)
-tanka-docs dev
+tanka-docs dev -f tanka-docs-wip.yml
 ```
 
 ## 📚 Documentation Sections
@@ -63,7 +64,6 @@ Tanka Docs provides two main commands:
 Generates static documentation from your source files.
 
 **Options:**
-- `--debug` - Enable verbose output for troubleshooting
 - `-f, --file <FILE>` - Specify path to `tanka-docs.yml` configuration file
 - `-o, --output <OUTPUT>` - Set custom output directory
 - `-b, --build <BUILD>` - Set custom build directory  

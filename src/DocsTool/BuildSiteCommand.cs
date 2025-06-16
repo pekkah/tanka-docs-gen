@@ -1,17 +1,32 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Threading.Tasks;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using Tanka.DocsTool.Pipelines;
+
+namespace Tanka.DocsTool;
 
 public class BuildSiteCommand : AsyncCommand<BuildSiteCommand.Settings>
 {
-    private readonly IServiceProvider _services;
+    private readonly System.IServiceProvider _services;
     private readonly IAnsiConsole _console;
+    private readonly Settings _settings;
 
-    public BuildSiteCommand(IServiceProvider services, IAnsiConsole console)
+    public BuildSiteCommand(System.IServiceProvider services, IAnsiConsole console)
     {
         _services = services;
         _console = console;
+        _settings = new Settings();
+    }
+
+    public BuildSiteCommand(System.IServiceProvider services, IAnsiConsole console, Settings settings)
+    {
+        _services = services;
+        _console = console;
+        _settings = settings;
     }
 
     public async override Task<int> ExecuteAsync(
@@ -20,33 +35,15 @@ public class BuildSiteCommand : AsyncCommand<BuildSiteCommand.Settings>
     {
         try
         {
-            _console.LogInformation($"Initializing...");
+            _console.MarkupLine("Initializing...");
 
-            var (currentPath, configFilePath) = _console.Status()
-                .Spinner(Spinner.Known.Dots)
-                .Start("Initializing...", status =>
-                {
-                    status.Status("Resolving paths..");
+            var (currentPath, configFilePath) = PathResolver.ResolvePaths(settings.ConfigFile);
 
-                    var currentPath = Directory.GetCurrentDirectory();
-                    var configFilePath = Path.Combine(currentPath, "tanka-docs.yml");
-                    configFilePath = Path.GetFullPath(configFilePath);
-
-                    if (!string.IsNullOrEmpty(settings.ConfigFile))
-                    {
-                        configFilePath = currentPath = Path.GetFullPath(settings.ConfigFile);
-                        currentPath = Path.GetDirectoryName(currentPath) ?? "";
-                    }
-
-                    status.Status("Resolved.");
-                    return (currentPath, configFilePath);
-                });
-
-            _console.LogInformation($"[bold]CurrentPath[/]: {currentPath}");
-            _console.LogInformation($"[bold]ConfigFilePath[/]: {configFilePath}");
+            _console.MarkupLine($"[bold]CurrentPath[/]: {currentPath}");
+            _console.MarkupLine($"[bold]ConfigFilePath[/]: {configFilePath}");
 
             currentPath = Path.GetFullPath(currentPath);
-            _console.LogInformation($"[bold]Ensured Absolute CurrentPath[/]: {currentPath}");
+            _console.MarkupLine($"[bold]Ensured Absolute CurrentPath[/]: {currentPath}");
 
             if (!File.Exists(configFilePath))
             {
@@ -106,7 +103,7 @@ public class BuildSiteCommand : AsyncCommand<BuildSiteCommand.Settings>
 
     public class Settings : CommandSettings
     {
-        [CommandOption("--debug <DEBUG>")]
+        [CommandOption("--debug")]
         [Description("Set output to verbose messages.")]
         public bool Debug { get; set; }
 

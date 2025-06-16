@@ -72,17 +72,34 @@ Development server mode for live preview during documentation writing.
 tanka-docs dev [options]
 ```
 
-**Status:** 🚧 This command is currently in development and not fully functional.
+**Options:**
 
-**Planned Features:**
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `--file <FILE>` | `-f` | Path to the `tanka-docs.yml` configuration file | `./tanka-docs.yml` |
+| `--port <PORT>` | `-p` | Port to run the development server on | `5000` |
+
+**Examples:**
+
+```bash
+# Run dev server with default settings
+tanka-docs dev
+
+# Run dev server on a custom port
+tanka-docs dev --port 8080
+
+# Use a custom configuration file
+tanka-docs dev -f ./custom-config.yml
+```
+
+**Features:**
 - Live reload when files change
 - Development server with hot refresh
-- Faster incremental builds
 - Preview mode for draft content
 
 ## Configuration File Resolution
 
-When you run `tanka-docs build`, the tool looks for configuration files in the following order:
+When you run commands like `tanka-docs build` or `tanka-docs dev`, the tool looks for configuration files in the following order:
 
 1. **Explicit path**: If you specify `-f` or `--file`, it uses that exact path
 2. **Current directory**: Looks for `tanka-docs.yml` in the current working directory

@@ -6,9 +6,13 @@
     <RootNamespace>Tanka.DocsTool</RootNamespace>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>tanka-docs</ToolCommandName>
-	<ImplicitUsings>enable</ImplicitUsings>
-	<Nullable>enable</Nullable>
+    <PackageOutputPath>./artifacts</PackageOutputPath>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DotNet.Glob" Version="3.1.3" />
     <PackageReference Include="Markdig" Version="0.41.2" />
@@ -16,7 +20,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.6" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.6" />
-    <PackageReference Include="MimeDb" Version="0.3.0" />
+    <PackageReference Include="MimeDb" Version="0.4.0" />
     <PackageReference Include="Spectre.Console" Version="0.50.0" />
     <PackageReference Include="Spectre.Console.Cli" Version="0.50.0" />
     <PackageReference Include="vertical-spectreconsolelogger" Version="0.10.0-dev.20220213.9" />

@@ -24,6 +24,12 @@ namespace Tanka.FileSystem
         Task DeleteDir(FileSystemPath path);
 
         Task CleanDirectory(FileSystemPath path);
+
+        IFileWatcher? Watcher { get; }
+
+        Task<bool> Exists(FileSystemPath path);
+
+        Task<IDirectory?> GetDirectory(FileSystemPath path);
     }
 
     public interface IFile: IReadOnlyFile
