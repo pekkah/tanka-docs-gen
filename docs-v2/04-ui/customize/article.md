@@ -84,22 +84,16 @@ The body is split into a sidebar for section-specific navigation and a main area
 
 ### Customization Example
 
-To customize the template, you can create your own `article.hbs` file in your UI bundle. For example, to add an "Edit this page on GitHub" link above the content, you could modify the `<main>` section.
-
-Assuming a `Page.EditUrl` variable is available, you could write:
+To customize the template, you can create your own `article.hbs` file in your UI bundle. For example, you could add a conditional header that only displays if the `Page.Title` is set in the front matter.
 
 ```handlebars
 <main role="main" class="col-12 col-md-8 col-xl-6 ... content">
-    {{#if Page.EditUrl}}
-        <a href="{{Page.EditUrl}}" class="float-right" target="_blank" rel="noopener">Edit this page</a>
+    {{#if Page.Title}}
+        <h1>{{Page.Title}}</h1>
     {{/if}}
 
     {{{PageHtml}}}                    
 </main>
 ```
 
-This adds a link that will only appear if the `EditUrl` property exists for the current page.
-
-## Tags and Branches
-
-> TODO: Explain how Git tags and branches can be used for versioning
+This ensures that a top-level `<h1>` is only rendered when a title is provided, giving you more control over the page structure.
