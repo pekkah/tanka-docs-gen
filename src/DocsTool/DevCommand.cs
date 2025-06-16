@@ -40,16 +40,27 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
                 return -1;
             }
 
-            var site = (await File.ReadAllTextAsync(configFilePath))
-                .ParseYaml<SiteDefinition>();
+            var siteDefinitionResult = (await File.ReadAllTextAsync(configFilePath))
+                .TryParseYaml<SiteDefinition>();
+
+            if (siteDefinitionResult.IsFailure)
+            {
+                _console.MarkupLine($"[red]Error:[/] Could not load configuration '{configFilePath}': {siteDefinitionResult.Error}");
+                return -1;
+            }
+
+            var site = siteDefinitionResult.Value;
 
             // 2. Perform an initial full build
             _console.MarkupLine("Performing initial site build...");
             var buildSettings = new BuildSiteCommand.Settings(); // Use default build settings
             var builder = new PipelineBuilder(_services).UseDefault();
             var executor = new PipelineExecutor(buildSettings);
-            await executor.Execute(builder, site, currentPath);
+            var buildContext = await executor.Execute(builder, site, currentPath);
             _console.MarkupLine("Initial build complete.");
+            
+            if (!ReportErrors(_console, buildContext))
+                return -1;
 
 
             // 4. Set up file watcher
@@ -75,14 +86,29 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
                     _console.MarkupLine("[yellow]Rebuilding site...[/]");
                     
                     // It's important to re-read the configuration on every change
-                    var updatedSite = (await File.ReadAllTextAsync(configFilePath))
-                        .ParseYaml<SiteDefinition>();
+                    var updatedSiteResult = (await File.ReadAllTextAsync(configFilePath))
+                        .TryParseYaml<SiteDefinition>();
 
-                    await executor.Execute(builder, updatedSite, currentPath);
-                    _console.MarkupLine("[green]Rebuild complete.[/]");
+                    if (updatedSiteResult.IsFailure)
+                    {
+                        _console.MarkupLine(
+                            $"[red]Error:[/] Could not reload configuration '{configFilePath}': {updatedSiteResult.Error}");
+                        return;
+                    }
 
-                    // Notify browser to reload
-                    await webSocketService.SendReload();
+                    var updatedSite = updatedSiteResult.Value;
+                    var rebuildContext = await executor.Execute(builder, updatedSite, currentPath);
+                    
+                    if (ReportErrors(_console, rebuildContext))
+                    {
+                        _console.MarkupLine("[green]Rebuild complete.[/]");
+                        // Notify browser to reload
+                        await webSocketService.SendReload();
+                    }
+                    else
+                    {
+                        _console.MarkupLine("[red]Rebuild failed.[/]");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -147,6 +173,44 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
         {
             watcher.Stop();
         }
+    }
+
+    private static bool ReportErrors(IAnsiConsole console, BuildContext context)
+    {
+        // report warnings
+        foreach (var warning in context.Warnings)
+        {
+            if (warning.ContentItem != null)
+            {
+                console.MarkupLine(
+                    $"[yellow]Warning:[/] In {warning.ContentItem.File.Path}: {warning.Message}");
+            }
+            else
+            {
+                console.MarkupLine($"[yellow]Warning:[/] {warning.Message}");
+            }
+        }
+
+        // report errors
+        if (context.HasErrors)
+        {
+            console.MarkupLine("[red]Build failed with errors:[/]");
+            foreach (var error in context.Errors)
+            {
+                if (error.ContentItem != null)
+                {
+                    console.MarkupLine($"- In {error.ContentItem.File.Path}: {error.Message}");
+                }
+                else
+                {
+                    console.MarkupLine($"- {error.Message}");
+                }
+            }
+
+            return false;
+        }
+
+        return true;
     }
 
     public static IEnumerable<string> GetPathsToWatch(SiteDefinition site, string configFilePath, string currentPath)

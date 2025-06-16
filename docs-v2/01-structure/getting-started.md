@@ -8,7 +8,7 @@ This guide will walk you through setting up your first Tanka Docs project from s
 
 ## Prerequisites
 
-- **.NET 6+** installed on your system
+- **.NET 9** installed on your system
 - **Git**
 - **Text editor** or IDE of your choice
 

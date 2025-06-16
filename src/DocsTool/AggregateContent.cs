@@ -13,6 +13,13 @@ public class AggregateContent : IMiddleware
 
     public async Task Invoke(PipelineStep next, BuildContext context)
     {
+        if (context.HasErrors)
+        {
+            _console.LogInformation($"Skipping {Name} because of previous errors.");
+            await next(context);
+            return;
+        }
+
         var aggregator = new ContentAggregator(
                     context.SiteDefinition,
                     context.GitRoot,
@@ -31,7 +38,7 @@ public class AggregateContent : IMiddleware
             )
             .StartAsync(async progress =>
             {
-                await context.Catalog.Add(aggregator.Aggregate(progress, CancellationToken.None), CancellationToken.None);
+                await context.Catalog.Add(aggregator.Aggregate(context, progress, CancellationToken.None), CancellationToken.None);
             });
 
         await next(context);

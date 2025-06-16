@@ -9,13 +9,14 @@ public class PipelineExecutor
 
     public BuildSiteCommand.Settings Options { get; }
 
-    public Task Execute(
+    public async Task<BuildContext> Execute(
         PipelineBuilder pipelineBuilder,
         SiteDefinition siteDefinition,
         FileSystemPath workPath)
     {
         var context = new BuildContext(siteDefinition, workPath);
         var pipeline = pipelineBuilder.Build();
-        return pipeline(context);
+        await pipeline(context);
+        return context;
     }
 }

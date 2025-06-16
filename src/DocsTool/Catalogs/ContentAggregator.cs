@@ -3,6 +3,7 @@ using System.Text.Json;
 using DotNet.Globbing;
 using LibGit2Sharp;
 using Microsoft.Extensions.Logging;
+using Tanka.DocsTool.Pipelines;
 using Tanka.FileSystem.Git;
 
 namespace Tanka.DocsTool.Catalogs;
@@ -30,11 +31,12 @@ public class ContentAggregator
     }
 
     public async IAsyncEnumerable<ContentItem> Aggregate(
+        BuildContext context,
         ProgressContext progress,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var stack = new Stack<IFileSystemNode>();
-        await foreach (var source in BuildSources(cancellationToken))
+        await foreach (var source in BuildSources(context, cancellationToken))
         {
             _console.LogInformation($"Loading: '{source.Path}@{source.Version}'");
             
@@ -86,6 +88,7 @@ public class ContentAggregator
     }
 
     private async IAsyncEnumerable<IContentSource> BuildSources(
+        BuildContext context,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var branches = _site.Branches;
@@ -121,11 +124,13 @@ public class ContentAggregator
                 }
                 else
                 {
-
                     var glob = Glob.Parse(branch);
+                    var matched = false;
                     foreach (var repoBranch in _git.Repo.Branches)
+                    {
                         if (glob.IsMatch(repoBranch.FriendlyName) || glob.IsMatch(repoBranch.CanonicalName))
                         {
+                            matched = true;
                             var matchingBranch = _git.Branch(repoBranch.CanonicalName);
                             if (await matchingBranch.GetDirectory(commonInputPath) != null)
                             {
@@ -135,6 +140,10 @@ public class ContentAggregator
                                     commonInputPath);
                             }
                         }
+                    }
+
+                    if (!matched)
+                        context.Add(new Error($"Branch pattern '{branch}' did not match any branches."), isWarning: true);
                 }
             }
         }
@@ -148,9 +157,12 @@ public class ContentAggregator
             foreach (var inputPath in inputPaths)
             {
                 var glob = Glob.Parse(tag);
+                var matched = false;
                 foreach (var repoTag in _git.Repo.Tags)
+                {
                     if (glob.IsMatch(repoTag.FriendlyName) || glob.IsMatch(repoTag.CanonicalName))
                     {
+                        matched = true;
                         var matchingCommit = _git.Tag(repoTag);
                         if (await matchingCommit.GetDirectory(inputPath) != null)
                         {
@@ -160,6 +172,9 @@ public class ContentAggregator
                                 inputPath);
                         }
                     }
+                }
+                if (!matched)
+                    context.Add(new Error($"Tag pattern '{tag}' did not match any tags."), isWarning: true);
             }
         }
     }

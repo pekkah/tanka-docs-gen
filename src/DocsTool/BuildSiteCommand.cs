@@ -51,8 +51,16 @@ public class BuildSiteCommand : AsyncCommand<BuildSiteCommand.Settings>
                 return -1;
             }
 
-            var site = (await File.ReadAllTextAsync(configFilePath))
-                .ParseYaml<SiteDefinition>();
+            var siteDefinitionResult = (await File.ReadAllTextAsync(configFilePath))
+                .TryParseYaml<SiteDefinition>();
+
+            if (siteDefinitionResult.IsFailure)
+            {
+                _console.MarkupLine($"[red]Error:[/] Could not load configuration '{configFilePath}': {siteDefinitionResult.Error}");
+                return -1;
+            }
+
+            var site = siteDefinitionResult.Value;
 
             // override output path if set
             if (!string.IsNullOrEmpty(settings.OutputPath))
@@ -90,7 +98,38 @@ public class BuildSiteCommand : AsyncCommand<BuildSiteCommand.Settings>
                 .UseDefault();
 
             var executor = new PipelineExecutor(settings);
-            await executor.Execute(builder, site, currentPath);
+            var buildContext = await executor.Execute(builder, site, currentPath);
+
+            // report warnings
+            foreach (var warning in buildContext.Warnings)
+            {
+                if (warning.ContentItem != null)
+                {
+                    _console.MarkupLine($"[yellow]Warning:[/] In {warning.ContentItem.File.Path}: {warning.Message}");
+                }
+                else
+                {
+                    _console.MarkupLine($"[yellow]Warning:[/] {warning.Message}");
+                }
+            }
+            
+            // report errors
+            if (buildContext.HasErrors)
+            {
+                _console.MarkupLine("[red]Build failed with errors:[/]");
+                foreach (var error in buildContext.Errors)
+                {
+                    if (error.ContentItem != null)
+                    {
+                        _console.MarkupLine($"- In {error.ContentItem.File.Path}: {error.Message}");
+                    }
+                    else
+                    {
+                        _console.MarkupLine($"- {error.Message}");
+                    }
+                }
+                return -1;
+            }
 
             return 0;
         }

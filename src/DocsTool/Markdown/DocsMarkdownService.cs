@@ -59,7 +59,11 @@ namespace Tanka.DocsTool.Markdown
             renderer.Render(markdown);
 
             var yaml = frontmatterBlock?.Lines.ToString();
-            return yaml?.ParseYaml<PageFrontmatter>();
+            if (string.IsNullOrEmpty(yaml))
+                return null;
+            
+            var result = yaml.TryParseYaml<PageFrontmatter>();
+            return result.IsSuccess ? result.Value : null;
         }
 
         public async Task<(MarkdownDocument Document, PageFrontmatter? Page)> ParsePage(Stream input)
@@ -75,7 +79,13 @@ namespace Tanka.DocsTool.Markdown
 
 
             var yaml = frontmatterBlock?.Lines.ToString();
-            var page = yaml?.ParseYaml<PageFrontmatter>();
+            var page = (PageFrontmatter?)null;
+            if (!string.IsNullOrEmpty(yaml))
+            {
+                var result = yaml.TryParseYaml<PageFrontmatter>();
+                if (result.IsSuccess)
+                    page = result.Value;
+            }
 
             return (markdown, page);
         }
@@ -98,7 +108,13 @@ namespace Tanka.DocsTool.Markdown
             renderer.Render(markdown);
 
             var yaml = frontmatterBlock?.Lines.ToString();
-            var page = yaml?.ParseYaml<PageFrontmatter>();
+            var page = (PageFrontmatter?)null;
+            if (!string.IsNullOrEmpty(yaml))
+            {
+                var result = yaml.TryParseYaml<PageFrontmatter>();
+                if (result.IsSuccess)
+                    page = result.Value;
+            }
 
             return (stringWriter.ToString(), page);
         }

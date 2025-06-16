@@ -11,6 +11,13 @@
 
     public async Task Invoke(PipelineStep next, BuildContext context)
     {
+        if (context.HasErrors)
+        {
+            _console.LogInformation($"Skipping {Name} because of previous errors.");
+            await next(context);
+            return;
+        }
+
         await _console.Progress()
             .Columns(
                 new TaskDescriptionColumn(),
@@ -23,7 +30,7 @@
             .StartAsync(async progress =>
             {
                 var collector = new SectionCollector(_console);
-                await collector.Collect(context.Catalog, progress);
+                await collector.Collect(context.Catalog, progress, context);
                 context.Sections = collector.Sections;
             });
 

@@ -17,17 +17,33 @@ namespace Tanka.DocsTool.Pipelines
             .WithTypeConverter(new LinkConverter())
             .Build();
 
-        public static async Task<T> ParseYaml<T>(this ContentItem item)
+        public static async Task<Result<T>> TryParseYaml<T>(this ContentItem item)
         {
             await using var stream = await item.File.OpenRead();
             using var reader = new StreamReader(stream);
 
-            return Deserializer.Deserialize<T>(reader);
+            try
+            {
+                var value = Deserializer.Deserialize<T>(reader);
+                return Result.Success(value);
+            }
+            catch (YamlException e)
+            {
+                return Result.Failure<T>($"Failed to parse YAML file '{item.File.Path}'. Reason: {e.Message}");
+            }
         }
 
-        public static T ParseYaml<T>(this string text)
+        public static Result<T> TryParseYaml<T>(this string text)
         {
-            return Deserializer.Deserialize<T>(text);
+            try
+            {
+                var value = Deserializer.Deserialize<T>(text);
+                return Result.Success(value);
+            }
+            catch (YamlException e)
+            {
+                return Result.Failure<T>($"Failed to parse YAML. Reason: {e.Message}");
+            }
         }
 
         internal class LinkConverter : IYamlTypeConverter

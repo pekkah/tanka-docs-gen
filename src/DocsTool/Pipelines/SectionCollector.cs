@@ -16,7 +16,7 @@ public class SectionCollector
         _debug = debug;
     }
 
-    public async Task Collect(Catalog catalog, ProgressContext progress)
+    public async Task Collect(Catalog catalog, ProgressContext progress, BuildContext context)
     {
         var versions = catalog.GetVersions()
             .OrderBy(v => v)
@@ -35,7 +35,7 @@ public class SectionCollector
 
             foreach (var contentItem in sectionDefinitionItems)
             {
-                await CollectSection(catalog, contentItem);
+                await CollectSection(catalog, contentItem, context);
                 task.Increment(1);
             }
 
@@ -43,11 +43,21 @@ public class SectionCollector
         }
     }
 
-    private async Task CollectSection(Catalog catalog, ContentItem contentItem)
+    private async Task CollectSection(Catalog catalog, ContentItem contentItem, BuildContext context)
     {
         _console.LogInformation($"Collect({contentItem})");
         
-        var definition = await contentItem.ParseYaml<SectionDefinition>();
+        var definitionResult = await contentItem.TryParseYaml<SectionDefinition>();
+
+        if (definitionResult.IsFailure)
+        {
+            // contentItem is passed to Error to associate the error with the file
+            // that caused it.
+            context.Add(new Error(definitionResult.Error, contentItem));
+            return;
+        }
+
+        var definition = definitionResult.Value;
         
         // default to doc type
         if (string.IsNullOrEmpty(definition.Type))
