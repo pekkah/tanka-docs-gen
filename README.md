@@ -28,15 +28,14 @@ Add `tanka-docs.yml` to your project root:
 
 ```yaml
 title: "My Documentation Site"
-description: "Documentation for my project"
-
 output_path: "gh-pages"
 build_path: "_build"
-
-sources:
-  - name: "local"
-    type: "local" 
-    path: "."
+index_page: xref://docs@HEAD:index.md
+branches:
+  HEAD:
+    input_path:
+    - docs
+    - src
 ```
 
 ### 3. Set Up Documentation Section
@@ -46,14 +45,9 @@ Create `docs/tanka-docs-section.yml`:
 ```yaml
 id: "docs"
 title: "Documentation"
-type: "docs"
-index_page: "index.md"
-
-navigation:
-  - title: "Getting Started"
-    items:
-      - title: "Introduction"
-        page: "index.md"
+index_page: xref://index.md
+nav:
+- xref://nav.md
 ```
 
 ### 4. Write Documentation
@@ -77,9 +71,9 @@ This is your documentation homepage.
 
 ## Code Examples
 
-\```csharp
+```csharp
 #include::xref://src:Program.cs?s=Main
-\```
+```
 ```
 
 ### 5. Build
@@ -183,14 +177,24 @@ Create maintainable internal links:
 
 ### Versioning with Git
 
+In Tanka Docs, versioning is managed directly through branches and tags in your `tanka-docs.yml`.
+
 ```yaml
 # tanka-docs.yml
-sources:
-  - name: "main"
-    type: "git"
-    url: "https://github.com/user/repo.git"
-    branches: ["main", "develop"]
-    tags: ["v*"]
+title: "My Project"
+output_path: "gh-pages"
+
+# Build docs from the main branch
+branches:
+  main:
+    input_path:
+      - docs
+
+# Build docs from all v1.* tags
+tags:
+  'v1.*':
+    input_path:
+      - docs
 ```
 
 ## 🎨 Customization
