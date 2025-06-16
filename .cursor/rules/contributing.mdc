@@ -1,0 +1,6 @@
+---
+description: When starting a new chat session read this
+globs: 
+alwaysApply: false
+---
+See [CONTRIBUTING.md](mdc:CONTRIBUTING.md)

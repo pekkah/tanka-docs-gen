@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Spectre.Console.Cli;
 using System.Diagnostics.CodeAnalysis;
 using Tanka.DocsTool.Definitions;
+using System.Threading;
 
 namespace Tanka.DocsTool;
 
@@ -12,6 +13,7 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
 {
     private readonly IAnsiConsole _console;
     private readonly IServiceProvider _services;
+    private readonly SemaphoreSlim _buildLock = new(1, 1);
 
     public DevCommand(IAnsiConsole console, IServiceProvider services)
     {
@@ -60,11 +62,18 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
             {
                 if (change.FullPath.StartsWith(outputPath, StringComparison.OrdinalIgnoreCase))
                     return;
+
+                if (!await _buildLock.WaitAsync(0))
+                {
+                    _console.MarkupLine("[grey]Build already in progress. Skipping change.[/]");
+                    return;
+                }
                 
-                _console.MarkupLine($"[yellow]Change detected: {change.ChangeType} - {change.FullPath}[/]");
-                _console.MarkupLine("[yellow]Rebuilding site...[/]");
                 try
                 {
+                    _console.MarkupLine($"[yellow]Change detected: {change.ChangeType} - {change.FullPath}[/]");
+                    _console.MarkupLine("[yellow]Rebuilding site...[/]");
+                    
                     // It's important to re-read the configuration on every change
                     var updatedSite = (await File.ReadAllTextAsync(configFilePath))
                         .ParseYaml<SiteDefinition>();
@@ -79,6 +88,10 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
                 {
                     _console.MarkupLine("[red]Error during rebuild:[/]");
                     _console.WriteException(ex);
+                }
+                finally
+                {
+                    _buildLock.Release();
                 }
             });
 
@@ -117,7 +130,11 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
             _console.MarkupLine("Use [bold]CTRL+C[/] to stop the server.");
             _console.MarkupLine($"Serving files from: [green]{Path.GetFullPath(site.OutputPath)}[/]");
 
-            await app.RunAsync();
+            var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+            var cancellationToken = lifetime.ApplicationStopping;
+            cancellationToken.Register(() => watcher.Stop());
+
+            await app.RunAsync(cancellationToken);
 
             return 0;
         }

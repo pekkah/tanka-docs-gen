@@ -6,7 +6,7 @@ title: Tanka Docs - Documentation Generator
 
 Tanka Docs is a powerful technical documentation generator designed for .NET projects, inspired by the Antora project. It transforms your Markdown files and code examples into beautiful, versioned documentation websites.
 
-## 🚀 Key Features
+## Key Features
 
 - **Versioned Documentation**: Generate documentation from Git repositories with support for versioning using tags and branches
 - **Modular Structure**: Organize documentation using sections for better maintainability
@@ -16,7 +16,7 @@ Tanka Docs is a powerful technical documentation generator designed for .NET pro
 - **Git Integration**: Built-in support for Git repositories and version management
 - **Static Site Generation**: Generates static HTML sites that can be hosted anywhere
 
-## 📦 Installation
+## Installation
 
 Install Tanka Docs as a .NET global tool:
 
@@ -24,7 +24,7 @@ Install Tanka Docs as a .NET global tool:
 dotnet tool install --global Tanka.DocsGen
 ```
 
-## ⚡ Quick Start
+## Quick Start
 
 1. **Create configuration file** - Add a `tanka-docs.yml` file to your repository root
 2. **Set up documentation sections** - Create folders for your docs with `tanka-docs-section.yml` files
@@ -36,27 +36,27 @@ dotnet tool install --global Tanka.DocsGen
 # Generate documentation
 tanka-docs build
 
-# Development mode (work in progress)
-tanka-docs dev -f tanka-docs-wip.yml
+# Run in development mode with live preview
+tanka-docs dev
 ```
 
-## 📚 Documentation Sections
+## Documentation Sections
 
 This documentation is organized into the following sections:
 
-### [📁 Project Structure](xref://structure:configuration.md)
+### [Project Structure](xref://structure:index.md)
 Learn how to organize your documentation project, configure `tanka-docs.yml` and `tanka-docs-section.yml` files, and understand the file system structure.
 
-### [✏️ Syntax & Features](xref://syntax:include.md)
+### [Syntax & Features](xref://syntax:index.md)
 Master the Markdown syntax extensions including `#include` directives for code embedding and `xref://` cross-references for internal linking.
 
-### [🏷️ Versioning](xref://versioning:tags-and-branches.md)
+### [Versioning](xref://versioning:index.md)
 Understand how to work with Git branches and tags to create versioned documentation that grows with your project.
 
-### [🎨 UI Customization](xref://ui:ui-bundle.md)
+### [UI Customization](xref://ui:index.md)
 Learn how to customize the appearance and layout of your documentation using Handlebars templates and UI bundles.
 
-## 🛠️ Command Line Interface
+## Command Line Interface
 
 Tanka Docs provides two main commands:
 
@@ -70,16 +70,16 @@ Generates static documentation from your source files.
 - `--base <BASE>` - Set base href for generated HTML pages
 
 ### `tanka-docs dev`
-Development server mode (coming soon) for live preview during documentation writing.
+Starts a local development server with live preview and hot-reloading.
 
-## 🔧 Configuration Files
+## Configuration Files
 
 Tanka Docs uses two types of configuration files:
 
 - **`tanka-docs.yml`** - Main site configuration (title, output settings, Git sources)
 - **`tanka-docs-section.yml`** - Section-specific configuration (ID, title, navigation)
 
-## 💡 Example Project Structure
+## Example Project Structure
 
 ```
 my-project/
@@ -98,7 +98,7 @@ my-project/
         └── Program.cs          # Can be included in docs
 ```
 
-## 🤝 Getting Help
+## Getting Help
 
 - **Documentation Issues**: Check the troubleshooting guides in each section
 - **Feature Requests**: Visit the project repository
@@ -106,4 +106,4 @@ my-project/
 
 ---
 
-**Ready to get started?** Begin with the [Project Structure](xref://structure:configuration.md) guide to set up your first documentation project.
+**Ready to get started?** Begin with the [Project Structure](xref://structure:index.md) guide to set up your first documentation project.

@@ -126,9 +126,15 @@ namespace Tanka.DocsTool.UI
 
             // render markdown
             await using var outputStream = await outputFile.OpenWrite();
-            var frontmatter = await _docsMarkdownService.RenderPage(processedStream, outputStream);
-
-            return (page.WithFile(outputFile, "text/html"), frontmatter);
+            try
+            {
+                var frontmatter = await _docsMarkdownService.RenderPage(processedStream, outputStream);
+                return (page.WithFile(outputFile, "text/html"), frontmatter);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException($"Failed to compose partial html page '{relativePath}'.", e);
+            }
         }
 
         public async Task ComposeRedirectPage(FileSystemPath relativePath, Link redirectToPage)
@@ -148,10 +154,11 @@ namespace Tanka.DocsTool.UI
                 new Xref(_section.Version, _section.Id, relativePath));
 
             if (targetFilePath == new FileSystemPath(target))
-                throw new InvalidOperationException(
-                    $"Cannot generate a index.html redirect page '{targetFilePath}'. " +
-                    $"Redirect would point to same file as the generated file and would" +
-                    "end in a endless loop");
+            {
+                // blog post about this
+                // todo: add logging and report this as a warning
+                return;
+            }
 
             await _output.GetOrCreateDirectory(targetFilePath.GetDirectoryPath());
 
@@ -173,5 +180,6 @@ namespace Tanka.DocsTool.UI
     <body>
     </body>
 </html>";
+
     }
 }

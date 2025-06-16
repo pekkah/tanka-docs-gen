@@ -116,24 +116,45 @@ namespace Tanka.DocsTool.UI
         {
             var pageComposer = new PageComposer(_site, section, _cache, _output, _uiBundle, renderer);
 
+            var tasks = new List<Task>();
             foreach (var pageItem in section.ContentItems.Where(ci => IsPage(ci.Key, ci.Value)))
             {
-                await pageComposer.ComposePage(pageItem.Key, pageItem.Value, menu, router, preprocessorPipe);
+                tasks.Add(Task.Run(async () =>
+                {
+                    try
+                    {
+                        await pageComposer.ComposePage(pageItem.Key, pageItem.Value, menu, router, preprocessorPipe);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new InvalidOperationException($"Failed to compose page '{pageItem.Key}'.", e);
+                    }
+                }));
             }
 
-            if (section.Type != "doc")
-                return;
+            // If index.md is one of the content items, we don't need a redirect,
+            // as it will be compiled to index.html.
+            var hasIndexMd = section.ContentItems.ContainsKey("index.md");
 
-            // check if section has index page
-            var indexPage = section.GetContentItem("index.md");
+            // create redirect from section root to index page
+            if (!hasIndexMd && (section.IndexPage.Xref != null || section.IndexPage.Uri != null))
+            {
+                // we need a redirect target
+                var redirectToPage = section.IndexPage;
+                tasks.Add(Task.Run(async () =>
+                {
+                    try
+                    {
+                        await pageComposer.ComposeRedirectPage("index.html", redirectToPage);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new InvalidOperationException($"Failed to compose redirect page 'index.html'.", e);
+                    }
+                }));
+            }
 
-            // if index page exists then don't generate it
-            if (indexPage != null)
-                return;
-
-            // we need a redirect target
-            var redirectToPage = section.IndexPage;
-            await pageComposer.ComposeRedirectPage("index.html", redirectToPage);
+            await Task.WhenAll(tasks);
         }
 
         private bool IsPage(FileSystemPath relativePath, ContentItem contentItem)
