@@ -112,7 +112,7 @@ Create a navigation file for the `docs` section.
     *   [Installation](xref://installation.md)
     *   [Configuration](xref://configuration.md)
 *   Advanced Topics
-    *   [Customization](xref://ui:customize/article.md)
+    *   [Customization](xref://customization:customize/article.md)
 ```
 
 ### `docs/index.md`
@@ -130,7 +130,7 @@ This is the home page of your documentation site. Here you can provide an overvi
 
 - [Installation Guide](xref://installation.md) - Get up and running quickly
 - [Configuration](xref://configuration.md) - Learn how to configure the system
-- [Advanced Topics](xref://ui:customize/article.md) - Deep dive into advanced features
+- [Advanced Topics](xref://customization:customize/article.md) - Deep dive into advanced features
 
 ## What's New
 
@@ -140,7 +140,7 @@ This is the home page of your documentation site. Here you can provide an overvi
 
 ## Getting Help
 
-If you need help, check out our [troubleshooting guide](xref://troubleshooting.md) or contact support.
+If you need help, check out our [troubleshooting guide](xref://advanced:troubleshooting.md) or contact support.
 ```
 
 ### `docs/installation.md`
@@ -188,7 +188,7 @@ You should see the version number displayed.
 ## Next Steps
 
 - [Configure your installation](xref://configuration.md)
-- [Learn about advanced features](xref://ui:customize/article.md)
+- [Learn about advanced features](xref://customization:customize/article.md)
 ```
 
 ### `docs/configuration.md`
@@ -460,8 +460,8 @@ Now that you have a basic documentation site running, you can:
 
 ### Getting Help
 
-- Check the [File System Structure](xref://file-system.md) guide
-- Review the [Configuration Reference](xref://tanka-docs-yml.md)
+- Check the [File System Structure](xref://project-structure:file-system.md) guide
+- Review the [Configuration Reference](xref://project-structure:tanka-docs-yml.md)
 - Use `tanka-docs build --debug` for detailed error information
 
 ## Example Project

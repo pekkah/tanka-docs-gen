@@ -10,12 +10,15 @@
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     
+    <!-- Noto Color Emoji font for cross-platform emoji support -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
+    
     <!-- Highlight.js -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 
     <style>
         :root {
-            --bs-body-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+            --bs-body-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
             --bs-link-color-rgb: 8, 87, 168;
             --bs-link-hover-color-rgb: 6, 68, 130;
         }
@@ -26,11 +29,19 @@
 
         .sidebar {
             position: sticky;
-            top: 0;
-            height: 100vh;
+            top: 56px; /* Height of navbar */
+            height: calc(100vh - 56px);
             overflow-y: auto;
             background-color: #f8f9fa;
             border-right: 1px solid #dee2e6;
+            padding-top: 1rem;
+        }
+
+        .toc-sidebar {
+            position: sticky;
+            top: 56px; /* Height of navbar */
+            height: calc(100vh - 56px);
+            overflow-y: auto;
             padding-top: 1rem;
         }
 
@@ -44,6 +55,34 @@
             font-weight: 500;
         }
 
+        /* Ensure emojis render properly in navigation */
+        .sidebar .nav-link {
+            font-feature-settings: "liga" on, "clig" on;
+            text-rendering: optimizeLegibility;
+        }
+
+        /* Ensure emojis have proper font fallback */
+        .sidebar .nav-link {
+            font-family: var(--bs-body-font-family);
+        }
+        
+        .toc-sidebar .nav-link {
+            font-size: 0.8rem;
+            color: #6c757d;
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem;
+        }
+
+        .toc-sidebar .nav-link:hover {
+            color: #212529;
+        }
+
+        .toc-sidebar .nav-link.active {
+            font-weight: 600;
+            color: #212529; /* Darker text for readability */
+            border-left: 2px solid rgb(var(--bs-link-color-rgb));
+        }
+
         blockquote {
             font-size: 1rem;
             border-left: 4px solid #adb5bd;
@@ -55,6 +94,10 @@
             font-weight: 600;
             margin-top: 1.5rem;
             margin-bottom: 1rem;
+        }
+
+        .content h2, .content h3 {
+            scroll-margin-top: 80px;
         }
 
         /* Adjust code block styling to match highlight.js theme */
@@ -102,9 +145,13 @@
             <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
                 {{>partials/Navigation.hbs}}
             </nav>
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-3 content">
+            <main class="col-md-6 ms-sm-auto col-lg-7 px-md-4 py-3 content">
                 {{{PageHtml}}}
             </main>
+            <nav id="toc" class="col-md-3 col-lg-3 d-none d-lg-block toc-sidebar">
+                <strong class="d-block h6 my-2 pb-2 border-bottom">On this page</strong>
+                <nav class="nav flex-column"></nav>
+            </nav>
         </div>
     </div>
     
@@ -117,10 +164,207 @@
 
     <script>
         (function() {
+
+            // Left sidebar active link
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) {
+                const baseHref = document.baseURI;
+                const currentPageHref = window.location.href.split('#')[0]; // Ignore hash
+                let currentPagePath = currentPageHref.substring(baseHref.length);
+
+                if (currentPagePath.endsWith('/')) {
+                    currentPagePath = currentPagePath.slice(0, -1);
+                }
+
+                const navLinks = sidebar.querySelectorAll('a.nav-link');
+                navLinks.forEach(link => {
+                    const linkHref = link.getAttribute('href');
+                    if (linkHref && (linkHref === currentPagePath || linkHref === currentPagePath + '/index.html')) {
+                        link.classList.add('active');
+
+                        let parentCollapse = link.closest('.collapse');
+                        while(parentCollapse) {
+                            parentCollapse.classList.add('show');
+                            const trigger = document.querySelector(`a[data-bs-toggle="collapse"][href="#${parentCollapse.id}"]`);
+                            if (trigger) {
+                                trigger.setAttribute('aria-expanded', 'true');
+                                trigger.classList.remove('collapsed');
+                            }
+                            parentCollapse = parentCollapse.parentElement.closest('.collapse');
+                        }
+                    }
+                });
+            }
+
+            // "On this page" TOC script
+            const toc = document.getElementById('toc');
+            if (toc) {
+                const mainContent = document.querySelector('.content');
+                const headings = mainContent.querySelectorAll('h2, h3');
+                const tocNav = toc.querySelector('.nav');
+                
+                if (headings.length > 0) {
+                    headings.forEach((heading, index) => {
+                        const id = 'heading-' + index;
+                        heading.setAttribute('id', id);
+
+                        const link = document.createElement('a');
+                        link.classList.add('nav-link');
+                        if (heading.tagName === 'H3') {
+                            link.classList.add('ms-3'); // Indent H3
+                        }
+                        
+                        const href = '#' + id;
+                        link.setAttribute('href', href);
+                        link.textContent = heading.textContent;
+
+                        link.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            
+                            // Temporarily disable our custom scroll tracking during navigation
+                            isScrolling = true;
+                            
+                            // Remove active class from all TOC links
+                            tocNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                            
+                            // Add active class to clicked link
+                            link.classList.add('active');
+                            
+                            // Navigate to the hash
+                            window.location.hash = href;
+                            
+                            // Re-enable scroll tracking after navigation completes
+                            let scrollTimeout;
+                            const handleScroll = () => {
+                                clearTimeout(scrollTimeout);
+                                scrollTimeout = setTimeout(() => {
+                                    window.removeEventListener('scroll', handleScroll);
+                                    isScrolling = false; // Re-enable scroll tracking
+                                }, 200);
+                            };
+                            
+                            window.addEventListener('scroll', handleScroll);
+                            
+                            // Fallback: re-enable after 1 second regardless
+                            setTimeout(() => {
+                                window.removeEventListener('scroll', handleScroll);
+                                isScrolling = false;
+                            }, 1000);
+                        });
+                        
+                        tocNav.appendChild(link);
+                    });
+
+                    // Set initial active state based on current scroll position or hash
+                    const setInitialActiveState = () => {
+                        const hash = window.location.hash;
+                        if (hash) {
+                            // If there's a hash, activate the corresponding link
+                            const targetLink = tocNav.querySelector(`a[href="${hash}"]`);
+                            if (targetLink) {
+                                tocNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                                targetLink.classList.add('active');
+                                return;
+                            }
+                        }
+                        
+                        // Otherwise, find the currently visible heading
+                        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                        const offset = 100; // Offset from top of viewport
+                        let activeHeading = null;
+                        
+                        // Find the heading that is currently in view or just passed
+                        for (let i = 0; i < headings.length; i++) {
+                            const heading = headings[i];
+                            const rect = heading.getBoundingClientRect();
+                            const headingTop = rect.top + scrollTop;
+                            
+                            // Check if this heading is above the scroll position + offset
+                            if (headingTop <= scrollTop + offset) {
+                                activeHeading = heading;
+                            } else {
+                                // If we've found a heading that's below our threshold, stop looking
+                                break;
+                            }
+                        }
+                        
+                        if (activeHeading) {
+                            const activeId = activeHeading.getAttribute('id');
+                            const activeLink = tocNav.querySelector(`a[href="#${activeId}"]`);
+                            if (activeLink) {
+                                tocNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                                activeLink.classList.add('active');
+                            }
+                        } else {
+                            // If no heading is visible, activate the first one
+                            const firstLink = tocNav.querySelector('.nav-link');
+                            if (firstLink) {
+                                firstLink.classList.add('active');
+                            }
+                        }
+                    };
+
+                    // Set initial active state
+                    setInitialActiveState();
+
+                    // Custom scroll tracking instead of Bootstrap ScrollSpy
+                    let isScrolling = false;
+                    const updateActiveOnScroll = () => {
+                        if (isScrolling) return;
+                        
+                        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                        const offset = 100; // Offset from top of viewport
+                        let activeHeading = null;
+                        
+                        // Find the heading that is currently in view or just passed
+                        for (let i = 0; i < headings.length; i++) {
+                            const heading = headings[i];
+                            const rect = heading.getBoundingClientRect();
+                            const headingTop = rect.top + scrollTop;
+                            
+                            // Check if this heading is above the scroll position + offset
+                            if (headingTop <= scrollTop + offset) {
+                                activeHeading = heading;
+                            } else {
+                                // If we've found a heading that's below our threshold, stop looking
+                                break;
+                            }
+                        }
+                        
+                        // Update active link
+                        const currentActiveLink = tocNav.querySelector('.nav-link.active');
+                        let newActiveLink = null;
+                        
+                        if (activeHeading) {
+                            const activeId = activeHeading.getAttribute('id');
+                            newActiveLink = tocNav.querySelector(`a[href="#${activeId}"]`);
+                        } else {
+                            // If no heading is in view, activate the first one
+                            newActiveLink = tocNav.querySelector('.nav-link');
+                        }
+                        
+                        // Only update if the active link has changed
+                        if (newActiveLink && newActiveLink !== currentActiveLink) {
+                            tocNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                            newActiveLink.classList.add('active');
+                        }
+                    };
+                    
+                    // Throttled scroll listener
+                    let scrollTimeout;
+                    window.addEventListener('scroll', () => {
+                        clearTimeout(scrollTimeout);
+                        scrollTimeout = setTimeout(updateActiveOnScroll, 10);
+                    });
+                } else {
+                    toc.style.display = 'none';
+                }
+            }
+
             if (window.location.hostname !== 'localhost') {
                 return;
             }
-            // Live reload script remains the same
+            // Live reload script
             const port = window.location.port || (window.location.protocol === 'https:' ? '443' : '80');
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const socketUrl = `${protocol}//${window.location.hostname}:${port}/ws`;

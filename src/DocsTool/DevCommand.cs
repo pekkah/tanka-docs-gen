@@ -26,6 +26,19 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
         [NotNull] DevCommandSettings settings)
     {
         var watcher = new FileWatcher();
+        WebSocketService? webSocketService = null;
+        
+        // Create a cancellation token source that we control
+        using var cts = new CancellationTokenSource();
+        
+        // Handle Ctrl+C properly
+        Console.CancelKeyPress += (_, e) =>
+        {
+            e.Cancel = true; // Prevent immediate termination
+            _console.MarkupLine("[yellow]Shutting down...[/]");
+            cts.Cancel();
+        };
+        
         try
         {
             // 1. Get site configuration from tanka-docs.yml
@@ -40,7 +53,7 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
                 return -1;
             }
 
-            var siteDefinitionResult = (await File.ReadAllTextAsync(configFilePath))
+            var siteDefinitionResult = (await File.ReadAllTextAsync(configFilePath, cts.Token))
                 .TryParseYaml<SiteDefinition>();
 
             if (siteDefinitionResult.IsFailure)
@@ -64,17 +77,21 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
 
 
             // 4. Set up file watcher
-            var webSocketService = new WebSocketService();
+            webSocketService = new WebSocketService();
             _console.MarkupLine("Setting up file watcher...");
             var pathsToWatch = GetPathsToWatch(site, configFilePath, currentPath);
             var outputPath = Path.GetFullPath(Path.Combine(currentPath, site.OutputPath));
 
             watcher.Start(pathsToWatch, async (change) =>
             {
+                // Check if cancellation was requested
+                if (cts.Token.IsCancellationRequested)
+                    return;
+                    
                 if (change.FullPath.StartsWith(outputPath, StringComparison.OrdinalIgnoreCase))
                     return;
 
-                if (!await _buildLock.WaitAsync(0))
+                if (!await _buildLock.WaitAsync(0, cts.Token))
                 {
                     _console.MarkupLine("[grey]Build already in progress. Skipping change.[/]");
                     return;
@@ -86,7 +103,7 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
                     _console.MarkupLine("[yellow]Rebuilding site...[/]");
                     
                     // It's important to re-read the configuration on every change
-                    var updatedSiteResult = (await File.ReadAllTextAsync(configFilePath))
+                    var updatedSiteResult = (await File.ReadAllTextAsync(configFilePath, cts.Token))
                         .TryParseYaml<SiteDefinition>();
 
                     if (updatedSiteResult.IsFailure)
@@ -103,12 +120,16 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
                     {
                         _console.MarkupLine("[green]Rebuild complete.[/]");
                         // Notify browser to reload
-                        await webSocketService.SendReload();
+                        await webSocketService.SendReload(cts.Token);
                     }
                     else
                     {
                         _console.MarkupLine("[red]Rebuild failed.[/]");
                     }
+                }
+                catch (OperationCanceledException) when (cts.Token.IsCancellationRequested)
+                {
+                    // Expected during shutdown
                 }
                 catch (Exception ex)
                 {
@@ -119,7 +140,7 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
                 {
                     _buildLock.Release();
                 }
-            });
+            }, cts.Token);
 
             // 5. Set up and run the web server
             var builderOptions = new WebApplicationOptions()
@@ -133,17 +154,20 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
 
             var app = webAppBuilder.Build();
             app.UseWebSockets();
-            app.Map("/ws", async wsContext =>
+            app.Map("/ws", wsApp =>
             {
-                if (wsContext.WebSockets.IsWebSocketRequest)
+                wsApp.Run(async wsContext =>
                 {
-                    var webSocket = await wsContext.WebSockets.AcceptWebSocketAsync();
-                    await webSocketService.Handle(webSocket);
-                }
-                else
-                {
-                    wsContext.Response.StatusCode = 400;
-                }
+                    if (wsContext.WebSockets.IsWebSocketRequest)
+                    {
+                        var webSocket = await wsContext.WebSockets.AcceptWebSocketAsync();
+                        await webSocketService.Handle(webSocket, cts.Token);
+                    }
+                    else
+                    {
+                        wsContext.Response.StatusCode = 400;
+                    }
+                });
             });
 
             app.UseDefaultFiles();
@@ -156,12 +180,14 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
             _console.MarkupLine("Use [bold]CTRL+C[/] to stop the server.");
             _console.MarkupLine($"Serving files from: [green]{Path.GetFullPath(site.OutputPath)}[/]");
 
-            var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
-            var cancellationToken = lifetime.ApplicationStopping;
-            cancellationToken.Register(() => watcher.Stop());
+            // Use our own cancellation token instead of the application lifetime
+            await app.RunAsync(cts.Token);
 
-            await app.RunAsync(cancellationToken);
-
+            return 0;
+        }
+        catch (OperationCanceledException) when (cts.Token.IsCancellationRequested)
+        {
+            _console.MarkupLine("[green]Shutdown complete.[/]");
             return 0;
         }
         catch (Exception ex)
@@ -172,6 +198,7 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
         finally
         {
             watcher.Stop();
+            webSocketService?.Dispose();
         }
     }
 

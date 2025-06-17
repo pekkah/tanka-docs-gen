@@ -1,0 +1,5 @@
+id: advanced
+title: "Advanced Features"
+index_page: xref://advanced:index.md
+nav:
+  - xref://nav.md 

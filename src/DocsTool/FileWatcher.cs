@@ -12,10 +12,12 @@ public class FileWatcher : IDisposable
     private readonly List<FileSystemWatcher> _watchers = new();
     private Func<FileChange, Task>? _onChanged;
     private CancellationTokenSource? _debounceCts;
+    private CancellationToken _cancellationToken;
 
-    public void Start(IEnumerable<string> paths, Func<FileChange, Task> onChanged)
+    public void Start(IEnumerable<string> paths, Func<FileChange, Task> onChanged, CancellationToken cancellationToken = default)
     {
         _onChanged = onChanged;
+        _cancellationToken = cancellationToken;
         var uniquePaths = paths.Distinct();
 
         foreach (var path in uniquePaths)
@@ -60,13 +62,19 @@ public class FileWatcher : IDisposable
 
     private void OnFileSystemEvent(object sender, FileSystemEventArgs e)
     {
+        if (_cancellationToken.IsCancellationRequested)
+            return;
+            
         _debounceCts?.Cancel();
         _debounceCts = new CancellationTokenSource();
 
-        Task.Delay(100, _debounceCts.Token)
+        // Create a combined cancellation token
+        using var combinedCts = CancellationTokenSource.CreateLinkedTokenSource(_cancellationToken, _debounceCts.Token);
+
+        Task.Delay(100, combinedCts.Token)
             .ContinueWith(async t =>
             {
-                if (t.IsCanceled || _onChanged is null)
+                if (t.IsCanceled || _onChanged is null || _cancellationToken.IsCancellationRequested)
                     return;
 
                 var changeType = e.ChangeType switch
@@ -78,12 +86,23 @@ public class FileWatcher : IDisposable
                     _ => throw new ArgumentOutOfRangeException()
                 };
 
-                await _onChanged(new FileChange { FullPath = e.FullPath, ChangeType = changeType });
+                try
+                {
+                    await _onChanged(new FileChange { FullPath = e.FullPath, ChangeType = changeType });
+                }
+                catch (OperationCanceledException) when (_cancellationToken.IsCancellationRequested)
+                {
+                    // Expected during shutdown
+                }
             }, TaskScheduler.Default);
     }
 
     public void Stop()
     {
+        _debounceCts?.Cancel();
+        _debounceCts?.Dispose();
+        _debounceCts = null;
+        
         foreach (var watcher in _watchers)
         {
             watcher.EnableRaisingEvents = false;

@@ -1,0 +1,2 @@
+- [Quick Start Guide](xref://getting-started.md)
+- [Basic Configuration](xref://configuration.md) 

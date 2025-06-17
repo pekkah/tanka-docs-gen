@@ -1,6 +1,0 @@
-- [Overview](xref://configuration.md)
-- [Getting Started](xref://getting-started.md)
-- [CLI Reference](xref://cli-reference.md)
-- [File System Structure](xref://file-system.md)
-- [Configuration Files](xref://tanka-docs-yml.md)
-- [Troubleshooting](xref://troubleshooting.md)

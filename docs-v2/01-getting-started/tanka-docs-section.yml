@@ -1,0 +1,5 @@
+id: getting-started
+title: "Getting Started"
+index_page: xref://getting-started:getting-started.md
+nav:
+  - xref://nav.md 

@@ -1,0 +1,3 @@
+- [Versioning with Git](xref://tags-and-branches.md)
+- [CLI Reference](xref://cli-reference.md)
+- [Troubleshooting](xref://troubleshooting.md) 

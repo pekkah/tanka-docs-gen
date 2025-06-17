@@ -44,16 +44,19 @@ tanka-docs dev
 
 This documentation is organized into the following sections:
 
-### [Project Structure](xref://structure:index.md)
+### [Getting Started](xref://getting-started:index.md)
+Quick start guide and basic configuration to get up and running with Tanka Docs.
+
+### [Project Structure](xref://project-structure:index.md)
 Learn how to organize your documentation project, configure `tanka-docs.yml` and `tanka-docs-section.yml` files, and understand the file system structure.
 
-### [Syntax & Features](xref://syntax:index.md)
+### [Writing Content](xref://writing-content:index.md)
 Master the Markdown syntax extensions including `#include` directives for code embedding and `xref://` cross-references for internal linking.
 
-### [Versioning](xref://versioning:index.md)
-Understand how to work with Git branches and tags to create versioned documentation that grows with your project.
+### [Advanced Features](xref://advanced:index.md)
+Explore advanced features including Git-based versioning, CLI reference, and troubleshooting guides.
 
-### [UI Customization](xref://ui:index.md)
+### [UI Customization](xref://customization:index.md)
 Learn how to customize the appearance and layout of your documentation using Handlebars templates and UI bundles.
 
 ## Command Line Interface
@@ -106,4 +109,4 @@ my-project/
 
 ---
 
-**Ready to get started?** Begin with the [Project Structure](xref://structure:index.md) guide to set up your first documentation project.
+**Ready to get started?** Begin with the [Getting Started](xref://getting-started:index.md) guide to set up your first documentation project.
