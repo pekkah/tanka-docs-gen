@@ -45,11 +45,11 @@
             padding-top: 1rem;
         }
 
-        /* Mobile TOC styling */
+        /* Mobile TOC styling - single responsive TOC */
         @media (max-width: 991.98px) {
             .toc-sidebar {
-                position: static;
-                height: auto;
+                position: static !important;
+                height: auto !important;
                 max-height: 300px;
                 overflow-y: auto;
                 background-color: #f8f9fa;
@@ -57,10 +57,22 @@
                 border-radius: 0.375rem;
                 margin-bottom: 1rem;
                 padding: 1rem;
+                /* Move TOC to mobile position - above content */
+                order: -1;
+                display: block !important; /* Override Bootstrap d-none d-lg-block */
             }
 
             .toc-sidebar.collapsed {
                 display: none !important;
+            }
+
+            .toc-sidebar .toc-title {
+                display: none; /* Hide desktop title on mobile */
+            }
+
+            /* Adjust main content layout for mobile */
+            .content {
+                order: 0;
             }
         }
 
@@ -174,8 +186,8 @@
             <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
                 {{>partials/Navigation.hbs}}
             </nav>
-            <main class="col-md-6 ms-sm-auto col-lg-7 px-md-4 py-3 content">
-                <!-- Mobile TOC (shown at top on mobile) -->
+            <main class="col-md-6 ms-sm-auto col-lg-7 px-md-4 py-3 content d-flex flex-column">
+                <!-- Mobile TOC toggle button -->
                 <div class="d-lg-none mb-3">
                     <button id="toc-toggle" class="btn btn-outline-secondary btn-sm toc-toggle mb-2" type="button">
                         <svg width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
@@ -183,14 +195,12 @@
                         </svg>
                         <span class="ms-1">On this page</span>
                     </button>
-                    <nav id="toc-mobile" class="toc-sidebar collapsed">
-                        <nav class="nav flex-column"></nav>
-                    </nav>
                 </div>
                 {{{PageHtml}}}
             </main>
-            <nav id="toc" class="col-md-3 col-lg-3 d-none d-lg-block toc-sidebar">
-                <strong class="d-block h6 my-2 pb-2 border-bottom">On this page</strong>
+            <!-- Single responsive TOC -->
+            <nav id="toc" class="col-md-3 col-lg-3 d-none d-lg-block toc-sidebar collapsed">
+                <strong class="d-block h6 my-2 pb-2 border-bottom toc-title">On this page</strong>
                 <nav class="nav flex-column"></nav>
             </nav>
         </div>
@@ -237,19 +247,30 @@
                 });
             }
 
-            // "On this page" TOC script
+            // "On this page" TOC script - single responsive TOC
             const toc = document.getElementById('toc');
-            const tocMobile = document.getElementById('toc-mobile');
             const tocToggle = document.getElementById('toc-toggle');
             
-            if (toc || tocMobile) {
+            // Constants
+            const SCROLL_OFFSET = 100;
+            const SCROLL_THROTTLE_MS = 25; // Optimized from 10ms
+            const SCROLL_NAVIGATION_TIMEOUT_MS = 200;
+            const MOBILE_BREAKPOINT = 992;
+            
+            if (toc) {
                 const mainContent = document.querySelector('.content');
+                if (!mainContent) return;
+                
                 const headings = mainContent.querySelectorAll('h2, h3');
-                const tocNav = toc ? toc.querySelector('.nav') : null;
-                const tocMobileNav = tocMobile ? tocMobile.querySelector('.nav') : null;
+                const tocNav = toc.querySelector('.nav');
+                
+                if (!tocNav) return;
                 
                 if (headings.length > 0) {
-                    const createTocLink = (heading, index, parentNav) => {
+                    let isScrolling = false;
+                    
+                    // Create TOC links
+                    headings.forEach((heading, index) => {
                         const id = 'heading-' + index;
                         if (!heading.getAttribute('id')) {
                             heading.setAttribute('id', id);
@@ -268,27 +289,20 @@
                         link.addEventListener('click', (e) => {
                             e.preventDefault();
                             
-                            // Temporarily disable our custom scroll tracking during navigation
+                            // Temporarily disable scroll tracking during navigation
                             isScrolling = true;
                             
-                            // Remove active class from all TOC links in both desktop and mobile
-                            if (tocNav) {
-                                tocNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                            }
-                            if (tocMobileNav) {
-                                tocMobileNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                            }
+                            // Remove active class from all TOC links
+                            tocNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
                             
                             // Add active class to clicked link
                             link.classList.add('active');
                             
                             // On mobile, collapse the TOC after clicking a link
-                            if (window.innerWidth < 992 && tocMobile) {
-                                tocMobile.classList.add('collapsed');
+                            if (window.innerWidth < MOBILE_BREAKPOINT && toc) {
+                                toc.classList.add('collapsed');
                                 if (tocToggle) {
-                                    tocToggle.innerHTML = `<svg width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
-                                        <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
-                                    </svg><span class="ms-1">On this page</span>`;
+                                    updateToggleButton(true);
                                 }
                             }
                             
@@ -301,38 +315,41 @@
                                 clearTimeout(scrollTimeout);
                                 scrollTimeout = setTimeout(() => {
                                     window.removeEventListener('scroll', handleScroll);
-                                    isScrolling = false; // Re-enable scroll tracking
-                                }, 200);
+                                    isScrolling = false;
+                                }, SCROLL_NAVIGATION_TIMEOUT_MS);
                             };
                             
                             window.addEventListener('scroll', handleScroll);
                             
-                            // Fallback: re-enable after 1 second regardless
+                            // Fallback: re-enable after 1 second
                             setTimeout(() => {
                                 window.removeEventListener('scroll', handleScroll);
                                 isScrolling = false;
                             }, 1000);
                         });
                         
-                        parentNav.appendChild(link);
-                        return link;
-                    };
-
-                    headings.forEach((heading, index) => {
-                        // Create TOC links for both desktop and mobile
-                        if (tocNav) {
-                            createTocLink(heading, index, tocNav);
-                        }
-                        if (tocMobileNav) {
-                            createTocLink(heading, index, tocMobileNav);
-                        }
+                        tocNav.appendChild(link);
                     });
+
+                    // Update toggle button appearance
+                    const updateToggleButton = (isCollapsed) => {
+                        if (!tocToggle) return;
+                        
+                        if (isCollapsed) {
+                            tocToggle.innerHTML = `<svg width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+                            </svg><span class="ms-1">On this page</span>`;
+                        } else {
+                            tocToggle.innerHTML = `<svg width="16" height="16" fill="currentColor" class="bi bi-chevron-up" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"/>
+                            </svg><span class="ms-1">Hide</span>`;
+                        }
+                    };
 
                     // Set initial active state based on current scroll position or hash
                     const setInitialActiveState = () => {
                         const hash = window.location.hash;
-                        if (hash) {
-                            // If there's a hash, activate the corresponding link
+                        if (hash && tocNav) {
                             const targetLink = tocNav.querySelector(`a[href="${hash}"]`);
                             if (targetLink) {
                                 tocNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
@@ -341,56 +358,34 @@
                             }
                         }
                         
-                        // Otherwise, find the currently visible heading
+                        // Find the currently visible heading
                         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                        const offset = 100; // Offset from top of viewport
                         let activeHeading = null;
                         
-                        // Find the heading that is currently in view or just passed
                         for (let i = 0; i < headings.length; i++) {
                             const heading = headings[i];
                             const rect = heading.getBoundingClientRect();
                             const headingTop = rect.top + scrollTop;
                             
-                            // Check if this heading is above the scroll position + offset
-                            if (headingTop <= scrollTop + offset) {
+                            if (headingTop <= scrollTop + SCROLL_OFFSET) {
                                 activeHeading = heading;
                             } else {
-                                // If we've found a heading that's below our threshold, stop looking
                                 break;
                             }
                         }
                         
-                        if (activeHeading) {
+                        if (activeHeading && tocNav) {
                             const activeId = activeHeading.getAttribute('id');
-                            // Update both desktop and mobile TOC
-                            if (tocNav) {
-                                const activeLink = tocNav.querySelector(`a[href="#${activeId}"]`);
-                                if (activeLink) {
-                                    tocNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                                    activeLink.classList.add('active');
-                                }
+                            const activeLink = tocNav.querySelector(`a[href="#${activeId}"]`);
+                            if (activeLink) {
+                                tocNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                                activeLink.classList.add('active');
                             }
-                            if (tocMobileNav) {
-                                const activeLinkMobile = tocMobileNav.querySelector(`a[href="#${activeId}"]`);
-                                if (activeLinkMobile) {
-                                    tocMobileNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                                    activeLinkMobile.classList.add('active');
-                                }
-                            }
-                        } else {
+                        } else if (tocNav) {
                             // If no heading is visible, activate the first one
-                            if (tocNav) {
-                                const firstLink = tocNav.querySelector('.nav-link');
-                                if (firstLink) {
-                                    firstLink.classList.add('active');
-                                }
-                            }
-                            if (tocMobileNav) {
-                                const firstLinkMobile = tocMobileNav.querySelector('.nav-link');
-                                if (firstLinkMobile) {
-                                    firstLinkMobile.classList.add('active');
-                                }
+                            const firstLink = tocNav.querySelector('.nav-link');
+                            if (firstLink) {
+                                firstLink.classList.add('active');
                             }
                         }
                     };
@@ -398,69 +393,38 @@
                     // Set initial active state
                     setInitialActiveState();
 
-                    // Custom scroll tracking instead of Bootstrap ScrollSpy
-                    let isScrolling = false;
+                    // Optimized scroll tracking
                     const updateActiveOnScroll = () => {
-                        if (isScrolling) return;
+                        if (isScrolling || !tocNav) return;
                         
                         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                        const offset = 100; // Offset from top of viewport
                         let activeHeading = null;
                         
-                        // Find the heading that is currently in view or just passed
                         for (let i = 0; i < headings.length; i++) {
                             const heading = headings[i];
                             const rect = heading.getBoundingClientRect();
                             const headingTop = rect.top + scrollTop;
                             
-                            // Check if this heading is above the scroll position + offset
-                            if (headingTop <= scrollTop + offset) {
+                            if (headingTop <= scrollTop + SCROLL_OFFSET) {
                                 activeHeading = heading;
                             } else {
-                                // If we've found a heading that's below our threshold, stop looking
                                 break;
                             }
                         }
                         
-                        // Update active link
                         const currentActiveLink = tocNav.querySelector('.nav-link.active');
                         let newActiveLink = null;
                         
                         if (activeHeading) {
                             const activeId = activeHeading.getAttribute('id');
-                            // Update both desktop and mobile TOC
-                            if (tocNav) {
-                                newActiveLink = tocNav.querySelector(`a[href="#${activeId}"]`);
-                                if (newActiveLink && newActiveLink !== currentActiveLink) {
-                                    tocNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                                    newActiveLink.classList.add('active');
-                                }
-                            }
-                            if (tocMobileNav) {
-                                const newActiveLinkMobile = tocMobileNav.querySelector(`a[href="#${activeId}"]`);
-                                const currentActiveLinkMobile = tocMobileNav.querySelector('.nav-link.active');
-                                if (newActiveLinkMobile && newActiveLinkMobile !== currentActiveLinkMobile) {
-                                    tocMobileNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                                    newActiveLinkMobile.classList.add('active');
-                                }
-                            }
+                            newActiveLink = tocNav.querySelector(`a[href="#${activeId}"]`);
                         } else {
-                            // If no heading is in view, activate the first one
-                            if (tocNav) {
-                                newActiveLink = tocNav.querySelector('.nav-link');
-                                if (newActiveLink && newActiveLink !== currentActiveLink) {
-                                    tocNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                                    newActiveLink.classList.add('active');
-                                }
-                            }
-                            if (tocMobileNav) {
-                                const newActiveLinkMobile = tocMobileNav.querySelector('.nav-link');
-                                const currentActiveLinkMobile = tocMobileNav.querySelector('.nav-link.active');
-                                if (newActiveLinkMobile && newActiveLinkMobile !== currentActiveLinkMobile) {
-                                    tocMobileNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                                    newActiveLinkMobile.classList.add('active');
-                                }
-                            }
+                            newActiveLink = tocNav.querySelector('.nav-link');
+                        }
+                        
+                        if (newActiveLink && newActiveLink !== currentActiveLink) {
+                            tocNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                            newActiveLink.classList.add('active');
                         }
                     };
                     
@@ -468,28 +432,25 @@
                     let scrollTimeout;
                     window.addEventListener('scroll', () => {
                         clearTimeout(scrollTimeout);
-                        scrollTimeout = setTimeout(updateActiveOnScroll, 10);
+                        scrollTimeout = setTimeout(updateActiveOnScroll, SCROLL_THROTTLE_MS);
                     });
+
                     // Mobile TOC toggle functionality
-                    if (tocToggle && tocMobile) {
+                    if (tocToggle) {
                         tocToggle.addEventListener('click', () => {
-                            const isCollapsed = tocMobile.classList.contains('collapsed');
+                            const isCollapsed = toc.classList.contains('collapsed');
                             if (isCollapsed) {
-                                tocMobile.classList.remove('collapsed');
-                                tocToggle.innerHTML = `<svg width="16" height="16" fill="currentColor" class="bi bi-chevron-up" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"/>
-                                </svg><span class="ms-1">Hide</span>`;
+                                toc.classList.remove('collapsed');
+                                updateToggleButton(false);
                             } else {
-                                tocMobile.classList.add('collapsed');
-                                tocToggle.innerHTML = `<svg width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
-                                </svg><span class="ms-1">On this page</span>`;
+                                toc.classList.add('collapsed');
+                                updateToggleButton(true);
                             }
                         });
                     }
                 } else {
-                    if (toc) toc.style.display = 'none';
-                    if (tocMobile) tocMobile.style.display = 'none';
+                    // Hide TOC if no headings
+                    toc.style.display = 'none';
                     if (tocToggle) tocToggle.style.display = 'none';
                 }
             }
