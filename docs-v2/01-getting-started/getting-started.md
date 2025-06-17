@@ -113,7 +113,7 @@ This is the home page of your documentation site.
 
 - [Installation](xref://installation.md) - Get up and running quickly
 - [Configuration](xref://configuration.md) - Learn how to configure your project
-- [Advanced Topics](xref://advanced.md) - Deep dive into advanced features
+- [Advanced Topics](xref://advanced:index.md) - Deep dive into advanced features
 
 ## Getting Started
 
@@ -133,7 +133,7 @@ Create `docs/nav.md`:
   * [Welcome](xref://index.md)
   * [Installation](xref://installation.md)
   * [Configuration](xref://configuration.md)
-  * [Advanced Topics](xref://advanced.md)
+  * [Advanced Topics](xref://advanced:index.md)
 ```
 
 ### Content Pages
@@ -172,7 +172,7 @@ your-command --version
 ## Next Steps
 
 - [Configure your installation](xref://configuration.md)
-- [Learn about advanced features](xref://advanced.md)
+- [Learn about advanced features](xref://advanced:index.md)
 ```
 
 Create additional pages (`docs/configuration.md`, `docs/advanced.md`) following the same pattern.
@@ -267,7 +267,7 @@ Thumbs.db
 Include code snippets from your source files:
 
 ```markdown
-#include::src/example.cs
+\#include::xref://src:example.cs
 ```
 
 ### Cross-References
