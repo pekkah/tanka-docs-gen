@@ -89,7 +89,7 @@ namespace Tanka.DocsTool.UI
                         continue;
                     }
 
-                    await _output.GetOrCreateDirectory(outputPath.GetDirectoryPath());
+                    await _output.GetOrCreateDirectory(Path.GetDirectoryName(outputPath));
 
                     // create output file
                     var outputFile = await _output.GetOrCreateFile(outputPath);
