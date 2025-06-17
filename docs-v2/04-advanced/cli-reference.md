@@ -8,17 +8,19 @@ Tanka Docs provides a command-line interface (CLI) that allows you to build and 
 
 ## Installation
 
-**Note:** Tanka.DocsGen is currently distributed as source code. To install:
+Install Tanka Docs as a .NET global tool:
 
 ```bash
-# Clone the repository
+# Install from NuGet (recommended)
+dotnet tool install --global Tanka.DocsGen
+```
+
+**Alternative installation from source (for development):**
+
+```bash
+# Clone and build from source
 git clone https://github.com/pekkah/tanka-docs-gen.git
 cd tanka-docs-gen
-
-# Build the tool
-dotnet build
-
-# Install as global tool (optional)
 dotnet pack -c Release -o ./artifacts
 dotnet tool install --global --add-source ./artifacts Tanka.DocsGen
 ```
@@ -26,11 +28,12 @@ dotnet tool install --global --add-source ./artifacts Tanka.DocsGen
 To update to the latest version:
 
 ```bash
-# Pull latest changes and rebuild
-git pull
-dotnet build
+# Update from NuGet
+dotnet tool update --global Tanka.DocsGen
 
-# Update global tool (if installed)
+# Or update from source (if installed from source)
+git pull
+dotnet pack -c Release -o ./artifacts
 dotnet tool update --global --add-source ./artifacts Tanka.DocsGen
 ```
 

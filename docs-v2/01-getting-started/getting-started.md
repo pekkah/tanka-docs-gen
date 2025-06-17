@@ -12,24 +12,26 @@ This guide will walk you through setting up your first Tanka Docs project from s
 - **Git** (Tanka Docs sources content from Git repositories)
 - **Text editor** or IDE of your choice
 
-## Step 1: Clone the Project
+## Step 1: Install Tanka Docs
 
-Tanka Docs is currently distributed as source code. Clone the repository:
+Install Tanka Docs as a .NET global tool:
 
 ```bash
+# Install from NuGet (recommended)
+dotnet tool install --global Tanka.DocsGen
+```
+
+**Alternative installation from source:**
+
+```bash
+# Clone and build from source (for development)
 git clone https://github.com/pekkah/tanka-docs-gen.git
 cd tanka-docs-gen
+dotnet pack -c Release -o ./artifacts
+dotnet tool install --global --add-source ./artifacts Tanka.DocsGen
 ```
 
-## Step 2: Build the Tool
-
-Build the Tanka Docs tool:
-
-```bash
-dotnet build
-```
-
-## Step 3: Create Your Documentation Project
+## Step 2: Create Your Documentation Project
 
 Create a new directory for your documentation project:
 
@@ -39,7 +41,7 @@ cd my-docs-project
 git init -b main
 ```
 
-## Step 4: Create the Main Configuration File
+## Step 3: Create the Main Configuration File
 
 Create `tanka-docs.yml` in your project root. This file defines your site structure and content sources:
 
@@ -66,7 +68,7 @@ branches:
 - `branches`: Git branches/refs to source content from
 - `input_path`: Directories to include from each branch
 
-## Step 5: Create Documentation Sections
+## Step 4: Create Documentation Sections
 
 Tanka Docs organizes content into sections. Create your main documentation section:
 
@@ -94,7 +96,7 @@ includes:
 - `nav`: Navigation file(s) for this section
 - `includes`: File patterns to include in this section
 
-## Step 6: Create Content Files
+## Step 5: Create Content Files
 
 ### Main Index Page
 
@@ -177,7 +179,7 @@ your-command --version
 
 Create additional pages (`docs/configuration.md`, `docs/advanced.md`) following the same pattern.
 
-## Step 7: Add Shared Content (Optional)
+## Step 6: Add Shared Content (Optional)
 
 Create a partials section for shared content:
 

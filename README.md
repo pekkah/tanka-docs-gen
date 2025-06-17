@@ -18,17 +18,15 @@ Tanka Docs is a powerful technical documentation generator designed for .NET pro
 
 ### 1. Install
 
-**Note:** Tanka.DocsGen is currently distributed as source code. To install:
+Install Tanka Docs as a .NET global tool:
 
 ```bash
-# Clone the repository
+# Install from NuGet (recommended)
+dotnet tool install --global Tanka.DocsGen
+
+# Or install from local source (for development)
 git clone https://github.com/pekkah/tanka-docs-gen.git
 cd tanka-docs-gen
-
-# Build the tool
-dotnet build
-
-# Install as global tool (optional)
 dotnet pack -c Release -o ./artifacts
 dotnet tool install --global --add-source ./artifacts Tanka.DocsGen
 ```

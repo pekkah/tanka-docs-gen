@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Tanka Documentation Generator is a .NET 9.0 console application that generates static HTML documentation sites from Markdown files. It's packaged as a .NET Global Tool (`Tanka.DocsGen`) and provides advanced features like live C# code integration via Roslyn and multi-source content aggregation.
+Tanka Documentation Generator is a .NET 9.0 console application that generates static HTML documentation sites from Markdown files. It's distributed as a .NET Global Tool (`Tanka.DocsGen`) that can be installed via `dotnet tool install --global Tanka.DocsGen`. It provides advanced features like live C# code integration via Roslyn and multi-source content aggregation.
 
 ## Common Development Commands
 
@@ -32,12 +32,13 @@ dotnet run --project ./src/DocsTool/ -- dev -f ./tanka-docs-wip.yml
 dotnet run --project ./src/DocsTool/ -- build -f ./tanka-docs-wip.yml
 ```
 
-### Tool Development and Testing
+### Tool Installation and Testing
 ```bash
-# Build and pack the global tool
-dotnet pack -c Release -o ./artifacts
+# Install from NuGet (primary method)
+dotnet tool install --global Tanka.DocsGen
 
-# Install tool locally for testing
+# Or build and pack the global tool locally for development
+dotnet pack -c Release -o ./artifacts
 dotnet tool install --global --add-source ./artifacts Tanka.DocsGen
 
 # Test the installed tool
