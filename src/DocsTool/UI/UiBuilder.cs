@@ -110,7 +110,7 @@ namespace Tanka.DocsTool.UI
                     buildContext.Add(new Error(
                         $"Cannot generate a index.html redirect page '{targetFilePath}'. " +
                         $"Redirect would point to same file as the generated file and would" +
-                        "end in a endless loop"));
+                        "end in an endless loop"));
                     return;
                 }
 
