@@ -45,6 +45,35 @@
             padding-top: 1rem;
         }
 
+        /* Mobile TOC styling */
+        @media (max-width: 991.98px) {
+            .toc-sidebar {
+                position: static;
+                height: auto;
+                max-height: 300px;
+                overflow-y: auto;
+                background-color: #f8f9fa;
+                border: 1px solid #dee2e6;
+                border-radius: 0.375rem;
+                margin-bottom: 1rem;
+                padding: 1rem;
+            }
+
+            .toc-sidebar.collapsed {
+                display: none !important;
+            }
+        }
+
+        .toc-toggle {
+            display: none;
+        }
+
+        @media (max-width: 991.98px) {
+            .toc-toggle {
+                display: inline-block;
+            }
+        }
+
         .sidebar .nav-link {
             font-size: 0.9rem;
             color: #495057;
@@ -146,6 +175,18 @@
                 {{>partials/Navigation.hbs}}
             </nav>
             <main class="col-md-6 ms-sm-auto col-lg-7 px-md-4 py-3 content">
+                <!-- Mobile TOC (shown at top on mobile) -->
+                <div class="d-lg-none mb-3">
+                    <button id="toc-toggle" class="btn btn-outline-secondary btn-sm toc-toggle mb-2" type="button">
+                        <svg width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+                        </svg>
+                        <span class="ms-1">On this page</span>
+                    </button>
+                    <nav id="toc-mobile" class="toc-sidebar collapsed">
+                        <nav class="nav flex-column"></nav>
+                    </nav>
+                </div>
                 {{{PageHtml}}}
             </main>
             <nav id="toc" class="col-md-3 col-lg-3 d-none d-lg-block toc-sidebar">
@@ -198,15 +239,21 @@
 
             // "On this page" TOC script
             const toc = document.getElementById('toc');
-            if (toc) {
+            const tocMobile = document.getElementById('toc-mobile');
+            const tocToggle = document.getElementById('toc-toggle');
+            
+            if (toc || tocMobile) {
                 const mainContent = document.querySelector('.content');
                 const headings = mainContent.querySelectorAll('h2, h3');
-                const tocNav = toc.querySelector('.nav');
+                const tocNav = toc ? toc.querySelector('.nav') : null;
+                const tocMobileNav = tocMobile ? tocMobile.querySelector('.nav') : null;
                 
                 if (headings.length > 0) {
-                    headings.forEach((heading, index) => {
+                    const createTocLink = (heading, index, parentNav) => {
                         const id = 'heading-' + index;
-                        heading.setAttribute('id', id);
+                        if (!heading.getAttribute('id')) {
+                            heading.setAttribute('id', id);
+                        }
 
                         const link = document.createElement('a');
                         link.classList.add('nav-link');
@@ -224,11 +271,26 @@
                             // Temporarily disable our custom scroll tracking during navigation
                             isScrolling = true;
                             
-                            // Remove active class from all TOC links
-                            tocNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                            // Remove active class from all TOC links in both desktop and mobile
+                            if (tocNav) {
+                                tocNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                            }
+                            if (tocMobileNav) {
+                                tocMobileNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                            }
                             
                             // Add active class to clicked link
                             link.classList.add('active');
+                            
+                            // On mobile, collapse the TOC after clicking a link
+                            if (window.innerWidth < 992 && tocMobile) {
+                                tocMobile.classList.add('collapsed');
+                                if (tocToggle) {
+                                    tocToggle.innerHTML = `<svg width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+                                    </svg><span class="ms-1">On this page</span>`;
+                                }
+                            }
                             
                             // Navigate to the hash
                             window.location.hash = href;
@@ -252,7 +314,18 @@
                             }, 1000);
                         });
                         
-                        tocNav.appendChild(link);
+                        parentNav.appendChild(link);
+                        return link;
+                    };
+
+                    headings.forEach((heading, index) => {
+                        // Create TOC links for both desktop and mobile
+                        if (tocNav) {
+                            createTocLink(heading, index, tocNav);
+                        }
+                        if (tocMobileNav) {
+                            createTocLink(heading, index, tocMobileNav);
+                        }
                     });
 
                     // Set initial active state based on current scroll position or hash
@@ -290,16 +363,34 @@
                         
                         if (activeHeading) {
                             const activeId = activeHeading.getAttribute('id');
-                            const activeLink = tocNav.querySelector(`a[href="#${activeId}"]`);
-                            if (activeLink) {
-                                tocNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                                activeLink.classList.add('active');
+                            // Update both desktop and mobile TOC
+                            if (tocNav) {
+                                const activeLink = tocNav.querySelector(`a[href="#${activeId}"]`);
+                                if (activeLink) {
+                                    tocNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                                    activeLink.classList.add('active');
+                                }
+                            }
+                            if (tocMobileNav) {
+                                const activeLinkMobile = tocMobileNav.querySelector(`a[href="#${activeId}"]`);
+                                if (activeLinkMobile) {
+                                    tocMobileNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                                    activeLinkMobile.classList.add('active');
+                                }
                             }
                         } else {
                             // If no heading is visible, activate the first one
-                            const firstLink = tocNav.querySelector('.nav-link');
-                            if (firstLink) {
-                                firstLink.classList.add('active');
+                            if (tocNav) {
+                                const firstLink = tocNav.querySelector('.nav-link');
+                                if (firstLink) {
+                                    firstLink.classList.add('active');
+                                }
+                            }
+                            if (tocMobileNav) {
+                                const firstLinkMobile = tocMobileNav.querySelector('.nav-link');
+                                if (firstLinkMobile) {
+                                    firstLinkMobile.classList.add('active');
+                                }
                             }
                         }
                     };
@@ -337,16 +428,39 @@
                         
                         if (activeHeading) {
                             const activeId = activeHeading.getAttribute('id');
-                            newActiveLink = tocNav.querySelector(`a[href="#${activeId}"]`);
+                            // Update both desktop and mobile TOC
+                            if (tocNav) {
+                                newActiveLink = tocNav.querySelector(`a[href="#${activeId}"]`);
+                                if (newActiveLink && newActiveLink !== currentActiveLink) {
+                                    tocNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                                    newActiveLink.classList.add('active');
+                                }
+                            }
+                            if (tocMobileNav) {
+                                const newActiveLinkMobile = tocMobileNav.querySelector(`a[href="#${activeId}"]`);
+                                const currentActiveLinkMobile = tocMobileNav.querySelector('.nav-link.active');
+                                if (newActiveLinkMobile && newActiveLinkMobile !== currentActiveLinkMobile) {
+                                    tocMobileNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                                    newActiveLinkMobile.classList.add('active');
+                                }
+                            }
                         } else {
                             // If no heading is in view, activate the first one
-                            newActiveLink = tocNav.querySelector('.nav-link');
-                        }
-                        
-                        // Only update if the active link has changed
-                        if (newActiveLink && newActiveLink !== currentActiveLink) {
-                            tocNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                            newActiveLink.classList.add('active');
+                            if (tocNav) {
+                                newActiveLink = tocNav.querySelector('.nav-link');
+                                if (newActiveLink && newActiveLink !== currentActiveLink) {
+                                    tocNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                                    newActiveLink.classList.add('active');
+                                }
+                            }
+                            if (tocMobileNav) {
+                                const newActiveLinkMobile = tocMobileNav.querySelector('.nav-link');
+                                const currentActiveLinkMobile = tocMobileNav.querySelector('.nav-link.active');
+                                if (newActiveLinkMobile && newActiveLinkMobile !== currentActiveLinkMobile) {
+                                    tocMobileNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                                    newActiveLinkMobile.classList.add('active');
+                                }
+                            }
                         }
                     };
                     
@@ -356,8 +470,27 @@
                         clearTimeout(scrollTimeout);
                         scrollTimeout = setTimeout(updateActiveOnScroll, 10);
                     });
+                    // Mobile TOC toggle functionality
+                    if (tocToggle && tocMobile) {
+                        tocToggle.addEventListener('click', () => {
+                            const isCollapsed = tocMobile.classList.contains('collapsed');
+                            if (isCollapsed) {
+                                tocMobile.classList.remove('collapsed');
+                                tocToggle.innerHTML = `<svg width="16" height="16" fill="currentColor" class="bi bi-chevron-up" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"/>
+                                </svg><span class="ms-1">Hide</span>`;
+                            } else {
+                                tocMobile.classList.add('collapsed');
+                                tocToggle.innerHTML = `<svg width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+                                </svg><span class="ms-1">On this page</span>`;
+                            }
+                        });
+                    }
                 } else {
-                    toc.style.display = 'none';
+                    if (toc) toc.style.display = 'none';
+                    if (tocMobile) tocMobile.style.display = 'none';
+                    if (tocToggle) tocToggle.style.display = 'none';
                 }
             }
 
