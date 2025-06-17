@@ -28,7 +28,7 @@ dotnet test --logger trx --results-directory ./artifacts
 # Development mode with live reload for documentation changes
 dotnet run --project ./src/DocsTool/ -- dev -f ./tanka-docs-wip.yml
 
-# Build documentation site
+# Build documentation site (prefer this when testing changes)
 dotnet run --project ./src/DocsTool/ -- build -f ./tanka-docs-wip.yml
 ```
 

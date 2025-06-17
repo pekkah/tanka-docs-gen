@@ -59,6 +59,8 @@ title: "Documentation"
 index_page: xref://index.md
 nav:
 - xref://nav.md
+includes:
+  - "**/*.md"
 ```
 
 ### 4. Write Documentation
@@ -83,7 +85,7 @@ This is your documentation homepage.
 ## Code Examples
 
 ```csharp
-#include::xref://src:Program.cs?s=Main
+\#include::xref://src:Program.cs?s=Main
 ```
 ```
 
@@ -101,7 +103,7 @@ dotnet run --project ./src/DocsTool/ -- build
 
 ```bash
 dotnet tool install --global dotnet-serve
-cd gh-pages
+cd output
 dotnet serve
 ```
 
@@ -111,11 +113,11 @@ Comprehensive documentation is available at: **[https://pekkah.github.io/tanka-d
 
 ### Quick Links
 
-- **[Getting Started Guide](https://pekkah.github.io/tanka-docs-gen/structure/getting-started.html)** - Step-by-step setup instructions
-- **[CLI Reference](https://pekkah.github.io/tanka-docs-gen/structure/cli-reference.html)** - Command line options and usage
-- **[Include Directives](https://pekkah.github.io/tanka-docs-gen/syntax/include.html)** - Embedding code and content
-- **[Cross-References](https://pekkah.github.io/tanka-docs-gen/syntax/xref.html)** - Internal linking system
-- **[Troubleshooting](https://pekkah.github.io/tanka-docs-gen/structure/troubleshooting.html)** - Common issues and solutions
+- **[Getting Started Guide](https://pekkah.github.io/tanka-docs-gen/01-getting-started/)** - Step-by-step setup instructions
+- **[CLI Reference](https://pekkah.github.io/tanka-docs-gen/04-advanced/cli-reference.html)** - Command line options and usage
+- **[Include Directives](https://pekkah.github.io/tanka-docs-gen/03-writing-content/include.html)** - Embedding code and content
+- **[Cross-References](https://pekkah.github.io/tanka-docs-gen/03-writing-content/xref.html)** - Internal linking system
+- **[Troubleshooting](https://pekkah.github.io/tanka-docs-gen/04-advanced/troubleshooting.html)** - Common issues and solutions
 
 ## 🛠️ Command Line Usage
 
@@ -173,13 +175,13 @@ Include entire files or specific symbols:
 ```markdown
 \```csharp
 # Include entire file
-#include::xref://src:Program.cs
+\#include::xref://src:Program.cs
 
 # Include specific method
-#include::xref://src:MyClass.cs?s=MyNamespace.MyClass.MyMethod
+\#include::xref://src:MyClass.cs?s=MyNamespace.MyClass.MyMethod
 
 # Include from another section
-#include::xref://examples:sample.cs
+\#include::xref://examples:sample.cs
 \```
 ```
 
@@ -200,11 +202,11 @@ In Tanka Docs, versioning is managed directly through branches and tags in your 
 ```yaml
 # tanka-docs.yml
 title: "My Project"
-output_path: "gh-pages"
+output_path: "output"
 
 # Build docs from the main branch
 branches:
-  main:
+  HEAD:
     input_path:
       - docs
 
@@ -222,7 +224,7 @@ tags:
 Create custom templates using Handlebars:
 
 ```html
-<!-- ui-bundle/layouts/default.hbs -->
+<!-- ui-bundle/article.hbs -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -251,7 +253,7 @@ Create custom templates using Handlebars:
 |--------|-------------|---------|
 | `title` | Site title | - |
 | `description` | Site description | - |
-| `output_path` | Output directory | `output` |
+| `output_path` | Output directory | `gh-pages` |
 | `build_path` | Build cache directory | System temp directory |
 | `base_path` | Base URL path | `/` |
 | `ui_bundle` | UI template bundle | `default` |

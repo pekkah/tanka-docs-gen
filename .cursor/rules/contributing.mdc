@@ -1,6 +1,6 @@
 ---
-description: When starting a new chat session read this
+description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
-See [CONTRIBUTING.md](mdc:CONTRIBUTING.md)
+See [CLAUDE.md](mdc:CLAUDE.md)
