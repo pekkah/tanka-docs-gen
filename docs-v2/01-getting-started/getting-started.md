@@ -1,36 +1,37 @@
 ---
-title: Getting Started Guide
+title: Quick Start Guide
 ---
 
-# Getting Started with Tanka Docs
+# Quick Start Guide
 
-This guide will walk you through setting up your first Tanka Docs project from scratch. By the end, you'll have a working documentation site that you can build upon.
+This guide will walk you through setting up your first Tanka Docs project from scratch. By the end, you'll have a working documentation site that you can build and preview locally.
 
 ## Prerequisites
 
 - **.NET 9** installed on your system
-- **Git**
+- **Git** (Tanka Docs sources content from Git repositories)
 - **Text editor** or IDE of your choice
 
-## Step 1: Install Tanka Docs
+## Step 1: Clone the Project
 
-Install Tanka Docs as a global .NET tool:
-
-```bash
-dotnet tool install --global Tanka.DocsGen
-```
-
-Verify the installation:
+Tanka Docs is currently distributed as source code. Clone the repository:
 
 ```bash
-tanka-docs --help
+git clone https://github.com/pekkah/tanka-docs-gen.git
+cd tanka-docs-gen
 ```
 
-You should see the help output showing available commands.
+## Step 2: Build the Tool
 
-## Step 2: Create Your Project Structure
+Build the Tanka Docs tool:
 
-Create a new directory for your documentation project and initialize a Git repository:
+```bash
+dotnet build
+```
+
+## Step 3: Create Your Documentation Project
+
+Create a new directory for your documentation project:
 
 ```bash
 mkdir my-docs-project
@@ -38,53 +39,40 @@ cd my-docs-project
 git init -b main
 ```
 
-Set up the basic structure:
+## Step 4: Create the Main Configuration File
 
-```bash
-# Create main documentation section
-mkdir docs
-
-# Create a partials section for shared content
-mkdir _partials
-
-# Create a source directory (optional, for code includes)
-mkdir src
-```
-
-Your project structure should look like this:
-
-```
-my-docs-project/
-├── .git/
-├── docs/
-├── _partials/
-└── src/
-```
-
-## Step 3: Create the Main Configuration File
-
-Create `tanka-docs.yml` in your project root:
+Create `tanka-docs.yml` in your project root. This file defines your site structure and content sources:
 
 ```yaml
+base_path: "/"
 title: "My Documentation Site"
+index_page: xref://docs@HEAD:index.md
 output_path: "gh-pages"
 build_path: "_build"
-base_path: "/"
-index_page: xref://docs@HEAD:index.md
-
-# Content sources
-# In Tanka Docs, content is versioned and sourced directly from Git.
-# The `branches` key tells the tool to look for documentation
-# in the `docs`, `_partials`, and `src` directories in the `HEAD` revision.
 branches:
   HEAD:
     input_path:
       - docs
       - _partials
-      - src
 ```
 
-## Step 4: Configure Your Documentation Section
+**Key Configuration Options:**
+
+- `base_path`: The base URL path for your site (usually "/")
+- `title`: Your site's title
+- `index_page`: The main landing page using xref syntax
+- `output_path`: Where the built site will be generated
+- `build_path`: Temporary build directory
+- `branches`: Git branches/refs to source content from
+- `input_path`: Directories to include from each branch
+
+## Step 5: Create Documentation Sections
+
+Tanka Docs organizes content into sections. Create your main documentation section:
+
+```bash
+mkdir docs
+```
 
 Create `docs/tanka-docs-section.yml`:
 
@@ -98,24 +86,19 @@ includes:
   - "**/*.md"
 ```
 
-## Step 5: Create Your Documentation Content
+**Section Configuration:**
 
-Create your main documentation files:
+- `id`: Unique identifier for the section
+- `title`: Display title for the section
+- `index_page`: Default page for this section
+- `nav`: Navigation file(s) for this section
+- `includes`: File patterns to include in this section
 
-### `docs/nav.md`
+## Step 6: Create Content Files
 
-Create a navigation file for the `docs` section.
+### Main Index Page
 
-```markdown
-*   Getting Started
-    *   [Introduction](xref://index.md)
-    *   [Installation](xref://installation.md)
-    *   [Configuration](xref://configuration.md)
-*   Advanced Topics
-    *   [Customization](xref://customization:customize/article.md)
-```
-
-### `docs/index.md`
+Create `docs/index.md`:
 
 ```markdown
 ---
@@ -124,304 +107,150 @@ title: Welcome to My Documentation
 
 # Welcome to My Documentation
 
-This is the home page of your documentation site. Here you can provide an overview of your project, key features, and guide users to the most important sections.
+This is the home page of your documentation site. 
 
 ## Quick Navigation
 
-- [Installation Guide](xref://installation.md) - Get up and running quickly
-- [Configuration](xref://configuration.md) - Learn how to configure the system
-- [Advanced Topics](xref://customization:customize/article.md) - Deep dive into advanced features
+- [Installation](xref://installation.md) - Get up and running quickly
+- [Configuration](xref://configuration.md) - Learn how to configure your project
+- [Advanced Topics](xref://advanced.md) - Deep dive into advanced features
 
-## What's New
+## Getting Started
 
-- Version 2.0 released with new features
-- Updated installation process
-- Improved configuration options
+Follow our [installation guide](xref://installation.md) to begin using the system.
 
-## Getting Help
+## Need Help?
 
-If you need help, check out our [troubleshooting guide](xref://advanced:troubleshooting.md) or contact support.
+Check out our documentation sections for detailed information on specific topics.
 ```
 
-### `docs/installation.md`
+### Navigation File
+
+Create `docs/nav.md`:
+
+```markdown
+* Documentation
+  * [Welcome](xref://index.md)
+  * [Installation](xref://installation.md)
+  * [Configuration](xref://configuration.md)
+  * [Advanced Topics](xref://advanced.md)
+```
+
+### Content Pages
+
+Create `docs/installation.md`:
 
 ```markdown
 ---
-title: Installation Guide
+title: Installation
 ---
 
-# Installation Guide
+# Installation
 
-This guide covers the installation process for our software.
+This guide covers installing and setting up the system.
 
 ## System Requirements
 
-- Operating System: Windows 10+, macOS 10.15+, or Linux
-- Memory: 4GB RAM minimum, 8GB recommended
-- Disk Space: 500MB available space
+- .NET 9 or later
+- Git
+- 4GB RAM minimum
 
 ## Installation Steps
 
-### Option 1: Package Manager (Recommended)
-
-```bash
-# Install using package manager
-npm install -g my-package
-```
-
-### Option 2: Manual Installation
-
-1.  Download the latest release from our [releases page](https://github.com/myuser/myproject/releases)
-2.  Extract the archive to your desired location
-3.  Add the installation directory to your PATH
+1. Download the latest release
+2. Extract to your desired location
+3. Run the setup script
 
 ## Verification
 
-After installation, verify everything is working:
+Verify the installation:
 
 ```bash
-my-command --version
+your-command --version
 ```
-
-You should see the version number displayed.
 
 ## Next Steps
 
 - [Configure your installation](xref://configuration.md)
-- [Learn about advanced features](xref://customization:customize/article.md)
+- [Learn about advanced features](xref://advanced.md)
 ```
 
-### `docs/configuration.md`
+Create additional pages (`docs/configuration.md`, `docs/advanced.md`) following the same pattern.
 
-```markdown
----
-title: Configuration Guide
----
+## Step 7: Add Shared Content (Optional)
 
-# Configuration Guide
-
-Learn how to configure the system to meet your needs.
-
-## Configuration File
-
-The main configuration is stored in `config.yml`:
-
-```yaml
-# Example configuration
-app:
-  name: "My Application"
-  version: "1.0.0"
-
-database:
-  host: "localhost"
-  port: 5432
-  name: "myapp"
-
-logging:
-  level: "info"
-  file: "app.log"
-```
-
-## Configuration Options
-
-### Application Settings
-
-| Setting     | Description         | Default    |
-| ----------- | ------------------- | ---------- |
-| `app.name`  | Application name    | "My App"   |
-| `app.version` | Application version | "1.0.0"    |
-| `app.debug` | Enable debug mode   | `false`    |
-
-### Database Settings
-
-Configure your database connection:
-
--   **host**: Database server hostname
--   **port**: Database server port
--   **name**: Database name
--   **username**: Database username (optional)
--   **password**: Database password (optional)
-
-## Environment Variables
-
-You can override configuration using environment variables:
+Create a partials section for shared content:
 
 ```bash
-export APP_NAME="My Custom App"
-export DATABASE_HOST="production-db.example.com"
+mkdir _partials
 ```
-
-## Validation
-
-Validate your configuration:
-
-```bash
-my-command config validate
-```
-
-```
-
-### Create Advanced Section
-
-Create the advanced directory and content:
-
-```bash
-mkdir docs/advanced
-```
-
-Create `docs/advanced/customization.md`:
-
-```markdown
----
-title: Customization Guide
----
-
-# Customization Guide
-
-Learn how to customize and extend the system.
-
-## Custom Themes
-
-You can create custom themes by modifying the CSS and templates.
-
-### CSS Customization
-
-Create a custom CSS file:
-
-```css
-/* custom.css */
-:root {
-  --primary-color: #007acc;
-  --secondary-color: #ff6b35;
-}
-
-.header {
-  background-color: var(--primary-color);
-}
-```
-
-### Template Customization
-
-Override default templates by creating files in the `templates/` directory:
-
-```html
-<!-- templates/page.html -->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{title}}</title>
-</head>
-<body>
-    <header>{{site.title}}</header>
-    <main>{{content}}</main>
-</body>
-</html>
-```
-
-## Plugins
-
-Extend functionality with plugins:
-
-```javascript
-// plugins/my-plugin.js
-module.exports = {
-  name: 'my-plugin',
-
-  init: function(app) {
-    // Plugin initialization
-  }
-};
-```
-
-## API Extensions
-
-Create custom API endpoints:
-
-```javascript
-// api/custom-endpoint.js
-app.get('/api/custom', (req, res) => {
-  res.json({ message: 'Custom endpoint' });
-});
-```
-
-## Step 6: Configure Partials Section
 
 Create `_partials/tanka-docs-section.yml`:
 
 ```yaml
 id: "partials"
 title: "Shared Content"
-type: "partials"
+includes:
+  - "**/*.md"
 ```
 
 Create `_partials/common-notice.md`:
 
 ```markdown
-> **Important:** This is a shared notice that can be included in multiple pages using the include syntax.
+> **Note:** This is shared content that can be included in multiple pages using the include syntax.
 ```
 
-## Step 7: Commit and Build Your Documentation
+## Step 8: Commit Your Content
 
-Commit your changes to Git so Tanka Docs can source the content from `HEAD`.
+Tanka Docs sources content from Git, so commit your changes:
 
 ```bash
 git add .
 git commit -m "Initial documentation setup"
 ```
 
-Now build your documentation site:
+## Step 9: Build Your Documentation
+
+Build your documentation site using the Tanka Docs tool:
 
 ```bash
-tanka-docs build
+# From the tanka-docs-gen project directory
+dotnet run --project src/DocsTool -- build -f /path/to/your/project/tanka-docs.yml
 ```
 
-If everything is configured correctly, you should see output similar to:
+If successful, you'll see output similar to:
 
 ```
 Tanka Docs
 Initializing...
-CurrentPath: /path/to/my-docs-project
-ConfigFilePath: /path/to/my-docs-project/tanka-docs.yml
+CurrentPath: /path/to/your/project
+ConfigFilePath: /path/to/your/project/tanka-docs.yml
 OutputPath: gh-pages
 BuildPath: _build
 ```
 
-## Step 8: View Your Documentation
+## Step 10: Preview Your Documentation
 
-Your generated documentation will be in the `gh-pages` directory. To view it locally:
-
-### Option 1: Using dotnet-serve
+Use the development server for live preview:
 
 ```bash
-# Install dotnet-serve if you haven't already
-dotnet tool install --global dotnet-serve
-
-# Serve your documentation
-cd gh-pages
-dotnet serve
+# From the tanka-docs-gen project directory
+dotnet run --project src/DocsTool -- dev --port 8080 -f /path/to/your/project/tanka-docs.yml
 ```
 
-### Option 2: Using Python
+This will:
+- Build your documentation
+- Start a web server on the specified port
+- Watch for file changes and rebuild automatically
+- Provide live reload in the browser
 
-```bash
-cd gh-pages
-python -m http.server 8000
-```
+Open your browser and navigate to `http://localhost:8080` to view your documentation.
 
-### Option 3: Using Node.js
+## Step 11: Add a `.gitignore`
 
-```bash
-cd gh-pages
-npx http-server
-```
+Create a `.gitignore` file in your project:
 
-Open your browser and navigate to `http://localhost:8080` (or the port shown in the output).
-
-## Step 9: Add a `.gitignore`
-
-Add a `.gitignore` file to keep your repository clean:
-
-```
+```gitignore
 # Tanka Docs build artifacts
 _build/
 gh-pages/
@@ -431,15 +260,41 @@ gh-pages/
 Thumbs.db
 ```
 
-## What's Next?
+## Advanced Features
 
-Now that you have a basic documentation site running, you can:
+### Including Source Code
 
-1.  **Add more content** - Create additional pages and sections
-2.  **Use includes** - Include code snippets from your source files using `\#include::` syntax
-3.  **Customize the UI** - Create a custom UI bundle for your site's appearance
-4.  **Set up versioning** - Configure Git branches and tags for documentation versions
-5.  **Deploy your site** - Set up continuous deployment to host your documentation
+Include code snippets from your source files:
+
+```markdown
+#include::src/example.cs
+```
+
+### Cross-References
+
+Link between pages and sections:
+
+```markdown
+- [Configuration Guide](xref://configuration.md)
+- [Advanced Section](xref://advanced-section:some-page.md)
+```
+
+### Versioning
+
+Configure multiple versions using Git branches and tags:
+
+```yaml
+branches:
+  main:
+    input_path: [docs]
+  develop:
+    input_path: [docs]
+tags:
+  "v1.*":
+    input_path: [docs]
+  "v2.*":
+    input_path: [docs]
+```
 
 ## Troubleshooting
 
@@ -449,21 +304,35 @@ Now that you have a basic documentation site running, you can:
 - Ensure `tanka-docs.yml` exists in your project root
 - Check YAML syntax is valid
 
-**Pages not appearing in navigation:**
-- Verify file names in `tanka-docs-section.yml` match actual files
-- Check that referenced files exist
+**Pages not appearing:**
+- Verify `nav.md` references match actual file names
+- Check that `tanka-docs-section.yml` includes patterns match your files
+- Ensure content is committed to Git
 
-**Includes not working:**
-- Ensure `\#include::` syntax is correct
-- Verify referenced files exist
-- Use `--debug` flag to see detailed processing
+**Cross-references not working:**
+- Use the correct xref syntax: `xref://section:file.md` or `xref://file.md`
+- Verify target files exist in the referenced sections
+
+### Getting Detailed Information
+
+Use the `--debug` flag for verbose output:
+
+```bash
+dotnet run --project src/DocsTool -- build --debug -f tanka-docs.yml
+```
 
 ### Getting Help
 
-- Check the [File System Structure](xref://project-structure:file-system.md) guide
 - Review the [Configuration Reference](xref://project-structure:tanka-docs-yml.md)
-- Use `tanka-docs build --debug` for detailed error information
+- Check the [File System Structure](xref://project-structure:file-system.md) guide
+- Examine the [Tanka Docs repository](https://github.com/pekkah/tanka-docs-gen) for examples
 
-## Example Project
+## What's Next?
 
-You can find a complete example project in the [Tanka Docs repository](https://github.com/pekkah/tanka-docs-gen) that demonstrates these concepts in action. 
+Now that you have a basic documentation site:
+
+1. **Add more content** - Create additional pages and sections
+2. **Customize the UI** - Create a custom UI bundle with Handlebars templates
+3. **Set up versioning** - Configure multiple Git branches/tags for different versions
+4. **Automate builds** - Set up CI/CD to automatically build and deploy your documentation
+5. **Learn advanced syntax** - Use includes, cross-references, and other advanced features 
