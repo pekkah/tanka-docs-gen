@@ -4,20 +4,34 @@ title: Command Line Interface Reference
 
 # Command Line Interface Reference
 
-Tanka Docs provides a command-line interface (CLI) that allows you to build and manage your documentation projects. The tool is distributed as a .NET Global Tool and can be invoked using the `tanka-docs` command.
+Tanka Docs provides a command-line interface (CLI) that allows you to build and manage your documentation projects. The tool can be run directly from source or installed as a local .NET Global Tool.
 
 ## Installation
 
-First, install the tool globally:
+**Note:** Tanka.DocsGen is currently distributed as source code. To install:
 
 ```bash
-dotnet tool install --global Tanka.DocsGen
+# Clone the repository
+git clone https://github.com/pekkah/tanka-docs-gen.git
+cd tanka-docs-gen
+
+# Build the tool
+dotnet build
+
+# Install as global tool (optional)
+dotnet pack -c Release -o ./artifacts
+dotnet tool install --global --add-source ./artifacts Tanka.DocsGen
 ```
 
 To update to the latest version:
 
 ```bash
-dotnet tool update --global Tanka.DocsGen
+# Pull latest changes and rebuild
+git pull
+dotnet build
+
+# Update global tool (if installed)
+dotnet tool update --global --add-source ./artifacts Tanka.DocsGen
 ```
 
 ## Commands
@@ -93,9 +107,11 @@ tanka-docs dev -f ./custom-config.yml
 ```
 
 **Features:**
-- Live reload when files change
-- Development server with hot refresh
-- Preview mode for draft content
+- **Live reload**: WebSocket-based automatic browser refresh when files change
+- **File watching**: Monitors all input directories and configuration files
+- **Development server**: Built-in HTTP server for preview
+- **Concurrent build protection**: Prevents multiple builds from running simultaneously
+- **Real-time feedback**: Shows build status and errors in the console
 
 ## Configuration File Resolution
 
