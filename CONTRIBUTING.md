@@ -4,6 +4,16 @@ First off, thank you for considering contributing! This project is a tool for cr
 
 This document serves as a guide for developers, including LLMs, who are working on this project.
 
+## Before You Start
+
+**IMPORTANT**: Before beginning any development work, please review `/PLANNING.md` to understand:
+- Current roadmap and planned features
+- Feature priorities and target versions  
+- Implementation plans for upcoming work
+- Status of ongoing development efforts
+
+This ensures your contributions align with the project roadmap and avoids duplicating planned efforts.
+
 ## How to Contribute
 
 The best way to contribute is by creating pull requests. Whether you're fixing a bug, adding a new feature, or improving documentation, we welcome your contributions.

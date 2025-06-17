@@ -4,3 +4,11 @@ globs:
 alwaysApply: true
 ---
 See [CLAUDE.md](mdc:CLAUDE.md)
+
+**IMPORTANT**: Before beginning any development work, please review [PLANNING.md](mdc:PLANNING.md) to understand:
+- Current roadmap and planned features
+- Feature priorities and target versions  
+- Implementation plans for upcoming work
+- Status of ongoing development efforts
+
+This ensures your contributions align with the project roadmap and avoids duplicating planned efforts.
