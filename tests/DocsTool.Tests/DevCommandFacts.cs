@@ -58,9 +58,10 @@ public class DevCommandFacts
         var tempFile = Path.GetTempFileName();
         var changeDetected = new TaskCompletionSource<bool>();
         var watcher = new FileWatcher();
-        watcher.Start(new[] { tempFile }, async (change) =>
+        watcher.Start(new[] { tempFile }, (change) =>
         {
             changeDetected.TrySetResult(true);
+            return Task.CompletedTask;
         });
 
         try

@@ -54,17 +54,18 @@ namespace Tanka.DocsTool.Tests.Pipelines
         private readonly SiteDefinition _site;
         private readonly IAnsiConsole _console;
 
-        [Fact(Skip = "Remove dep to folder")]
+        [Fact]
         public Task Build_site()
         {
             return _console.Progress()
                    .StartAsync(async progress =>
                    {
-
                        /* Given */
                        var collector = new SectionCollector(_console);
-                       await _catalog.Add(_aggregator.Aggregate(progress, CancellationToken.None));
-                       await collector.Collect(_catalog, progress);
+                       var root = GetRepoRootWithoutDotGit();
+                       var buildContext = new BuildContext(_site, root);
+                       await _catalog.Add(_aggregator.Aggregate(buildContext, progress, CancellationToken.None));
+                       await collector.Collect(_catalog, progress, buildContext);
 
                        var sut = new SiteBuilder(_site);
 
@@ -75,7 +76,6 @@ namespace Tanka.DocsTool.Tests.Pipelines
                        /* Then */
                        Assert.NotEmpty(site.Versions);
                    });
-
         }
 
         private static string GetRepoRootWithoutDotGit()

@@ -54,17 +54,19 @@ namespace Tanka.DocsTool.Tests.Pipelines
         private readonly ContentAggregator _aggregator;
 
 
-        [Fact(Skip ="Remove dep to folder")]
+        [Fact]
         public Task From_root_of_the_path()
         {
             return  _console.Progress()
-                .StartAsync(async progress => {             
+                .StartAsync(async progress => {
                     /* Given */
                     var collector = new SectionCollector(_console, true);
-                    await _catalog.Add(_aggregator.Aggregate(progress, CancellationToken.None));
+                    var root = GetRepoRootWithoutDotGit();
+                    var buildContext = new BuildContext(new SiteDefinition(), root);
+                    await _catalog.Add(_aggregator.Aggregate(buildContext, progress, CancellationToken.None));
 
                     /* When */
-                    await collector.Collect(_catalog, progress);
+                    await collector.Collect(_catalog, progress, buildContext);
 
                     /* Then */
                     Assert.Single(collector.Sections, section => section.Id == "root");
@@ -72,7 +74,7 @@ namespace Tanka.DocsTool.Tests.Pipelines
 
         }
 
-        [Fact(Skip = "Remove dep to folder")]
+        [Fact]
         public Task From_subpath_of_the_root_path()
         {
             return _console.Progress()
@@ -80,10 +82,12 @@ namespace Tanka.DocsTool.Tests.Pipelines
                 {
                     /* Given */
                     var collector = new SectionCollector(_console);
-                    await _catalog.Add(_aggregator.Aggregate(progress, CancellationToken.None));
+                    var root = GetRepoRootWithoutDotGit();
+                    var buildContext = new BuildContext(new SiteDefinition(), root);
+                    await _catalog.Add(_aggregator.Aggregate(buildContext, progress, CancellationToken.None));
 
                     /* When */
-                    await collector.Collect(_catalog, progress);
+                    await collector.Collect(_catalog, progress, buildContext);
 
                     /* Then */
                     Assert.Single(collector.Sections, section => section.Id == "structure");

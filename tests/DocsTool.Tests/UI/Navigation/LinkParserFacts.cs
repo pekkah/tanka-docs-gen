@@ -106,11 +106,12 @@ namespace Tanka.DocsTool.Tests.Navigation
             /* Then */
             Assert.True(definition.IsXref);
             Assert.False(definition.IsExternal);
-            Assert.Equal("link.md", definition.Xref?.Path);
-            Assert.Equal("section", definition.Xref?.SectionId);
-            Assert.Equal("release/1.0.0", definition.Xref?.Version);
-            Assert.Single(definition.Xref?.Query, kv => kv.Key == "a" && kv.Value == "1");
-            Assert.Equal(1, definition.Xref?.Query.Count);
+            Assert.NotNull(definition.Xref);
+            Assert.Equal("link.md", definition.Xref.Value.Path);
+            Assert.Equal("section", definition.Xref.Value.SectionId);
+            Assert.Equal("release/1.0.0", definition.Xref.Value.Version);
+            Assert.NotNull(definition.Xref.Value.Query);
+            Assert.Single(definition.Xref.Value.Query, kv => kv.Key == "a" && kv.Value == "1");
         }
 
         [Fact]
@@ -125,11 +126,12 @@ namespace Tanka.DocsTool.Tests.Navigation
             /* Then */
             Assert.True(definition.IsXref);
             Assert.False(definition.IsExternal);
-            Assert.Equal("link.md", definition.Xref?.Path);
-            Assert.Equal("section", definition.Xref?.SectionId);
-            Assert.Equal("release/1.0.0", definition.Xref?.Version);
-            Assert.Single(definition.Xref?.Query, kv => kv.Key == "abc" && kv.Value == "123_321");
-            Assert.Equal(1, definition.Xref?.Query.Count);
+            Assert.NotNull(definition.Xref);
+            Assert.Equal("link.md", definition.Xref.Value.Path);
+            Assert.Equal("section", definition.Xref.Value.SectionId);
+            Assert.Equal("release/1.0.0", definition.Xref.Value.Version);
+            Assert.NotNull(definition.Xref.Value.Query);
+            Assert.Single(definition.Xref.Value.Query, kv => kv.Key == "abc" && kv.Value == "123_321");
         }
 
         [Fact]
@@ -144,11 +146,12 @@ namespace Tanka.DocsTool.Tests.Navigation
             /* Then */
             Assert.True(definition.IsXref);
             Assert.False(definition.IsExternal);
-            Assert.Equal("link.md", definition.Xref?.Path);
-            Assert.Equal("section", definition.Xref?.SectionId);
-            Assert.Equal("release/1.0.0", definition.Xref?.Version);
-            Assert.Single(definition.Xref?.Query, kv => kv.Key == "abc" && kv.Value == "123_321");
-            Assert.Equal(1, definition.Xref?.Query.Count);
+            Assert.NotNull(definition.Xref);
+            Assert.Equal("link.md", definition.Xref.Value.Path);
+            Assert.Equal("section", definition.Xref.Value.SectionId);
+            Assert.Equal("release/1.0.0", definition.Xref.Value.Version);
+            Assert.NotNull(definition.Xref.Value.Query);
+            Assert.Single(definition.Xref.Value.Query, kv => kv.Key == "abc" && kv.Value == "123_321");
         }
     }
 }

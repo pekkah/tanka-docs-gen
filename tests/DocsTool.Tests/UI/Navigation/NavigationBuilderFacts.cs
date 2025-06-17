@@ -27,17 +27,17 @@ namespace Tanka.DocsTool.Tests.UI.Navigation
             source.Path.Returns(new FileSystemPath(""));
 
             var section = new Section(new ContentItem(
-                    source, null ,null),
+                    source, "tanka/section" , Substitute.For<IReadOnlyFile>()),
                 new SectionDefinition()
                 {
                     Id = "sectionId"
                 }, new Dictionary<FileSystemPath, ContentItem>()
                 {
-                    ["1-example.md"] = new ContentItem(source, null, null),
-                    ["1-Subsection/1-first.md"] = new ContentItem(source, null, null),
-                    ["1-Subsection/SubSubSection/1-first.md"] = new ContentItem(source, null, null),
-                    ["1-Subsection/SubSubSection/1-second.md"] = new ContentItem(source, null, null),
-                    ["1-Subsection/1-second.md"] = new ContentItem(source, null, null)
+                    ["1-example.md"] = new ContentItem(source, "text/markdown", Substitute.For<IReadOnlyFile>()),
+                    ["1-Subsection/1-first.md"] = new ContentItem(source, "text/markdown", Substitute.For<IReadOnlyFile>()),
+                    ["1-Subsection/SubSubSection/1-first.md"] = new ContentItem(source, "text/markdown", Substitute.For<IReadOnlyFile>()),
+                    ["1-Subsection/SubSubSection/1-second.md"] = new ContentItem(source, "text/markdown", Substitute.For<IReadOnlyFile>()),
+                    ["1-Subsection/1-second.md"] = new ContentItem(source, "text/markdown", Substitute.For<IReadOnlyFile>())
                 });
 
             var site = new Site(
@@ -53,7 +53,7 @@ namespace Tanka.DocsTool.Tests.UI.Navigation
             _mdService = new DocsMarkdownService(
                 new DocsMarkdownRenderingContext(site, section, _router));
 
-            _sut = new NavigationBuilder(_mdService, null);
+            _sut = new NavigationBuilder(_mdService, _router);
         }
 
         [Fact]
