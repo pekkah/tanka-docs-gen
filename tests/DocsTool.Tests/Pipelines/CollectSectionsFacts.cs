@@ -90,7 +90,7 @@ namespace Tanka.DocsTool.Tests.Pipelines
                     await collector.Collect(_catalog, progress, buildContext);
 
                     /* Then */
-                    Assert.Single(collector.Sections, section => section.Id == "structure");
+                    Assert.Single(collector.Sections, section => section.Id == "project-structure");
                 });
         }
 
