@@ -18,8 +18,19 @@ Tanka Docs is a powerful technical documentation generator designed for .NET pro
 
 ### 1. Install
 
+**Note:** Tanka.DocsGen is currently distributed as source code. To install:
+
 ```bash
-dotnet tool install --global Tanka.DocsGen
+# Clone the repository
+git clone https://github.com/pekkah/tanka-docs-gen.git
+cd tanka-docs-gen
+
+# Build the tool
+dotnet build
+
+# Install as global tool (optional)
+dotnet pack -c Release -o ./artifacts
+dotnet tool install --global --add-source ./artifacts Tanka.DocsGen
 ```
 
 ### 2. Create Configuration
@@ -28,7 +39,7 @@ Add `tanka-docs.yml` to your project root:
 
 ```yaml
 title: "My Documentation Site"
-output_path: "gh-pages"
+output_path: "output"  # Default output directory
 build_path: "_build"
 index_page: xref://docs@HEAD:index.md
 branches:
@@ -79,7 +90,11 @@ This is your documentation homepage.
 ### 5. Build
 
 ```bash
+# If installed as global tool:
 tanka-docs build
+
+# Or run directly from source:
+dotnet run --project ./src/DocsTool/ -- build
 ```
 
 ### 6. Serve Locally
@@ -126,8 +141,11 @@ tanka-docs build --base "/my-docs/"
 ### Development Mode
 
 ```bash
-# Development server (work in progress)
+# Development server with live reload
 tanka-docs dev
+
+# Custom port and configuration
+tanka-docs dev --port 8080 -f custom-config.yml
 ```
 
 ## 📁 Project Structure
@@ -233,14 +251,14 @@ Create custom templates using Handlebars:
 |--------|-------------|---------|
 | `title` | Site title | - |
 | `description` | Site description | - |
-| `output_path` | Output directory | `gh-pages` |
-| `build_path` | Build cache directory | `_build` |
+| `output_path` | Output directory | `output` |
+| `build_path` | Build cache directory | System temp directory |
 | `base_path` | Base URL path | `/` |
 | `ui_bundle` | UI template bundle | `default` |
 
 ## 📋 Requirements
 
-- **.NET 6+** - Required for running the tool
+- **.NET 9+** - Required for running the tool
 - **Git** - Optional, for version control and Git sources
 - **Text Editor** - Any editor that supports Markdown
 
@@ -266,9 +284,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📈 Roadmap
 
-- [ ] Development server with live reload
+- [x] Development server with live reload ✅ **Available** - Use `tanka-docs dev` command
 - [ ] Plugin system for extensions
 - [ ] Additional source types (GitHub, GitLab)
 - [ ] Enhanced theme customization
 - [ ] Performance optimizations
 - [ ] Multi-language support
+- [ ] Global tool publication on NuGet

@@ -47,8 +47,8 @@ Create `tanka-docs.yml` in your project root. This file defines your site struct
 base_path: "/"
 title: "My Documentation Site"
 index_page: xref://docs@HEAD:index.md
-output_path: "gh-pages"
-build_path: "_build"
+output_path: "output"  # Default output directory
+build_path: "_build"   # Custom build directory (default uses system temp)
 branches:
   HEAD:
     input_path:
