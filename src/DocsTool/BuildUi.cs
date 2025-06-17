@@ -1,4 +1,5 @@
-﻿using Tanka.DocsTool.UI;
+﻿using Tanka.DocsTool.Pipelines;
+using Tanka.DocsTool.UI;
 
 internal class BuildUi : IMiddleware
 {
@@ -13,20 +14,28 @@ internal class BuildUi : IMiddleware
 
     public async Task Invoke(PipelineStep next, BuildContext context)
     {
-        await _console.Progress()
-              .Columns(
-                new TaskDescriptionColumn(),
-                new ProgressBarColumn(),
-                new ItemCountColumn(),
-                new ElapsedTimeColumn(),
-                new RemainingTimeColumn(),
-                new SpinnerColumn()
-            )
-            .StartAsync(async progress =>
-            {
-                var ui = new UiBuilder(context.PageCache, context.OutputFs, _console);
-                await ui.BuildSite(context.Site ?? throw new InvalidOperationException(), progress);
-            });
+        try
+        {
+            await _console.Progress()
+                  .Columns(
+                    new TaskDescriptionColumn(),
+                    new ProgressBarColumn(),
+                    new ItemCountColumn(),
+                    new ElapsedTimeColumn(),
+                    new RemainingTimeColumn(),
+                    new SpinnerColumn()
+                )
+                .StartAsync(async progress =>
+                {
+                    var ui = new UiBuilder(context.PageCache, context.OutputFs, _console);
+                    await ui.BuildSite(context.Site ?? throw new InvalidOperationException(), progress, context);
+                });
+        }
+        catch (Exception ex)
+        {
+            context.Add(new Error($"UI build failed: {ex.Message}"));
+            _console.MarkupLine($"[red]UI build error:[/] {ex.Message}");
+        }
          
         await next(context);
     }

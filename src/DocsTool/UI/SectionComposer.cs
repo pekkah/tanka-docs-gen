@@ -35,16 +35,23 @@ namespace Tanka.DocsTool.UI
             _logger = Infra.LoggerFactory.CreateLogger<SectionComposer>();
         }
 
-        public async Task ComposeSection(Section section)
+        public async Task ComposeSection(Section section, BuildContext buildContext)
         {
-            var preprocessorPipe = BuildPreProcessors(section);
-            var router = new DocsSiteRouter(_site, section);
-            var renderer = await BuildMarkdownService(section, router);
+            try
+            {
+                var preprocessorPipe = BuildPreProcessors(section);
+                var router = new DocsSiteRouter(_site, section);
+                var renderer = await BuildMarkdownService(section, router);
 
-            var menu = await ComposeMenu(section);
-            
-            await ComposeAssets(section, router);
-            await ComposePages(section, menu, router, renderer, preprocessorPipe);
+                var menu = await ComposeMenu(section, buildContext);
+                
+                await ComposeAssets(section, router, buildContext);
+                await ComposePages(section, menu, router, renderer, preprocessorPipe, buildContext);
+            }
+            catch (Exception ex)
+            {
+                buildContext.Add(new Error($"Failed to compose section '{section}': {ex.Message}"));
+            }
         }
 
         private Func<FileSystemPath, PipeReader, Task<PipeReader>> BuildPreProcessors(Section section)
@@ -64,25 +71,36 @@ namespace Tanka.DocsTool.UI
             return Task.FromResult(new DocsMarkdownService(builder));
         }
 
-        private async Task ComposeAssets(Section section, DocsSiteRouter router)
+        private async Task ComposeAssets(Section section, DocsSiteRouter router, BuildContext buildContext)
         {
             // compose assets from sections
             foreach (var (relativePath, assetItem) in section.ContentItems.Where(ci => IsAsset(ci.Key, ci.Value)))
             {
-                // open file streams
-                await using var inputStream = await assetItem.File.OpenRead();
+                try
+                {
+                    // open file streams
+                    await using var inputStream = await assetItem.File.OpenRead();
 
-                // create output dir for page
-                FileSystemPath outputPath = router.GenerateRoute(new Xref(assetItem.Version, section.Id, relativePath))
-                    ?? throw new InvalidOperationException($"Could not generate output path for '{outputPath}'.");
+                    // create output dir for page
+                    var outputPath = router.GenerateRoute(new Xref(assetItem.Version, section.Id, relativePath));
+                    if (outputPath == null)
+                    {
+                        buildContext.Add(new Error($"Could not generate output path for asset '{relativePath}'.", assetItem));
+                        continue;
+                    }
 
-                await _output.GetOrCreateDirectory(outputPath.GetDirectoryPath());
+                    await _output.GetOrCreateDirectory(Path.GetDirectoryName(outputPath));
 
-                // create output file
-                var outputFile = await _output.GetOrCreateFile(outputPath);
-                await using var outputStream = await outputFile.OpenWrite();
+                    // create output file
+                    var outputFile = await _output.GetOrCreateFile(outputPath);
+                    await using var outputStream = await outputFile.OpenWrite();
 
-                await inputStream.CopyToAsync(outputStream);
+                    await inputStream.CopyToAsync(outputStream);
+                }
+                catch (Exception ex)
+                {
+                    buildContext.Add(new Error($"Failed to compose asset '{relativePath}': {ex.Message}", assetItem));
+                }
             }
         }
 
@@ -112,7 +130,8 @@ namespace Tanka.DocsTool.UI
             IReadOnlyCollection<NavigationItem> menu,
             DocsSiteRouter router,
             DocsMarkdownService renderer, 
-            Func<FileSystemPath, PipeReader, Task<PipeReader>> preprocessorPipe)
+            Func<FileSystemPath, PipeReader, Task<PipeReader>> preprocessorPipe,
+            BuildContext buildContext)
         {
             var pageComposer = new PageComposer(_site, section, _cache, _output, _uiBundle, renderer);
 
@@ -127,7 +146,10 @@ namespace Tanka.DocsTool.UI
                     }
                     catch (Exception e)
                     {
-                        throw new InvalidOperationException($"Failed to compose page '{pageItem.Key}'.", e);
+                        lock (buildContext)
+                        {
+                            buildContext.Add(new Error($"Failed to compose page '{pageItem.Key}': {e.Message}", pageItem.Value));
+                        }
                     }
                 }));
             }
@@ -149,11 +171,15 @@ namespace Tanka.DocsTool.UI
                     }
                     catch (Exception e)
                     {
-                        throw new InvalidOperationException($"Failed to compose redirect page 'index.html'.", e);
+                        lock (buildContext)
+                        {
+                            buildContext.Add(new Error($"Failed to compose redirect page 'index.html': {e.Message}"));
+                        }
                     }
                 }));
             }
 
+            // Wait for all tasks to complete, regardless of whether some fail
             await Task.WhenAll(tasks);
         }
 
@@ -162,42 +188,58 @@ namespace Tanka.DocsTool.UI
             return relativePath.GetExtension() == ".md" && relativePath.GetFileName() != "nav.md";
         }
 
-        private async Task<IReadOnlyCollection<NavigationItem>> ComposeMenu(Section section)
+        private async Task<IReadOnlyCollection<NavigationItem>> ComposeMenu(Section section, BuildContext buildContext)
         {
             var items = new List<NavigationItem>();
 
             foreach (var naviFileLink in section.Definition.Nav)
             {
-                if (naviFileLink.Xref == null)
-                    throw new NotSupportedException("External navigation file links are not supported");
-
-                var xref = naviFileLink.Xref.Value;
-
-                var targetSection = _site.GetSectionByXref(xref, section);
-
-                if (targetSection == null)
-                    throw new InvalidOperationException($"Invalid navigation file link {naviFileLink}. Section not found.");
-
-                var navigationFileItem = targetSection.GetContentItem(xref.Path);
-
-                if (navigationFileItem == null)
-                    throw new InvalidOperationException($"Invalid navigation file link {naviFileLink}. Path not found.");
-
-                await using var fileStream = await navigationFileItem.File.OpenRead();
-                using var reader = new StreamReader(fileStream);
-                var text = await reader.ReadToEndAsync();
-
-                // override context so each navigation file is rendered in the context of the owning section
-                var router = new DocsSiteRouter(_site, targetSection);
-                var renderer = new DocsMarkdownService(new DocsMarkdownRenderingContext(_site, targetSection, router));
-                var builder = new NavigationBuilder(renderer, router);
-                var fileItems = builder.Add(new string[]
+                try
+                {
+                    if (naviFileLink.Xref == null)
                     {
-                        text
-                    })
-                    .Build();
+                        buildContext.Add(new Error("External navigation file links are not supported"));
+                        continue;
+                    }
 
-                items.AddRange(fileItems);
+                    var xref = naviFileLink.Xref.Value;
+
+                    var targetSection = _site.GetSectionByXref(xref, section);
+
+                    if (targetSection == null)
+                    {
+                        buildContext.Add(new Error($"Invalid navigation file link {naviFileLink}. Section not found."));
+                        continue;
+                    }
+
+                    var navigationFileItem = targetSection.GetContentItem(xref.Path);
+
+                    if (navigationFileItem == null)
+                    {
+                        buildContext.Add(new Error($"Invalid navigation file link {naviFileLink}. Path not found.", navigationFileItem));
+                        continue;
+                    }
+
+                    await using var fileStream = await navigationFileItem.File.OpenRead();
+                    using var reader = new StreamReader(fileStream);
+                    var text = await reader.ReadToEndAsync();
+
+                    // override context so each navigation file is rendered in the context of the owning section
+                    var router = new DocsSiteRouter(_site, targetSection);
+                    var renderer = new DocsMarkdownService(new DocsMarkdownRenderingContext(_site, targetSection, router));
+                    var builder = new NavigationBuilder(renderer, router);
+                    var fileItems = builder.Add(new string[]
+                        {
+                            text
+                        })
+                        .Build();
+
+                    items.AddRange(fileItems);
+                }
+                catch (Exception ex)
+                {
+                    buildContext.Add(new Error($"Failed to compose navigation for '{naviFileLink}': {ex.Message}"));
+                }
             }
 
             return items;
