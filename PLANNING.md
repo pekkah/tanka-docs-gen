@@ -59,15 +59,18 @@ tanka-docs init [options]
 - `--ui-bundle-only`: Only extract UI bundle, skip config creation
 - `--config-only`: Only create config files, skip UI bundle
 - `--no-wip`: Skip creating `tanka-docs-wip.yml` (create only main config)
+- `--branch <name>`: Specify default branch name (default: auto-detect from git)
 - `--output-dir <path>`: Specify output directory (default: current directory)
+- `--quiet` / `-q`: Skip post-creation configuration guidance (for automation)
 
 *2.3 Command Behavior*
 
 **Default Behavior (`tanka-docs init`)**:
-1. Check if `tanka-docs.yml` exists
-2. Check if `tanka-docs-wip.yml` exists  
-3. Check if `ui-bundle/` directory exists
-4. Create missing components with user confirmation
+1. Validate current directory is a Git repository (required)
+2. Check if `tanka-docs.yml` exists
+3. Check if `tanka-docs-wip.yml` exists  
+4. Check if `ui-bundle/` directory exists
+5. Create missing components with user confirmation
 
 **Conflict Resolution**:
 - Existing `tanka-docs.yml`: Prompt user or skip (unless `--force`)
@@ -91,12 +94,12 @@ tanka-docs init [options]
 title: "{{PROJECT_NAME}} Documentation"
 output_path: "output"
 build_path: "_build"
-index_page: xref://docs@HEAD:index.md
+index_page: xref://docs@{{DEFAULT_BRANCH}}:index.md
 
 ui_bundle: "./ui-bundle"  # Point to extracted bundle
 
 branches:
-  HEAD:
+  {{DEFAULT_BRANCH}}:
     input_path:
       - docs
       - _partials
@@ -124,7 +127,8 @@ branches:
 
 *3.3 Template Variable Resolution*
 - `{{PROJECT_NAME}}`: Derive from directory name or prompt user
-- `{{OUTPUT_PATH}}`: Default to "output" with option to customize
+- `{{DEFAULT_BRANCH}}`: Detect current git branch or prompt user
+- `{{OUTPUT_PATH}}`: Default to "output" with option to customize  
 - Interactive prompts for key values during init
 - **Dual File Creation**: Both production and WIP configurations generated
 
@@ -153,8 +157,10 @@ Priority order:
 $ tanka-docs init
 ✓ Tanka Docs Project Initialization
 
+Checking Git repository... ✓
 Current directory: /path/to/my-project
 Project name [my-project]: My Documentation Site
+Default branch [main]: ⏎
 
 The following will be created:
   • tanka-docs.yml (main configuration)
@@ -168,11 +174,54 @@ Continue? (y/N): y
 ✓ Extracted UI bundle to ./ui-bundle/
 ✓ Project initialized successfully!
 
+📝 Configuration Review:
+
+The following files have been created:
+
+┌─ tanka-docs.yml ──────────────────────────────────────┐
+│ title: "My Documentation Site Documentation"          │
+│ output_path: "output"                                 │
+│ build_path: "_build"                                  │
+│ index_page: xref://docs@main:index.md                 │
+│                                                       │
+│ ui_bundle: "./ui-bundle"                              │
+│                                                       │
+│ branches:                                             │
+│   main:                                               │
+│     input_path:                                       │
+│       - docs        ← Your documentation files       │
+│       - _partials   ← Shared content (optional)      │
+└───────────────────────────────────────────────────────┘
+
+┌─ tanka-docs-wip.yml ──────────────────────────────────┐
+│ base_path: "/"                                        │
+│ title: "My Documentation Site Documentation - WIP"    │
+│ index_page: xref://docs@HEAD:index.md                 │
+│ output_path: "gh-pages"                               │
+│ build_path: "_build"                                  │
+│                                                       │
+│ ui_bundle: "./ui-bundle"                              │
+│                                                       │
+│ branches:                                             │
+│   HEAD:                                               │
+│     input_path:                                       │
+│       - ui-bundle   ← UI customization               │
+│       - docs        ← Your documentation files       │
+│       - src         ← Source code for includes       │
+└───────────────────────────────────────────────────────┘
+
+🔧 Customize Your Configuration:
+Edit these files to match your project structure:
+• Update input_path directories to match your layout
+• Add or remove paths as needed for your content
+• The paths are relative to your project root
+
 Next steps:
-  1. Create a docs/ directory  
-  2. Add your first documentation section
-  3. Run 'tanka-docs build' to generate your site
-  4. Use 'tanka-docs build -f tanka-docs-wip.yml' for development builds
+  1. Review and customize input_path settings above
+  2. Create your documentation directories  
+  3. Add your first documentation section
+  4. Run 'tanka-docs build' to generate your site
+  5. Use 'tanka-docs build -f tanka-docs-wip.yml' for development builds
 ```
 
 **Existing Project**:
@@ -190,10 +239,26 @@ Create missing files? (y/N): y
 ```
 
 *5.2 Error Handling & User Guidance*
+- **Git Repository Validation**: Ensure current directory is a Git repository
 - **Clear Error Messages**: Specific guidance for common issues
 - **Permission Errors**: Suggest solutions for write permissions
 - **Existing Files**: Clear options for handling conflicts
 - **Rollback Support**: Ability to undo partial initialization
+
+*5.3 Git Repository Error Example*
+```bash
+$ tanka-docs init
+✗ Error: Current directory is not a Git repository
+
+Tanka Docs requires a Git repository to function properly.
+
+To initialize a Git repository:
+  git init
+  git add .
+  git commit -m "Initial commit"
+
+Then run 'tanka-docs init' again.
+```
 
 **Phase 6: Technical Implementation Details**
 
@@ -208,6 +273,7 @@ Create missing files? (y/N): y
 - **Validation**: Validate generated YAML syntax for both configurations
 - **Backup Creation**: Create `.bak` files when overwriting existing configs
 - **Dual File Generation**: Process both production and WIP templates simultaneously
+- **Post-Creation Guidance**: Read and display actual created configuration files with input_path customization instructions
 
 *6.3 Bundle Validation*
 - **Structure Validation**: Ensure extracted bundle has required files

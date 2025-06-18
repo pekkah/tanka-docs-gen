@@ -68,6 +68,37 @@ $PreReleaseTag = $PreReleaseTag.Trim()
 $IsPreRelease = $PreReleaseTag -ne ''
 "PreReleaseTag: $PreReleaseTag, IsPreRelease: $IsPreRelease"
 
+# Prepare UI Bundle
+"----------------------------------------"
+"Creating UI bundle zip"
+$UiBundlePath = ".\ui-bundle"
+$ZipPath = ".\src\DocsTool\Resources\ui-bundle.zip"
+
+# Ensure Resources directory exists
+$ResourcesDir = Split-Path $ZipPath -Parent
+if (!(Test-Path $ResourcesDir)) {
+    New-Item -ItemType Directory -Path $ResourcesDir -Force | Out-Null
+}
+
+# Remove existing zip if present
+if (Test-Path $ZipPath) {
+    Remove-Item $ZipPath -Force
+}
+
+# Create zip archive
+if (Test-Path $UiBundlePath) {
+    # Get all items in ui-bundle directory and compress them (not the directory itself)
+    $UiBundleItems = Get-ChildItem -Path $UiBundlePath -Recurse
+    if ($UiBundleItems.Count -gt 0) {
+        Compress-Archive -Path "$UiBundlePath\*" -DestinationPath $ZipPath -CompressionLevel Optimal -Force
+        "✓ UI bundle zipped to $ZipPath"
+    } else {
+        Write-Warning "UI bundle directory is empty at $UiBundlePath"
+    }
+} else {
+    Write-Warning "UI bundle directory not found at $UiBundlePath"
+}
+
 # Build and test
 "----------------------------------------"
 "Build"

@@ -271,3 +271,6 @@ docs-html/
 gh-pages/
 _build/
 output/
+
+# Generated UI bundle (created from ui-bundle/ during build)
+**/Resources/ui-bundle.zip

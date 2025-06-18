@@ -1,0 +1,13 @@
+title: "{{PROJECT_NAME}} Documentation"
+output_path: "output"
+build_path: "_build"
+index_page: xref://docs@{{DEFAULT_BRANCH}}:index.md
+
+ui_bundle: "./ui-bundle"
+
+branches:
+  {{DEFAULT_BRANCH}}:
+    input_path:
+      - ui-bundle
+      - docs
+      - src 

@@ -31,4 +31,9 @@
   <ItemGroup>
     <ProjectReference Include="..\FileSystem\FileSystem.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ui-bundle.zip" Condition="Exists('Resources\ui-bundle.zip')" />
+    <EmbeddedResource Include="Resources\default-tanka-docs.yml" Condition="Exists('Resources\default-tanka-docs.yml')" />
+    <EmbeddedResource Include="Resources\default-tanka-docs-wip.yml" Condition="Exists('Resources\default-tanka-docs-wip.yml')" />
+  </ItemGroup>
 </Project>

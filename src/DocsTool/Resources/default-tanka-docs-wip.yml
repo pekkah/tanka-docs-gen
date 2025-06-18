@@ -1,0 +1,14 @@
+base_path: "/"
+title: "{{PROJECT_NAME}} Documentation - WIP"
+index_page: xref://docs@HEAD:index.md
+output_path: "gh-pages"
+build_path: "_build"
+
+ui_bundle: "./ui-bundle"
+
+branches:
+  HEAD:
+    input_path:
+      - ui-bundle
+      - docs
+      - src 
