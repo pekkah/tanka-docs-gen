@@ -33,7 +33,7 @@ dotnet tool install --global --add-source ./artifacts Tanka.DocsGen
 
 ## Step 2: Create Your Documentation Project
 
-Create a new directory for your documentation project:
+Create a new directory for your documentation project and initialize it:
 
 ```bash
 mkdir my-docs-project
@@ -41,62 +41,76 @@ cd my-docs-project
 git init -b main
 ```
 
-## Step 3: Create the Main Configuration File
+## Step 3: Initialize Tanka Docs
 
-Create `tanka-docs.yml` in your project root. This file defines your site structure and content sources:
+Use the `init` command to set up your project automatically:
 
-```yaml
-base_path: "/"
-title: "My Documentation Site"
-index_page: xref://docs@HEAD:index.md
-output_path: "output"  # Default output directory
-build_path: "_build"   # Custom build directory (default uses system temp)
-branches:
-  HEAD:
-    input_path:
-      - docs
-      - _partials
+```bash
+tanka-docs init
 ```
 
-**Key Configuration Options:**
+This command creates:
 
-- `base_path`: The base URL path for your site (usually "/")
-- `title`: Your site's title
-- `index_page`: The main landing page using xref syntax
-- `output_path`: Where the built site will be generated
-- `build_path`: Temporary build directory
-- `branches`: Git branches/refs to source content from
-- `input_path`: Directories to include from each branch
+- **`tanka-docs.yml`** - Production configuration file with sensible defaults
+- **`tanka-docs-wip.yml`** - Development configuration for work-in-progress builds
+- **`ui-bundle/`** - Customizable UI templates and styling
 
-## Step 4: Create Documentation Sections
+**Initialization Options:**
 
-Tanka Docs organizes content into sections. Create your main documentation section:
+```bash
+# Initialize with custom project name
+tanka-docs init --project-name "My Documentation Site"
+
+# Initialize with specific branch
+tanka-docs init --branch main
+
+# Only create configuration files (skip UI bundle)
+tanka-docs init --config-only
+
+# Force overwrite existing files
+tanka-docs init --force
+
+# Quiet mode (skip guidance output)
+tanka-docs init --quiet
+```
+
+**Generated Configuration:**
+
+The init command creates a `tanka-docs.yml` with the following structure:
+
+```yaml
+name: "My Docs Project"
+description: "Documentation for My Docs Project"
+
+# Content sources - Git branches/tags for stable builds
+sources:
+  - source: git-branch
+    branch: "main"
+    path: docs/
+
+# Output configuration
+output_path: _build/
+build_path: _site/
+
+# UI configuration
+ui_bundle: ui-bundle/
+
+# Processing options
+extensions:
+  - include
+  - xref
+
+# Development settings (override in tanka-docs-wip.yml for WIP builds)
+base_path: ""
+```
+
+## Step 4: Create Documentation Content
+
+Create your documentation directory and start writing content:
 
 ```bash
 mkdir docs
 ```
-
-Create `docs/tanka-docs-section.yml`:
-
-```yaml
-id: "docs"
-title: "Documentation"
-index_page: "xref://index.md"
-nav:
-  - xref://nav.md
-includes:
-  - "**/*.md"
-```
-
-**Section Configuration:**
-
-- `id`: Unique identifier for the section
-- `title`: Display title for the section
-- `index_page`: Default page for this section
-- `nav`: Navigation file(s) for this section
-- `includes`: File patterns to include in this section
-
-## Step 5: Create Content Files
 
 ### Main Index Page
 
@@ -179,30 +193,7 @@ your-command --version
 
 Create additional pages (`docs/configuration.md`, `docs/advanced.md`) following the same pattern.
 
-## Step 6: Add Shared Content (Optional)
-
-Create a partials section for shared content:
-
-```bash
-mkdir _partials
-```
-
-Create `_partials/tanka-docs-section.yml`:
-
-```yaml
-id: "partials"
-title: "Shared Content"
-includes:
-  - "**/*.md"
-```
-
-Create `_partials/common-notice.md`:
-
-```markdown
-> **Note:** This is shared content that can be included in multiple pages using the include syntax.
-```
-
-## Step 8: Commit Your Content
+## Step 5: Commit Your Content
 
 Tanka Docs sources content from Git, so commit your changes:
 
@@ -211,44 +202,46 @@ git add .
 git commit -m "Initial documentation setup"
 ```
 
-## Step 9: Build Your Documentation
+## Step 6: Build Your Documentation
 
-Build your documentation site using the Tanka Docs tool:
+Build your documentation site:
 
 ```bash
-# From the tanka-docs-gen project directory
-dotnet run --project src/DocsTool -- build -f /path/to/your/project/tanka-docs.yml
+tanka-docs build
 ```
 
-If successful, you'll see output similar to:
+If successful, you'll see output showing the build progress and generated files in the `_build/` directory.
 
-```
-Tanka Docs
-Initializing...
-CurrentPath: /path/to/your/project
-ConfigFilePath: /path/to/your/project/tanka-docs.yml
-OutputPath: gh-pages
-BuildPath: _build
-```
-
-## Step 10: Preview Your Documentation
+## Step 7: Preview Your Documentation
 
 Use the development server for live preview:
 
 ```bash
-# From the tanka-docs-gen project directory
-dotnet run --project src/DocsTool -- dev --port 8080 -f /path/to/your/project/tanka-docs.yml
+tanka-docs dev
 ```
 
 This will:
 - Build your documentation
-- Start a web server on the specified port
+- Start a web server (default port 8080)
 - Watch for file changes and rebuild automatically
 - Provide live reload in the browser
 
 Open your browser and navigate to `http://localhost:8080` to view your documentation.
 
-## Step 11: Add a `.gitignore`
+For custom configuration, you can specify options:
+
+```bash
+# Use WIP configuration for development
+tanka-docs dev -f tanka-docs-wip.yml
+
+# Custom port
+tanka-docs dev --port 3000
+
+# Custom output directory
+tanka-docs build -o ./dist
+```
+
+## Step 8: Add a `.gitignore`
 
 Create a `.gitignore` file in your project:
 

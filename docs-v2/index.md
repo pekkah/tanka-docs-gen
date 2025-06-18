@@ -26,13 +26,18 @@ dotnet tool install --global Tanka.DocsGen
 
 ## Quick Start
 
-1. **Create configuration file** - Add a `tanka-docs.yml` file to your repository root
-2. **Set up documentation sections** - Create folders for your docs with `tanka-docs-section.yml` files
-3. **Write your documentation** - Create Markdown files in your sections
-4. **Navigation** - Add navigation files
-5. **Generate your site** - Run the `tanka-docs` command
+1. **Initialize your project** - Run `tanka-docs init` in your Git repository
+2. **Create documentation content** - Add Markdown files to the `docs/` folder
+3. **Build your site** - Use `tanka-docs build` or `tanka-docs dev`
 
 ```bash
+# Initialize a new project (creates config and UI templates)
+tanka-docs init
+
+# Create your content
+mkdir docs
+echo "# Welcome" > docs/index.md
+
 # Generate documentation
 tanka-docs build
 
@@ -61,14 +66,23 @@ Learn how to customize the appearance and layout of your documentation using Han
 
 ## Command Line Interface
 
-Tanka Docs provides two main commands:
+Tanka Docs provides three main commands:
+
+### `tanka-docs init`
+Initialize a new documentation project with default configuration and UI templates.
+
+**Options:**
+- `--project-name <NAME>` - Set custom project name
+- `--branch <BRANCH>` - Specify default Git branch
+- `--config-only` - Only create configuration files
+- `--force` - Overwrite existing files
 
 ### `tanka-docs build`
 Generates static documentation from your source files.
 
 **Options:**
 - `-f, --file <FILE>` - Specify path to `tanka-docs.yml` configuration file
-- `-o, --output <OUTPUT>` - Set custom output directory
+- `-o, --output <o>` - Set custom output directory
 - `-b, --build <BUILD>` - Set custom build directory  
 - `--base <BASE>` - Set base href for generated HTML pages
 

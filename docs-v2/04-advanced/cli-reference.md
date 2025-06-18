@@ -39,6 +39,81 @@ dotnet tool update --global --add-source ./artifacts Tanka.DocsGen
 
 ## Commands
 
+### `tanka-docs init`
+
+Initialize a new Tanka Docs project with default configuration and UI templates.
+
+**Syntax:**
+```bash
+tanka-docs init [options]
+```
+
+**Options:**
+
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `--force` | `-f` | Overwrite existing files without prompting | `false` |
+| `--ui-bundle-only` | | Only extract UI bundle, skip configuration file creation | `false` |
+| `--config-only` | | Only create configuration files, skip UI bundle extraction | `false` |
+| `--no-wip` | | Skip creating `tanka-docs-wip.yml` (create only main configuration) | `false` |
+| `--branch <BRANCH>` | | Specify default branch name (default: auto-detect from git) | Auto-detected |
+| `--output-dir <PATH>` | | Specify output directory (default: current directory) | Current directory |
+| `--quiet` | `-q` | Skip post-creation configuration guidance (for automation) | `false` |
+| `--project-name <NAME>` | | Specify project name (default: derive from directory name) | Auto-derived |
+
+**Prerequisites:**
+- Must be run in a Git repository (use `git init` first if needed)
+- Requires .NET 9+ and the Tanka Docs global tool to be installed
+
+**Examples:**
+
+```bash
+# Basic initialization in current directory
+tanka-docs init
+
+# Initialize with custom project name
+tanka-docs init --project-name "My Documentation Site"
+
+# Initialize with specific branch
+tanka-docs init --branch main
+
+# Only create configuration files (useful if you have custom UI)
+tanka-docs init --config-only
+
+# Only extract UI bundle (useful for UI customization)
+tanka-docs init --ui-bundle-only
+
+# Force overwrite existing files
+tanka-docs init --force
+
+# Quiet mode for automation scripts
+tanka-docs init --quiet --project-name "Auto-Generated Docs"
+
+# Initialize in a specific directory
+tanka-docs init --output-dir ./my-docs-project
+```
+
+**Generated Files:**
+
+The init command creates the following structure:
+
+```
+./
+├── tanka-docs.yml          # Production configuration
+├── tanka-docs-wip.yml      # Development/WIP configuration
+└── ui-bundle/              # Customizable UI templates
+    ├── article.hbs         # Main page template
+    ├── tanka-docs-section.yml
+    └── partials/
+        ├── Navigation.hbs
+        └── NavigationItem.hbs
+```
+
+**Configuration Templates:**
+
+- **`tanka-docs.yml`**: Production configuration using the detected Git branch for stable builds
+- **`tanka-docs-wip.yml`**: Development configuration using `HEAD` for work-in-progress content
+
 ### `tanka-docs build`
 
 The primary command for generating static documentation from your source files.
@@ -124,6 +199,8 @@ When you run commands like `tanka-docs build` or `tanka-docs dev`, the tool look
 2. **Current directory**: Looks for `tanka-docs.yml` in the current working directory
 3. **Error**: If no configuration file is found, the command fails with an error
 
+**Note**: Use `tanka-docs init` to create default configuration files if you don't have them yet.
+
 ## Exit Codes
 
 | Code | Meaning |
@@ -134,6 +211,23 @@ When you run commands like `tanka-docs build` or `tanka-docs dev`, the tool look
 
 ## Common Usage Patterns
 
+### New Project Setup
+
+```bash
+# Create a new project from scratch
+mkdir my-docs && cd my-docs
+git init
+tanka-docs init
+
+# Create documentation content
+mkdir docs
+echo "# Welcome" > docs/index.md
+git add . && git commit -m "Initial docs"
+
+# Start development
+tanka-docs dev
+```
+
 ### Local Development
 
 ```bash
@@ -142,6 +236,9 @@ tanka-docs build
 
 # Build with debug output to see detailed logs
 tanka-docs build --debug
+
+# Use WIP configuration for development
+tanka-docs dev -f tanka-docs-wip.yml
 ```
 
 ### CI/CD Integration
@@ -181,6 +278,7 @@ The tool uses the directory containing the configuration file as the working dir
 Could not load configuration: 'tanka-docs.yml'
 ```
 - Ensure the configuration file exists
+- Use `tanka-docs init` to create default configuration files
 - Check the file path if using `-f` option
 - Verify you're in the correct directory
 
@@ -200,7 +298,9 @@ Could not load configuration: 'tanka-docs.yml'
 tanka-docs --help
 
 # Show help for specific command
+tanka-docs init --help
 tanka-docs build --help
+tanka-docs dev --help
 ```
 
 ## Environment Variables

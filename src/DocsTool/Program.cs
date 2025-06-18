@@ -36,6 +36,7 @@ app.Configure(config =>
 
     config.AddCommand<BuildSiteCommand>("build");
     config.AddCommand<DevCommand>("dev");
+    config.AddCommand<InitCommand>("init");
 });
 
 await app.RunAsync(args);

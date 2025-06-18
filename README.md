@@ -31,63 +31,33 @@ dotnet pack -c Release -o ./artifacts
 dotnet tool install --global --add-source ./artifacts Tanka.DocsGen
 ```
 
-### 2. Create Configuration
+### 2. Initialize Your Project
 
-Add `tanka-docs.yml` to your project root:
+Navigate to your project directory and initialize Tanka Docs:
 
-```yaml
-title: "My Documentation Site"
-output_path: "output"  # Default output directory
-build_path: "_build"
-index_page: xref://docs@HEAD:index.md
-branches:
-  HEAD:
-    input_path:
-    - docs
-    - src
+```bash
+# Navigate to your project (must be a Git repository)
+cd my-project
+
+# Initialize Tanka Docs project
+tanka-docs init
 ```
 
-### 3. Set Up Documentation Section
+This creates:
+- `tanka-docs.yml` - Production configuration
+- `tanka-docs-wip.yml` - Development configuration  
+- `ui-bundle/` - Customizable UI templates
 
-Create `docs/tanka-docs-section.yml`:
+### 3. Create Documentation Content
 
-```yaml
-id: "docs"
-title: "Documentation"
-index_page: xref://index.md
-nav:
-- xref://nav.md
-includes:
-  - "**/*.md"
+Create your documentation directory and files:
+
+```bash
+mkdir docs
+echo "# Welcome to My Documentation" > docs/index.md
 ```
 
-### 4. Write Documentation
-
-Create `docs/index.md`:
-
-```markdown
----
-title: Welcome
----
-
-# Welcome to My Documentation
-
-This is your documentation homepage.
-
-## Features
-
-- Easy to use
-- Version controlled
-- Beautiful output
-
-## Code Examples
-
-```csharp
-\#include::xref://src:Program.cs?s=Main
-```
-```
-
-### 5. Build
+### 4. Build
 
 ```bash
 # If installed as global tool:
@@ -97,7 +67,7 @@ tanka-docs build
 dotnet run --project ./src/DocsTool/ -- build
 ```
 
-### 6. Serve Locally
+### 5. Serve Locally
 
 ```bash
 dotnet tool install --global dotnet-serve
@@ -118,6 +88,37 @@ Comprehensive documentation is available at: **[https://pekkah.github.io/tanka-d
 - **[Troubleshooting](https://pekkah.github.io/tanka-docs-gen/04-advanced/troubleshooting.html)** - Common issues and solutions
 
 ## 🛠️ Command Line Usage
+
+### Initialize New Project
+
+```bash
+# Initialize in current directory
+tanka-docs init
+
+# Initialize with custom project name
+tanka-docs init --project-name "My Amazing Docs"
+
+# Initialize with custom branch
+tanka-docs init --branch main
+
+# Only create configuration files (skip UI bundle)
+tanka-docs init --config-only
+
+# Only extract UI bundle (skip configuration)
+tanka-docs init --ui-bundle-only
+
+# Force overwrite existing files
+tanka-docs init --force
+
+# Quiet mode (skip guidance output)
+tanka-docs init --quiet
+
+# Skip WIP configuration
+tanka-docs init --no-wip
+
+# Initialize in specific directory
+tanka-docs init --output-dir /path/to/project
+```
 
 ### Build Documentation
 
@@ -281,13 +282,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Documentation**: [https://pekkah.github.io/tanka-docs-gen](https://pekkah.github.io/tanka-docs-gen)
 - **Issues**: [GitHub Issues](https://github.com/pekkah/tanka-docs-gen/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/pekkah/tanka-docs-gen/discussions)
-
-## 📈 Roadmap
-
-- [x] Development server with live reload ✅ **Available** - Use `tanka-docs dev` command
-- [ ] Plugin system for extensions
-- [ ] Additional source types (GitHub, GitLab)
-- [ ] Enhanced theme customization
-- [ ] Performance optimizations
-- [ ] Multi-language support
-- [ ] Global tool publication on NuGet
