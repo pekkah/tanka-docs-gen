@@ -350,11 +350,61 @@ Then run 'tanka-docs init' again.
 - Plugin architecture consideration
 - Bundle marketplace preparation
 
+### 🟢 Files Section Type - Dynamic Content Support
+**Status:** Completed  
+**Priority:** High
+
+#### Overview
+Implement support for `type: files` sections to include dynamically generated content that exists in the working directory but may not be committed to version control.
+
+#### ✅ **IMPLEMENTATION COMPLETED**
+
+**What Was Delivered:**
+- ✅ **Pipeline Architecture**: Clean separation using dedicated `AugmentFilesSections` pipeline step
+- ✅ **Section Type Detection**: Automatic detection of sections with `type: files`  
+- ✅ **Working Directory Access**: FileSystemContentSource integration for dynamic content
+- ✅ **Async Streaming**: Memory-efficient async enumerable pattern for content collection
+- ✅ **Comprehensive Testing**: Full unit test coverage for all scenarios
+- ✅ **End-to-End Verification**: Documentation build testing with real files sections
+
+**Key Features Implemented:**
+- AugmentFilesSections middleware with progress reporting
+- FilesSectionAugmenter for content collection from working directory
+- Integration with existing catalog and pipeline infrastructure
+- Error handling and logging for missing directories
+- Case-insensitive section type matching (`"files"` or `"FILES"`)
+
+**Use Case Solved:**
+This directly addresses **issue #78**: "Include dynamically generated content"
+- **Benchmark results** generated at build time
+- **API documentation** generated from code analysis
+- **Generated reports** or metrics files  
+- **Build artifacts** that should be included in documentation
+
+**Architecture Benefits:**
+- **Clean Pipeline Design**: Follows existing middleware patterns
+- **Targeted Processing**: Only processes sections that need it
+- **Memory Efficient**: Streams content items without intermediate collections
+- **Extensible**: Easy foundation for additional section types
+
+**Example Usage:**
+```yaml
+# tanka-docs-section.yml
+id: benchmark-results
+type: files  # <-- New section type
+title: "Performance Benchmarks"
+includes:
+  - "**/*.md"
+  - "*.json"
+```
+
+Files in the section directory are included from the working directory, allowing generated content that's not in Git history.
+
 ---
 
 ## Next Priorities (Post-Init Command)
 
-With the init command completed, the following areas represent the next logical development priorities:
+With the init command and files section type completed, the following areas represent the next logical development priorities:
 
 ### 🟢 NuGet Package Publication & Distribution
 **Status:** Completed  

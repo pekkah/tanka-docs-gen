@@ -10,6 +10,7 @@ public static class DefaultPipeline
             .Use<InitializeFileSystems>()
             .Use<AggregateContent>()
             .Use<CollectSections>()
+            .Use<AugmentFilesSections>()
             .Use<BuildSite>()
             .Use<BuildUi>();
     }
@@ -19,6 +20,7 @@ public static class DefaultPipeline
         services.AddSingleton<InitializeFileSystems>();
         services.AddSingleton<AggregateContent>();
         services.AddSingleton<CollectSections>();
+        services.AddSingleton<AugmentFilesSections>();
         services.AddSingleton<BuildSite>();
         services.AddSingleton<BuildUi>();
 
