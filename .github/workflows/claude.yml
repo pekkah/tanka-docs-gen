@@ -19,10 +19,9 @@ jobs:
       (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
     runs-on: ubuntu-latest
     permissions:
-      contents: write        # Changed from 'read' to 'write'
+      contents: write
       pull-requests: write
       issues: write
-      actions: write         # Added for workflow operations
       id-token: write
     steps:
       - name: Checkout repository
@@ -33,30 +32,22 @@ jobs:
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@beta
-        env:
-          # CRITICAL: Add GH_TOKEN for gh command authentication
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          
-          # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4)
-          # model: "claude-opus-4-20250514"
-          
-          # Optional: Customize the trigger phrase (default: @claude)
-          # trigger_phrase: "/claude"
-          
-          # Optional: Trigger when specific user is assigned to an issue
-          # assignee_trigger: "claude-bot"
-          
-          # FIXED: Specific tool permissions for gh commands (comma-separated string)
-          allowed_tools: "Bash(gh:*),Bash(dotnet:*)"
-          
-          # Optional: Add custom instructions for Claude to customize its behavior for your project
-          # custom_instructions: |
-          #   Follow our coding standards
-          #   Ensure all new code has tests
-          #   Use TypeScript for new files
-          
-          # Optional: Custom environment variables for Claude
+          allowed_tools: "Bash(dotnet test:*),Bash(dotnet --version),Bash(dotnet --list-sdks),Bash(dotnet build:*),Bash(rg:*),Bash(find:*),mcp__github__get_issue,mcp__github__get_issue_comments,mcp__github__create_issue,mcp__github__add_issue_comment,mcp__github__list_issues,mcp__github__update_issue,mcp__github__search_issues,mcp__github__get_repository_content"
+          mcp_config: |
+            {
+              "mcpServers": {
+                "github": {
+                  "type": "http",
+                  "url": "https://api.githubcopilot.com/mcp/",
+                  "authorization_token": "Bearer ${{ secrets.GITHUB_TOKEN }}",
+                  "headers": {
+                    "X-MCP-Toolsets": "context,issues"
+                  }
+                }
+              }
+            }
           claude_env: |
-              GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
