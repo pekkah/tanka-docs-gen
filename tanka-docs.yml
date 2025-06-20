@@ -3,6 +3,11 @@ title: "Tanka Docs Generator"
 index_page: xref://root@master:index.md
 output_path: "gh-pages"
 build_path: "_build"
+homepage:
+  url: "https://github.com/pekkah/tanka-docs-gen"
+  text: "GitHub"
+  target: "_blank"
+  enabled: true
 branches:
   master:
     input_path:
