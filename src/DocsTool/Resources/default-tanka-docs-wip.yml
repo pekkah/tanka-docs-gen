@@ -23,5 +23,12 @@ extensions:
   - include
   - xref
 
+# Homepage link configuration (optional)
+homepage:
+  url: ""
+  text: "Home"
+  target: "_blank"
+  enabled: false
+
 # Development settings
 base_path: "" 

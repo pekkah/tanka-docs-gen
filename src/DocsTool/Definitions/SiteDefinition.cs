@@ -22,10 +22,10 @@ namespace Tanka.DocsTool.Definitions
 
         public Dictionary<string, Dictionary<string, object>> Extensions { get; set; } = new Dictionary<string, Dictionary<string, object>>();
 
-        public HomepageConfig? Homepage { get; set; }
+        public HomepageDefinition? Homepage { get; set; }
     }
 
-    public class HomepageConfig
+    public class HomepageDefinition
     {
         public string Url { get; set; } = string.Empty;
         public string Text { get; set; } = "Home";
