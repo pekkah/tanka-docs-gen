@@ -49,7 +49,7 @@ jobs:
           # assignee_trigger: "claude-bot"
           
           # FIXED: Specific tool permissions for gh commands (comma-separated string)
-          allowed_tools: "Bash(gh*),Bash(dotnet*)"
+          allowed_tools: "Bash(gh:*),Bash(dotnet:*)"
           
           # Optional: Add custom instructions for Claude to customize its behavior for your project
           # custom_instructions: |
@@ -58,5 +58,5 @@ jobs:
           #   Use TypeScript for new files
           
           # Optional: Custom environment variables for Claude
-          # claude_env: |
-          #   NODE_ENV: test
+          claude_env: |
+              GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
