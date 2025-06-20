@@ -49,7 +49,7 @@ jobs:
           # assignee_trigger: "claude-bot"
           
           # FIXED: Specific tool permissions for gh commands (comma-separated string)
-          allowed_tools: "Bash(gh:*),Bash(git:*),Edit,View,GlobTool,GrepTool"
+          allowed_tools: "Bash(gh issue create),Bash(gh issue view),Bash(gh issue list),Bash(gh auth status)"
           
           # Optional: Add custom instructions for Claude to customize its behavior for your project
           # custom_instructions: |
