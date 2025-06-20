@@ -9,6 +9,7 @@ Tanka Docs is a powerful technical documentation generator designed for .NET pro
 - **Versioned Documentation**: Generate documentation from Git repositories with support for versioning using tags and branches
 - **Modular Structure**: Organize documentation using sections for better maintainability  
 - **Live Code Integration**: Include C# code snippets/files using `#include` syntax with Roslyn integration
+- **Dynamic Content Support**: Include generated files with `type: files` sections for build artifacts and reports
 - **Cross-References**: Link between documents using `xref://` syntax for maintainable internal links
 - **Customizable UI**: Use Handlebars templates for flexible UI customization
 - **Git Integration**: Built-in support for Git repositories and version management
@@ -158,6 +159,10 @@ my-project/
 │   ├── tanka-docs-section.yml  # Section configuration
 │   ├── index.md               # Documentation files
 │   └── getting-started.md
+├── reports/                    # Generated content section
+│   ├── tanka-docs-section.yml  # type: files for dynamic content
+│   ├── benchmark.md           # Generated at build time
+│   └── coverage-report.html   # Generated reports
 ├── _partials/                  # Shared content
 │   ├── tanka-docs-section.yml
 │   └── common-notice.md
@@ -184,6 +189,27 @@ Include entire files or specific symbols:
 \```
 ```
 
+### Dynamic Content Sections
+
+Include dynamically generated content that exists in your working directory but may not be committed to version control:
+
+```yaml
+# reports/tanka-docs-section.yml
+id: performance-reports
+type: files  # <-- Special section type for dynamic content
+title: "Performance Reports"
+includes:
+  - "**/*.md"
+  - "*.html"
+  - "*.json"
+```
+
+Perfect for:
+- Build artifacts and generated reports
+- Benchmark results created during CI/CD
+- API documentation generated from code analysis
+- Coverage reports and metrics
+
 ### Cross-Reference Links
 
 Create maintainable internal links:
@@ -192,6 +218,7 @@ Create maintainable internal links:
 [Getting Started](xref://getting-started.md)
 [API Reference](xref://api:overview.md)
 [Version 1.0 Docs](xref://docs@1.0.0:index.md)
+[Latest Benchmarks](xref://performance-reports:benchmark.md)
 ```
 
 ### Versioning with Git

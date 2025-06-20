@@ -87,6 +87,7 @@ public class ContentAggregator
         return ci;
     }
 
+
     private async IAsyncEnumerable<IContentSource> BuildSources(
         BuildContext context,
         [EnumeratorCancellation] CancellationToken cancellationToken)
