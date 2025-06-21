@@ -20,12 +20,8 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-    concurrency: docs-${{ github.ref }}
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4.2.2
         with:
@@ -43,14 +39,20 @@ jobs:
         shell: pwsh
         run: |
           ./build-docs.ps1 -Output ./artifacts/gh-pages -CurrentBranch $Env:GITHUB_REF_NAME
-      
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3.0.1
-        if: github.ref_name == 'master' || startsWith(github.ref, 'refs/tags/')
         with:
           path: ./artifacts/gh-pages
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref_name == 'master' || startsWith(github.ref, 'refs/tags/')
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4.0.5
-        if: github.ref_name == 'master' || startsWith(github.ref, 'refs/tags/')
