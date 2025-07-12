@@ -105,11 +105,11 @@ public class BuildSiteCommand : AsyncCommand<BuildSiteCommand.Settings>
             {
                 if (warning.ContentItem != null)
                 {
-                    _console.MarkupLine($"[yellow]Warning:[/] In {warning.ContentItem.File.Path}: {warning.Message}");
+                    _console.MarkupLine($"[yellow]Warning:[/] In {Markup.Escape(warning.ContentItem.File.Path.ToString())}: {Markup.Escape(warning.Message)}");
                 }
                 else
                 {
-                    _console.MarkupLine($"[yellow]Warning:[/] {warning.Message}");
+                    _console.MarkupLine($"[yellow]Warning:[/] {Markup.Escape(warning.Message)}");
                 }
             }
             
@@ -121,11 +121,11 @@ public class BuildSiteCommand : AsyncCommand<BuildSiteCommand.Settings>
                 {
                     if (error.ContentItem != null)
                     {
-                        _console.MarkupLine($"- In {error.ContentItem.File.Path}: {error.Message}");
+                        _console.MarkupLine($"- In {Markup.Escape(error.ContentItem.File.Path.ToString())}: {Markup.Escape(error.Message)}");
                     }
                     else
                     {
-                        _console.MarkupLine($"- {error.Message}");
+                        _console.MarkupLine($"- {Markup.Escape(error.Message)}");
                     }
                 }
                 return -1;

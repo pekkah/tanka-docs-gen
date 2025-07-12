@@ -34,7 +34,7 @@ internal class BuildUi : IMiddleware
         catch (Exception ex)
         {
             context.Add(new Error($"UI build failed: {ex.Message}"));
-            _console.MarkupLine($"[red]UI build error:[/] {ex.Message}");
+            _console.MarkupLine($"[red]UI build error:[/] {Markup.Escape(ex.Message)}");
         }
          
         await next(context);
