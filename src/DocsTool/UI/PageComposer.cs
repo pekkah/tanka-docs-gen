@@ -1,4 +1,5 @@
 ﻿using System.IO.Pipelines;
+using System.Text;
 using Tanka.DocsTool.Catalogs;
 using Tanka.DocsTool.Markdown;
 using Tanka.DocsTool.Navigation;
@@ -66,7 +67,7 @@ namespace Tanka.DocsTool.UI
         {
             // open file streams
             await using var inputStream = await partialHtmlPage.File.OpenRead();
-            using var reader = new StreamReader(inputStream);
+            using var reader = new StreamReader(inputStream, Encoding.UTF8);
             var partialPageHtml = await reader.ReadToEndAsync();
 
             // create output dir for page
@@ -88,7 +89,7 @@ namespace Tanka.DocsTool.UI
                 ));
 
             await using var outputStream = await outputFile.OpenWrite();
-            await using var writer = new StreamWriter(outputStream);
+            await using var writer = new StreamWriter(outputStream, Encoding.UTF8);
             await writer.WriteAsync(fullPageHtml);
             await writer.FlushAsync();
 
@@ -133,7 +134,27 @@ namespace Tanka.DocsTool.UI
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException($"Failed to compose partial html page '{relativePath}'.", e);
+                // Try to read first 100 characters of processed content for debugging
+                string contentPreview = "";
+                try
+                {
+                    processedStream.Position = 0;
+                    using var debugReader = new StreamReader(processedStream, Encoding.UTF8, leaveOpen: true);
+                    var buffer = new char[100];
+                    var charsRead = await debugReader.ReadAsync(buffer, 0, buffer.Length);
+                    contentPreview = new string(buffer, 0, charsRead);
+                    processedStream.Position = 0;
+                }
+                catch
+                {
+                    contentPreview = "[Unable to read content for preview]";
+                }
+
+                throw new InvalidOperationException(
+                    $"Failed to compose partial html page '{relativePath}'. " +
+                    $"Content preview (first 100 chars): {contentPreview.Replace('\n', ' ').Replace('\r', ' ')} " +
+                    $"File size: {processedStream.Length} bytes. " +
+                    $"Inner exception: {e.Message}", e);
             }
         }
 
@@ -165,7 +186,7 @@ namespace Tanka.DocsTool.UI
             // create output file
             var outputFile = await _output.GetOrCreateFile(targetFilePath);
             await using var outputStream = await outputFile.OpenWrite();
-            await using var writer = new StreamWriter(outputStream);
+            await using var writer = new StreamWriter(outputStream, Encoding.UTF8);
             await writer.WriteAsync(generatedHtml);
         }
 

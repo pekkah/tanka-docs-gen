@@ -1,4 +1,5 @@
-﻿using HandlebarsDotNet;
+﻿using System.Text;
+using HandlebarsDotNet;
 using Tanka.DocsTool.Navigation;
 using Tanka.DocsTool.Pipelines;
 using FileSystemPath = Tanka.FileSystem.FileSystemPath;
@@ -31,7 +32,7 @@ namespace Tanka.DocsTool.UI
             foreach (var (path, contentItem) in _uiBundle.GetContentItems("**/*.hbs"))
             {
                 await using var input = await contentItem.File.OpenRead();
-                using var reader = new StreamReader(input);
+                using var reader = new StreamReader(input, Encoding.UTF8);
 
                 var template = await reader.ReadToEndAsync();
 
