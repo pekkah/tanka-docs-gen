@@ -1,7 +1,11 @@
 mode: ContinuousDeployment
-next-version: 1.0
+next-version: 1.0.0
 branches:
-  master:
-    tag: beta
+  main:
+    regex: ^master$|^main$
+    label: beta
+  develop:
+    regex: ^develop$
+    label: alpha
 ignore:
   sha: []
