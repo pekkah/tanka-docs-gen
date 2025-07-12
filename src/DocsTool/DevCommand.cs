@@ -210,11 +210,11 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
             if (warning.ContentItem != null)
             {
                 console.MarkupLine(
-                    $"[yellow]Warning:[/] In {warning.ContentItem.File.Path}: {warning.Message}");
+                    $"[yellow]Warning:[/] In {Markup.Escape(warning.ContentItem.File.Path.ToString())}: {Markup.Escape(warning.Message)}");
             }
             else
             {
-                console.MarkupLine($"[yellow]Warning:[/] {warning.Message}");
+                console.MarkupLine($"[yellow]Warning:[/] {Markup.Escape(warning.Message)}");
             }
         }
 
@@ -226,11 +226,11 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
             {
                 if (error.ContentItem != null)
                 {
-                    console.MarkupLine($"- In {error.ContentItem.File.Path}: {error.Message}");
+                    console.MarkupLine($"- In {Markup.Escape(error.ContentItem.File.Path.ToString())}: {Markup.Escape(error.Message)}");
                 }
                 else
                 {
-                    console.MarkupLine($"- {error.Message}");
+                    console.MarkupLine($"- {Markup.Escape(error.Message)}");
                 }
             }
 

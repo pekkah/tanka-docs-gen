@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Markdig;
 using Microsoft.Extensions.Logging;
@@ -221,7 +222,7 @@ namespace Tanka.DocsTool.UI
                     }
 
                     await using var fileStream = await navigationFileItem.File.OpenRead();
-                    using var reader = new StreamReader(fileStream);
+                    using var reader = new StreamReader(fileStream, Encoding.UTF8);
                     var text = await reader.ReadToEndAsync();
 
                     // override context so each navigation file is rendered in the context of the owning section
