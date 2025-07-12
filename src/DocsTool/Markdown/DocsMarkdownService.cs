@@ -44,8 +44,8 @@ namespace Tanka.DocsTool.Markdown
 
         public async Task<PageFrontmatter?> RenderPage(Stream input, Stream output)
         {
-            using var reader = new StreamReader(input, Encoding.UTF8);
-            await using var writer = new StreamWriter(output, Encoding.UTF8);
+            using var reader = new StreamReader(input, Encoding.UTF8, leaveOpen: true);
+            await using var writer = new StreamWriter(output, Encoding.UTF8, leaveOpen: true);
 
             var text = await reader.ReadToEndAsync();
             var markdown = Parse(text);
@@ -69,7 +69,7 @@ namespace Tanka.DocsTool.Markdown
 
         public async Task<(MarkdownDocument Document, PageFrontmatter? Page)> ParsePage(Stream input)
         {
-            using var reader = new StreamReader(input, Encoding.UTF8);
+            using var reader = new StreamReader(input, Encoding.UTF8, leaveOpen: true);
 
             var text = await reader.ReadToEndAsync();
             var markdown = Parse(text);
@@ -93,7 +93,7 @@ namespace Tanka.DocsTool.Markdown
 
         public async Task<(string Html, PageFrontmatter? Page)> RenderPage(Stream input)
         {
-            using var reader = new StreamReader(input, Encoding.UTF8);
+            using var reader = new StreamReader(input, Encoding.UTF8, leaveOpen: true);
 
             var text = await reader.ReadToEndAsync();
             var markdown = Parse(text);
