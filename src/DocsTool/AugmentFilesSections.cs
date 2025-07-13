@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Tanka.DocsTool.Catalogs;
 using Tanka.DocsTool.Pipelines;
+using Tanka.DocsTool.Security;
 using Tanka.FileSystem;
 
 namespace Tanka.DocsTool;
@@ -62,12 +63,16 @@ public class FilesSectionAugmenter
     private readonly IFileSystem _fileSystem;
     private readonly IAnsiConsole _console;
     private readonly IContentClassifier _classifier;
+    private readonly ConfigurableFileSecurityFilter _securityFilter;
+    private readonly ILogger<FilesSectionAugmenter> _logger;
 
-    public FilesSectionAugmenter(IFileSystem fileSystem, IAnsiConsole console)
+    public FilesSectionAugmenter(IFileSystem fileSystem, IAnsiConsole console, ILogger<FilesSectionAugmenter>? logger = null)
     {
         _fileSystem = fileSystem;
         _console = console;
         _classifier = new MimeDbClassifier();
+        _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<FilesSectionAugmenter>.Instance;
+        _securityFilter = new ConfigurableFileSecurityFilter(logger: Microsoft.Extensions.Logging.Abstractions.NullLogger<ConfigurableFileSecurityFilter>.Instance);
     }
 
     public async Task AugmentCatalog(Catalog catalog, IEnumerable<Section> filesSections, ProgressContext progress)
@@ -120,6 +125,13 @@ public class FilesSectionAugmenter
             switch (node)
             {
                 case IReadOnlyFile file:
+                    // Apply security filtering to prevent sensitive file exposure
+                    if (_securityFilter.ShouldExclude(file))
+                    {
+                        _logger.LogDebug("Excluding file due to security filter: {FilePath}", file.Path);
+                        break;
+                    }
+
                     // Create a FileSystemContentSource for this specific file
                     var contentSource = new FileSystemContentSource(_fileSystem, section.Version, section.Path);
                     var contentType = _classifier.Classify(file);
@@ -130,6 +142,13 @@ public class FilesSectionAugmenter
                     break;
                     
                 case IReadOnlyDirectory subDirectory:
+                    // Apply security filtering to directories
+                    if (_securityFilter.ShouldExclude(subDirectory))
+                    {
+                        _logger.LogDebug("Excluding directory due to security filter: {DirectoryPath}", subDirectory.Path);
+                        break;
+                    }
+
                     // Recursively yield from subdirectories
                     await foreach (var subItem in CollectWorkingDirectoryContent(subDirectory, section, task))
                     {
