@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 using Tanka.FileSystem;
 
 namespace Tanka.DocsTool.Security;
@@ -14,10 +15,12 @@ public class ConfigurableFileSecurityFilter
     private readonly HashSet<string> _excludeExtensions;
     private readonly HashSet<string> _excludeDirectories;
     private readonly HashSet<string> _includeDirectories;
+    private readonly ILogger<ConfigurableFileSecurityFilter> _logger;
 
-    public ConfigurableFileSecurityFilter(FileFilterConfiguration? config = null)
+    public ConfigurableFileSecurityFilter(FileFilterConfiguration? config = null, ILogger<ConfigurableFileSecurityFilter>? logger = null)
     {
         _config = config ?? new FileFilterConfiguration();
+        _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<ConfigurableFileSecurityFilter>.Instance;
         
         var regexOptions = _config.CaseSensitive 
             ? RegexOptions.Compiled 
@@ -39,10 +42,9 @@ public class ConfigurableFileSecurityFilter
             {
                 _excludePatterns.Add(new Regex(pattern, regexOptions));
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
-                // Log invalid pattern but continue
-                Console.WriteLine($"Warning: Invalid exclude pattern '{pattern}' - skipping");
+                _logger.LogWarning("Invalid exclude pattern '{Pattern}' - skipping: {Error}", pattern, ex.Message);
             }
         }
 
@@ -52,10 +54,9 @@ public class ConfigurableFileSecurityFilter
             {
                 _includePatterns.Add(new Regex(pattern, regexOptions));
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
-                // Log invalid pattern but continue
-                Console.WriteLine($"Warning: Invalid include pattern '{pattern}' - skipping");
+                _logger.LogWarning("Invalid include pattern '{Pattern}' - skipping: {Error}", pattern, ex.Message);
             }
         }
 
@@ -132,11 +133,8 @@ public class ConfigurableFileSecurityFilter
             return true;
         }
 
-        // Check file size limit
-        if (TryGetFileSize(file, out var fileSize) && fileSize > _config.MaxFileSize)
-        {
-            return true;
-        }
+        // TODO: File size checking would require async API
+        // For now, we skip this check to keep the API simple
 
         return false;
     }
@@ -267,18 +265,4 @@ public class ConfigurableFileSecurityFilter
         return pathStr;
     }
 
-    private static bool TryGetFileSize(IReadOnlyFile file, out long size)
-    {
-        size = 0;
-        try
-        {
-            // This would need to be implemented based on the IReadOnlyFile interface
-            // For now, we'll assume all files are under the limit
-            return false;
-        }
-        catch
-        {
-            return false;
-        }
-    }
 }

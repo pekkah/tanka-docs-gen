@@ -36,19 +36,15 @@ public class FileFilterConfiguration
     public List<string> IncludeDirectories { get; set; } = new();
 
     /// <summary>
-    /// Whether to follow .gitignore files (default: true)
-    /// </summary>
-    public bool RespectGitignore { get; set; } = true;
-
-    /// <summary>
     /// Whether to be case sensitive in pattern matching (default: false)
     /// </summary>
     public bool CaseSensitive { get; set; } = false;
 
-    /// <summary>
-    /// Maximum file size to include (in bytes, default: 10MB)
-    /// </summary>
-    public long MaxFileSize { get; set; } = 10 * 1024 * 1024; // 10MB
+    // TODO: File size filtering would require async API changes
+    // /// <summary>
+    // /// Maximum file size to include (in bytes, default: 10MB)
+    // /// </summary>
+    // public long MaxFileSize { get; set; } = 10 * 1024 * 1024; // 10MB
 
     /// <summary>
     /// Whether to include hidden files (files starting with .) (default: false)

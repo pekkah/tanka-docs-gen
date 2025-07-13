@@ -64,13 +64,15 @@ public class FilesSectionAugmenter
     private readonly IAnsiConsole _console;
     private readonly IContentClassifier _classifier;
     private readonly ConfigurableFileSecurityFilter _securityFilter;
+    private readonly ILogger<FilesSectionAugmenter> _logger;
 
-    public FilesSectionAugmenter(IFileSystem fileSystem, IAnsiConsole console)
+    public FilesSectionAugmenter(IFileSystem fileSystem, IAnsiConsole console, ILogger<FilesSectionAugmenter>? logger = null)
     {
         _fileSystem = fileSystem;
         _console = console;
         _classifier = new MimeDbClassifier();
-        _securityFilter = new ConfigurableFileSecurityFilter();
+        _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<FilesSectionAugmenter>.Instance;
+        _securityFilter = new ConfigurableFileSecurityFilter(logger: Microsoft.Extensions.Logging.Abstractions.NullLogger<ConfigurableFileSecurityFilter>.Instance);
     }
 
     public async Task AugmentCatalog(Catalog catalog, IEnumerable<Section> filesSections, ProgressContext progress)
@@ -126,7 +128,7 @@ public class FilesSectionAugmenter
                     // Apply security filtering to prevent sensitive file exposure
                     if (_securityFilter.ShouldExclude(file))
                     {
-                        _console.LogDebug($"Excluding file due to security filter: {file.Path}");
+                        _logger.LogDebug("Excluding file due to security filter: {FilePath}", file.Path);
                         break;
                     }
 
@@ -143,7 +145,7 @@ public class FilesSectionAugmenter
                     // Apply security filtering to directories
                     if (_securityFilter.ShouldExclude(subDirectory))
                     {
-                        _console.LogDebug($"Excluding directory due to security filter: {subDirectory.Path}");
+                        _logger.LogDebug("Excluding directory due to security filter: {DirectoryPath}", subDirectory.Path);
                         break;
                     }
 
