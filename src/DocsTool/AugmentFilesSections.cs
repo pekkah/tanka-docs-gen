@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Tanka.DocsTool.Catalogs;
 using Tanka.DocsTool.Pipelines;
+using Tanka.DocsTool.Security;
 using Tanka.FileSystem;
 
 namespace Tanka.DocsTool;
@@ -62,12 +63,14 @@ public class FilesSectionAugmenter
     private readonly IFileSystem _fileSystem;
     private readonly IAnsiConsole _console;
     private readonly IContentClassifier _classifier;
+    private readonly ConfigurableFileSecurityFilter _securityFilter;
 
     public FilesSectionAugmenter(IFileSystem fileSystem, IAnsiConsole console)
     {
         _fileSystem = fileSystem;
         _console = console;
         _classifier = new MimeDbClassifier();
+        _securityFilter = new ConfigurableFileSecurityFilter();
     }
 
     public async Task AugmentCatalog(Catalog catalog, IEnumerable<Section> filesSections, ProgressContext progress)
@@ -120,6 +123,13 @@ public class FilesSectionAugmenter
             switch (node)
             {
                 case IReadOnlyFile file:
+                    // Apply security filtering to prevent sensitive file exposure
+                    if (_securityFilter.ShouldExclude(file))
+                    {
+                        _console.LogDebug($"Excluding file due to security filter: {file.Path}");
+                        break;
+                    }
+
                     // Create a FileSystemContentSource for this specific file
                     var contentSource = new FileSystemContentSource(_fileSystem, section.Version, section.Path);
                     var contentType = _classifier.Classify(file);
@@ -130,6 +140,13 @@ public class FilesSectionAugmenter
                     break;
                     
                 case IReadOnlyDirectory subDirectory:
+                    // Apply security filtering to directories
+                    if (_securityFilter.ShouldExclude(subDirectory))
+                    {
+                        _console.LogDebug($"Excluding directory due to security filter: {subDirectory.Path}");
+                        break;
+                    }
+
                     // Recursively yield from subdirectories
                     await foreach (var subItem in CollectWorkingDirectoryContent(subDirectory, section, task))
                     {

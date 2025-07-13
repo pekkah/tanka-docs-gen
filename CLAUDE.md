@@ -16,6 +16,10 @@ Tanka Documentation Generator is a .NET 9.0 console application that generates s
 
 This ensures all development work aligns with the project roadmap and avoids duplicating planned efforts.
 
+## Version Control Best Practices
+
+- Do not commit to master branch. Create feature or fix branches before starting work on new feature or bug fix.
+
 ## Common Development Commands
 
 ### Building and Testing
