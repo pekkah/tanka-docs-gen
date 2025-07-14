@@ -49,7 +49,7 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
 
             if (!File.Exists(configFilePath))
             {
-                _console.MarkupLine($"[red]Error:[/] Could not load configuration: '{configFilePath}'");
+                _console.WriteError($"Could not load configuration: '{configFilePath}'");
                 return -1;
             }
 
@@ -58,7 +58,7 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
 
             if (siteDefinitionResult.IsFailure)
             {
-                _console.MarkupLine($"[red]Error:[/] Could not load configuration '{configFilePath}': {siteDefinitionResult.Error}");
+                _console.WriteError($"Could not load configuration '{configFilePath}': {siteDefinitionResult.Error}");
                 return -1;
             }
 
@@ -111,8 +111,7 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
 
                     if (updatedSiteResult.IsFailure)
                     {
-                        _console.MarkupLine(
-                            $"[red]Error:[/] Could not reload configuration '{configFilePath}': {updatedSiteResult.Error}");
+                        _console.WriteError($"Could not reload configuration '{configFilePath}': {updatedSiteResult.Error}");
                         return;
                     }
 
@@ -134,7 +133,7 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
                     }
                     else
                     {
-                        _console.MarkupLine("[red]Rebuild failed.[/]");
+                        _console.WriteError("Rebuild failed.");
                     }
                 }
                 catch (OperationCanceledException) when (cts.Token.IsCancellationRequested)
@@ -143,7 +142,7 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
                 }
                 catch (Exception ex)
                 {
-                    _console.MarkupLine("[red]Error during rebuild:[/]");
+                    _console.WriteError("Error during rebuild:");
                     _console.WriteException(ex);
                 }
                 finally
@@ -221,19 +220,18 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
         {
             if (warning.ContentItem != null)
             {
-                console.MarkupLine(
-                    $"[yellow]Warning:[/] In {Markup.Escape(warning.ContentItem.File.Path.ToString())}: {Markup.Escape(warning.Message)}");
+                console.WriteWarning(warning.Message, warning.ContentItem.File.Path.ToString());
             }
             else
             {
-                console.MarkupLine($"[yellow]Warning:[/] {Markup.Escape(warning.Message)}");
+                console.WriteWarning(warning.Message);
             }
         }
 
         // report errors
         if (context.HasErrors)
         {
-            console.MarkupLine("[red]Build failed with errors:[/]");
+            console.WriteBuildFailure();
             foreach (var error in context.Errors)
             {
                 if (error.ContentItem != null)

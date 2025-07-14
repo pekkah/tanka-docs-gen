@@ -48,7 +48,7 @@ public class InitCommand : AsyncCommand<InitCommandSettings>
                 {
                     if (!GitValidator.IsGitRepository())
                     {
-                        _console.MarkupLine("[red]Error:[/] Current directory is not a Git repository.");
+                        _console.WriteError("Current directory is not a Git repository.");
                         _console.MarkupLine("[dim]Run 'git init' to initialize a Git repository.[/]");
                         return -1;
                     }
@@ -73,7 +73,7 @@ public class InitCommand : AsyncCommand<InitCommandSettings>
                         }
                         else
                         {
-                            _console.MarkupLine($"[yellow]Warning:[/] Could not detect branch, using default: {defaultBranch}");
+                            _console.WriteWarning($"Could not detect branch, using default: {defaultBranch}");
                         }
                     }
                 }
@@ -111,7 +111,7 @@ public class InitCommand : AsyncCommand<InitCommandSettings>
                     }
                     catch (InvalidOperationException ex)
                     {
-                        _console.MarkupLine($"[red]Error:[/] {ex.Message}");
+                        _console.WriteError(ex.Message);
                         return -1;
                     }
                 }
@@ -125,7 +125,7 @@ public class InitCommand : AsyncCommand<InitCommandSettings>
                     var mainConfigPath = Path.Combine(outputDir, "tanka-docs.yml");
                     if (File.Exists(mainConfigPath) && !settings.Force)
                     {
-                        _console.MarkupLine("[yellow]⚠[/] Skipped existing: tanka-docs.yml");
+                        _console.WriteWarning("Skipped existing: tanka-docs.yml");
                     }
                     else
                     {
@@ -141,7 +141,7 @@ public class InitCommand : AsyncCommand<InitCommandSettings>
                         var wipConfigPath = Path.Combine(outputDir, "tanka-docs-wip.yml");
                         if (File.Exists(wipConfigPath) && !settings.Force)
                         {
-                            _console.MarkupLine("[yellow]⚠[/] Skipped existing: tanka-docs-wip.yml");
+                            _console.WriteWarning("Skipped existing: tanka-docs-wip.yml");
                         }
                         else
                         {
