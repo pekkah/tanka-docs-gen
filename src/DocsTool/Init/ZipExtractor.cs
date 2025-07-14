@@ -18,7 +18,7 @@ public static class ZipExtractor
     {
         if (string.IsNullOrWhiteSpace(targetDirectory))
             throw new ArgumentException("Target directory cannot be null or empty", nameof(targetDirectory));
-            
+
         try
         {
             using var zipStream = EmbeddedResources.GetUiBundleZip();
@@ -29,7 +29,7 @@ public static class ZipExtractor
             throw new InvalidOperationException($"Failed to extract UI bundle to '{targetDirectory}': {ex.Message}", ex);
         }
     }
-    
+
     /// <summary>
     /// Extracts a zip stream to the specified directory with detailed control.
     /// </summary>
@@ -39,33 +39,33 @@ public static class ZipExtractor
     public static void ExtractZipToDirectory(Stream zipStream, string targetDirectory, bool overwrite = false)
     {
         using var archive = new ZipArchive(zipStream, ZipArchiveMode.Read);
-        
+
         foreach (var entry in archive.Entries)
         {
             var destinationPath = Path.Combine(targetDirectory, entry.FullName);
-            
+
             // Skip directory entries
             if (entry.FullName.EndsWith('/') || entry.FullName.EndsWith('\\'))
                 continue;
-                
+
             // Create directory if needed
             var directory = Path.GetDirectoryName(destinationPath);
             if (!string.IsNullOrEmpty(directory))
             {
                 Directory.CreateDirectory(directory);
             }
-            
+
             // Check if file exists and handle overwrite
             if (File.Exists(destinationPath) && !overwrite)
             {
                 continue; // Skip existing file
             }
-            
+
             // Extract file
             entry.ExtractToFile(destinationPath, overwrite: overwrite);
         }
     }
-    
+
     /// <summary>
     /// Gets information about the contents of the embedded UI bundle.
     /// </summary>
@@ -74,13 +74,13 @@ public static class ZipExtractor
     {
         using var zipStream = EmbeddedResources.GetUiBundleZip();
         using var archive = new ZipArchive(zipStream, ZipArchiveMode.Read);
-        
+
         return archive.Entries
             .Where(entry => !entry.FullName.EndsWith('/') && !entry.FullName.EndsWith('\\'))
             .Select(entry => entry.FullName)
             .ToList();
     }
-    
+
     /// <summary>
     /// Checks if the target directory already contains UI bundle files.
     /// </summary>
@@ -90,10 +90,10 @@ public static class ZipExtractor
     {
         if (!Directory.Exists(targetDirectory))
             return false;
-            
+
         // Check for key UI bundle files
         var keyFiles = new[] { "article.hbs", "tanka-docs-section.yml" };
-        
+
         return keyFiles.Any(file => File.Exists(Path.Combine(targetDirectory, file)));
     }
-} 
+}

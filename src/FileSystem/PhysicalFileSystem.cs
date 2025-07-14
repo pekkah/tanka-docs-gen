@@ -103,7 +103,7 @@ namespace Tanka.FileSystem
 
             if (Directory.Exists(fullPath))
                 Directory.Delete(fullPath, true);
-            
+
             return Task.CompletedTask;
         }
 

@@ -28,7 +28,7 @@ namespace Tanka.DocsTool.Catalogs
         {
             return (filename, extension) switch
             {
-                { filename: "tanka-docs-section", extension: ".yml" or ".yaml"} => ContentItem.SectionDefinitionType,
+                { filename: "tanka-docs-section", extension: ".yml" or ".yaml" } => ContentItem.SectionDefinitionType,
                 (_, _) => null
             };
         }

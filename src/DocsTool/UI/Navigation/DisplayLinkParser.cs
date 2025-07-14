@@ -4,10 +4,10 @@ namespace Tanka.DocsTool.Navigation
 {
     public ref struct DisplayLinkParser
     {
-        private static readonly char[] SchemeDelimiter = {':', '/', '/'};
-        private static readonly char[] Http = {'h', 't', 't', 'p'};
-        private static readonly char[] Https = {'h', 't', 't', 'p', 's'};
-        private static readonly char[] Xref = {'x', 'r', 'e', 'f'};
+        private static readonly char[] SchemeDelimiter = { ':', '/', '/' };
+        private static readonly char[] Http = { 'h', 't', 't', 'p' };
+        private static readonly char[] Https = { 'h', 't', 't', 'p', 's' };
+        private static readonly char[] Xref = { 'x', 'r', 'e', 'f' };
 
         private readonly ReadOnlySpan<char> _link;
         private int _position;

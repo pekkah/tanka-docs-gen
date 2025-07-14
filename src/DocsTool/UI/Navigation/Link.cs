@@ -2,7 +2,7 @@
 
 namespace Tanka.DocsTool.Navigation
 {
-    public readonly struct Link: IEquatable<Link>
+    public readonly struct Link : IEquatable<Link>
     {
         public Link(string uri)
         {

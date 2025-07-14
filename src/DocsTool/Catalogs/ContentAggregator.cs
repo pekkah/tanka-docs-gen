@@ -39,9 +39,9 @@ public class ContentAggregator
         await foreach (var source in BuildSources(context, cancellationToken))
         {
             _console.LogInformation($"Loading: '{source.Path}@{source.Version}'");
-            
+
             var task = progress.AddTask(GetTaskDescription(source), maxValue: 0);
-           
+
             await foreach (var node in source.Enumerate(cancellationToken))
                 stack.Push(node);
 
@@ -50,7 +50,7 @@ public class ContentAggregator
             {
                 var node = stack.Pop();
                 task.Increment(1);
-               
+
                 switch (node)
                 {
                     case IReadOnlyFile file:
@@ -93,7 +93,7 @@ public class ContentAggregator
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var branches = _site.Branches;
-       
+
         foreach (var (branch, definition) in branches)
         {
             var commonInputPaths = definition.InputPath;
@@ -107,14 +107,14 @@ public class ContentAggregator
                     //// as the source of the truth
                     //if (status.IsDirty)
                     //{
-                        var inputDirectory = await _workFileSystem.GetDirectory(commonInputPath);
-                        if (inputDirectory != null)
-                        {
-                            yield return new FileSystemContentSource(
-                                _workFileSystem,
-                                "HEAD",
-                                inputDirectory.Path); // we're mounting the input path
-                        }
+                    var inputDirectory = await _workFileSystem.GetDirectory(commonInputPath);
+                    if (inputDirectory != null)
+                    {
+                        yield return new FileSystemContentSource(
+                            _workFileSystem,
+                            "HEAD",
+                            inputDirectory.Path); // we're mounting the input path
+                    }
                     //}
                     //else
                     //{
@@ -135,7 +135,7 @@ public class ContentAggregator
                             var matchingBranch = _git.Branch(repoBranch.CanonicalName);
                             if (await matchingBranch.GetDirectory(commonInputPath) != null)
                             {
-                                
+
                                 yield return new GitBranchContentSource(
                                     matchingBranch,
                                     commonInputPath);

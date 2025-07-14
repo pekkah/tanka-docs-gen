@@ -58,7 +58,7 @@ namespace Tanka.DocsTool.UI
                         buildContext.Add(new Error($"Failed to build section '{section}': {ex.Message}"));
                         _console.LogError($"Error building section '{section}': {ex.Message}");
                     }
-                    
+
                     task.Increment(1);
                 }
 

@@ -18,7 +18,7 @@ namespace Tanka.DocsTool.Tests
         {
             var list = new List<T>();
 
-            await foreach(var item in enumerable)
+            await foreach (var item in enumerable)
                 list.Add(item);
 
             return list;

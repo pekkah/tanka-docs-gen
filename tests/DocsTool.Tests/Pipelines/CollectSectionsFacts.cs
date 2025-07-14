@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Tanka.DocsTool.Tests.Pipelines
 {
-    public class CollectSectionsFacts: IDisposable
+    public class CollectSectionsFacts : IDisposable
     {
         public CollectSectionsFacts()
         {
@@ -41,7 +41,7 @@ namespace Tanka.DocsTool.Tests.Pipelines
             });
 
             _aggregator = new ContentAggregator(
-                site, 
+                site,
                 git,
                 new PhysicalFileSystem(root),
                 new MimeDbClassifier(),
@@ -57,8 +57,9 @@ namespace Tanka.DocsTool.Tests.Pipelines
         [Fact]
         public Task From_root_of_the_path()
         {
-            return  _console.Progress()
-                .StartAsync(async progress => {
+            return _console.Progress()
+                .StartAsync(async progress =>
+                {
                     /* Given */
                     var collector = new SectionCollector(_console, true);
                     var root = GetRepoRootWithoutDotGit();

@@ -112,7 +112,7 @@ public class BuildSiteCommand : AsyncCommand<BuildSiteCommand.Settings>
                     _console.MarkupLine($"[yellow]Warning:[/] {Markup.Escape(warning.Message)}");
                 }
             }
-            
+
             // report errors
             if (buildContext.HasErrors)
             {
@@ -161,5 +161,9 @@ public class BuildSiteCommand : AsyncCommand<BuildSiteCommand.Settings>
         [CommandOption("--base <BASE>")]
         [Description("Set the base href meta for the generated html pages.")]
         public string? Base { get; set; }
+
+        [CommandOption("--link-validation <MODE>")]
+        [Description("Link validation mode: strict or relaxed")]
+        public LinkValidation LinkValidation { get; set; } = LinkValidation.Strict;
     }
 }

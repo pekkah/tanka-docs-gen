@@ -64,7 +64,7 @@ public class FileWatcher : IDisposable
     {
         if (_cancellationToken.IsCancellationRequested)
             return;
-            
+
         _debounceCts?.Cancel();
         _debounceCts = new CancellationTokenSource();
 
@@ -102,7 +102,7 @@ public class FileWatcher : IDisposable
         _debounceCts?.Cancel();
         _debounceCts?.Dispose();
         _debounceCts = null;
-        
+
         foreach (var watcher in _watchers)
         {
             watcher.EnableRaisingEvents = false;
@@ -130,4 +130,4 @@ public readonly struct FileChange
 {
     public required string FullPath { get; init; }
     public required FileChangeType ChangeType { get; init; }
-} 
+}

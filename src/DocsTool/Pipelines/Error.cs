@@ -12,4 +12,4 @@ public record Error
 
     public string Message { get; }
     public ContentItem? ContentItem { get; }
-}; 
+};

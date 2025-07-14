@@ -11,7 +11,7 @@
             _source = source;
         }
 
-        public const string SectionDefinitionType  = "tanka/section";
+        public const string SectionDefinitionType = "tanka/section";
 
         public string Type { get; }
 

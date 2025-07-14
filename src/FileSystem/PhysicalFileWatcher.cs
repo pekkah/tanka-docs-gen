@@ -97,4 +97,4 @@ public class PhysicalFileWatcher : IFileWatcher
     {
         Stop();
     }
-} 
+}

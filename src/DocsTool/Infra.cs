@@ -11,7 +11,7 @@ namespace Tanka.DocsTool
             LoggerFactory = loggerFactory;
         }
 
-        public static ILoggerFactory LoggerFactory = new NullLoggerFactory(); 
+        public static ILoggerFactory LoggerFactory = new NullLoggerFactory();
 
         public static ILogger Logger => LoggerFactory.CreateLogger("main");
     }

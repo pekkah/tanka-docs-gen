@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Threading;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Spectre.Console.Cli;
-using System.Diagnostics.CodeAnalysis;
 using Tanka.DocsTool.Definitions;
-using System.Threading;
 
 namespace Tanka.DocsTool;
 
@@ -27,10 +27,10 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
     {
         var watcher = new FileWatcher();
         WebSocketService? webSocketService = null;
-        
+
         // Create a cancellation token source that we control
         using var cts = new CancellationTokenSource();
-        
+
         // Handle Ctrl+C properly
         Console.CancelKeyPress += (_, e) =>
         {
@@ -38,7 +38,7 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
             _console.MarkupLine("[yellow]Shutting down...[/]");
             cts.Cancel();
         };
-        
+
         try
         {
             // 1. Get site configuration from tanka-docs.yml
@@ -66,12 +66,15 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
 
             // 2. Perform an initial full build
             _console.MarkupLine("Performing initial site build...");
-            var buildSettings = new BuildSiteCommand.Settings(); // Use default build settings
+            var buildSettings = new BuildSiteCommand.Settings
+            {
+                LinkValidation = settings.LinkValidation
+            };
             var builder = new PipelineBuilder(_services).UseDefault();
             var executor = new PipelineExecutor(buildSettings);
             var buildContext = await executor.Execute(builder, site, currentPath);
             _console.MarkupLine("Initial build complete.");
-            
+
             if (!ReportErrors(_console, buildContext))
                 return -1;
 
@@ -87,7 +90,7 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
                 // Check if cancellation was requested
                 if (cts.Token.IsCancellationRequested)
                     return;
-                    
+
                 if (change.FullPath.StartsWith(outputPath, StringComparison.OrdinalIgnoreCase))
                     return;
 
@@ -96,12 +99,12 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
                     _console.MarkupLine("[grey]Build already in progress. Skipping change.[/]");
                     return;
                 }
-                
+
                 try
                 {
                     _console.MarkupLine($"[yellow]Change detected: {change.ChangeType} - {change.FullPath}[/]");
                     _console.MarkupLine("[yellow]Rebuilding site...[/]");
-                    
+
                     // It's important to re-read the configuration on every change
                     var updatedSiteResult = (await File.ReadAllTextAsync(configFilePath, cts.Token))
                         .TryParseYaml<SiteDefinition>();
@@ -114,8 +117,15 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
                     }
 
                     var updatedSite = updatedSiteResult.Value;
-                    var rebuildContext = await executor.Execute(builder, updatedSite, currentPath);
-                    
+
+                    // Use relaxed validation for file watcher rebuilds to avoid interrupting development
+                    var rebuildSettings = new BuildSiteCommand.Settings
+                    {
+                        LinkValidation = LinkValidation.Relaxed
+                    };
+                    var rebuildExecutor = new PipelineExecutor(rebuildSettings);
+                    var rebuildContext = await rebuildExecutor.Execute(builder, updatedSite, currentPath);
+
                     if (ReportErrors(_console, rebuildContext))
                     {
                         _console.MarkupLine("[green]Rebuild complete.[/]");
@@ -145,7 +155,9 @@ public class DevCommand : AsyncCommand<DevCommandSettings>
             // 5. Set up and run the web server
             var builderOptions = new WebApplicationOptions()
             {
-                ContentRootPath = currentPath, WebRootPath = site.OutputPath, Args = context.Remaining.Raw.ToArray()
+                ContentRootPath = currentPath,
+                WebRootPath = site.OutputPath,
+                Args = context.Remaining.Raw.ToArray()
             };
 
             var webAppBuilder = WebApplication.CreateBuilder(builderOptions);

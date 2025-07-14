@@ -33,7 +33,7 @@ namespace Tanka.FileSystem.Git
                 throw new InvalidOperationException(
                     $"Tree '{entry.Target.Id}' at path '{path}' is not a blob");
 
-            var blob = (Blob) entry.Target;
+            var blob = (Blob)entry.Target;
 
             return new ValueTask<IReadOnlyFile?>(
                 new GitFile(path, entry, blob));
@@ -71,7 +71,7 @@ namespace Tanka.FileSystem.Git
                         yield return new GitFile(
                             gitPath / entry.Path,
                             entry,
-                            (Blob) entry.Target);
+                            (Blob)entry.Target);
                         break;
                 }
             } while (queue.Count > 0);

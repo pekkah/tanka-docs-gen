@@ -8,10 +8,10 @@ namespace Tanka.DocsTool.Navigation
 {
     public ref struct LinkParser
     {
-        private static readonly char[] SchemeDelimiter = {':', '/', '/'};
-        private static readonly char[] Http = {'h', 't', 't', 'p'};
-        private static readonly char[] Https = {'h', 't', 't', 'p', 's'};
-        private static readonly char[] Xref = {'x', 'r', 'e', 'f'};
+        private static readonly char[] SchemeDelimiter = { ':', '/', '/' };
+        private static readonly char[] Http = { 'h', 't', 't', 'p' };
+        private static readonly char[] Https = { 'h', 't', 't', 'p', 's' };
+        private static readonly char[] Xref = { 'x', 'r', 'e', 'f' };
 
         private readonly ReadOnlySpan<char> _link;
         private int _position;
@@ -58,7 +58,7 @@ namespace Tanka.DocsTool.Navigation
                         version = sectionSpan.Slice(versionSeparator)
                             .TrimStart('@')
                             .ToString();
-                        
+
                         sectionId = sectionSpan.Slice(0, versionSeparator)
                             .ToString();
                     }
@@ -97,8 +97,8 @@ namespace Tanka.DocsTool.Navigation
             ReadOnlySpan<char> unread = querySpan;
             if (querySpan[0] == '?')
                 unread = unread.Slice(1);
-                
-            var result = new Dictionary<string ,string>();
+
+            var result = new Dictionary<string, string>();
             while (!unread.IsEmpty)
             {
                 var indexOfAndOrEnd = unread.IndexOf('&');

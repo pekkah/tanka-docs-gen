@@ -23,4 +23,4 @@ public interface IFileWatcher : IDisposable
     void Start(IEnumerable<string> paths, Func<FileChange, Task> onChanged);
 
     void Stop();
-} 
+}

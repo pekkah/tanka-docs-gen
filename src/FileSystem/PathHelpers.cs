@@ -41,7 +41,7 @@ namespace Tanka.FileSystem
                     normalizedPath = normalizedPath.Substring(2);
                 }
             }
-            
+
             // Step 4: Handle leading slashes.
             if (isUnixAbsolute)
             {
@@ -57,7 +57,7 @@ namespace Tanka.FileSystem
                 }
                 else if (firstNonSlash > 0) // Starts with multiple slashes e.g. "//foo"
                 {
-                     normalizedPath = "/" + normalizedPath.Substring(firstNonSlash);
+                    normalizedPath = "/" + normalizedPath.Substring(firstNonSlash);
                 }
                 // If firstNonSlash is 0, it means it didn't start with a slash,
                 // which contradicts isUnixAbsolute. This case should ideally not be hit
@@ -79,7 +79,7 @@ namespace Tanka.FileSystem
             string normRight = Normalize(right);
 
             if (normRight.StartsWith("/"))
-                 return normRight;
+                return normRight;
 
             if (normLeft.EndsWith("/"))
                 return normLeft + normRight;

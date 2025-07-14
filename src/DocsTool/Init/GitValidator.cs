@@ -25,7 +25,7 @@ public static class GitValidator
                 "Then run 'tanka-docs init' again.");
         }
     }
-    
+
     /// <summary>
     /// Checks if the current directory is a Git repository.
     /// </summary>
@@ -35,7 +35,7 @@ public static class GitValidator
         // First check for .git directory (most common case)
         if (Directory.Exists(".git"))
             return true;
-            
+
         // Then check via git command (handles worktrees and other cases)
         try
         {
@@ -47,7 +47,7 @@ public static class GitValidator
             return false;
         }
     }
-    
+
     /// <summary>
     /// Gets the current Git branch name.
     /// </summary>
@@ -60,12 +60,12 @@ public static class GitValidator
             var result = RunGitCommand("symbolic-ref --short HEAD");
             if (!string.IsNullOrWhiteSpace(result))
                 return result.Trim();
-                
+
             // Fallback to rev-parse (works for detached HEAD)
             result = RunGitCommand("rev-parse --abbrev-ref HEAD");
             if (!string.IsNullOrWhiteSpace(result) && result.Trim() != "HEAD")
                 return result.Trim();
-                
+
             return null; // Detached HEAD or other edge case
         }
         catch
@@ -73,7 +73,7 @@ public static class GitValidator
             return null; // Git not available or not a git repository
         }
     }
-    
+
     /// <summary>
     /// Gets a sensible default branch name, preferring current branch or falling back to common defaults.
     /// </summary>
@@ -84,11 +84,11 @@ public static class GitValidator
         var currentBranch = GetCurrentBranch();
         if (!string.IsNullOrEmpty(currentBranch))
             return currentBranch;
-            
+
         // Fallback to modern default
         return "main";
     }
-    
+
     /// <summary>
     /// Checks if Git is available on the system.
     /// </summary>
@@ -105,7 +105,7 @@ public static class GitValidator
             return false;
         }
     }
-    
+
     /// <summary>
     /// Runs a Git command and returns its output.
     /// </summary>
@@ -126,17 +126,17 @@ public static class GitValidator
                 CreateNoWindow = true
             }
         };
-        
+
         process.Start();
         var output = process.StandardOutput.ReadToEnd();
         var error = process.StandardError.ReadToEnd();
         process.WaitForExit();
-        
+
         if (process.ExitCode != 0)
         {
             throw new InvalidOperationException($"Git command failed: git {arguments}\n{error}");
         }
-        
+
         return output;
     }
-} 
+}

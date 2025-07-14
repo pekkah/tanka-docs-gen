@@ -33,7 +33,7 @@ public class AggregateContent : IMiddleware
                 new ProgressBarColumn(),
                 new ItemCountColumn(),
                 new ElapsedTimeColumn(),
-                new RemainingTimeColumn(), 
+                new RemainingTimeColumn(),
                 new SpinnerColumn()
             )
             .StartAsync(async progress =>

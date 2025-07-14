@@ -13,4 +13,8 @@ public class DevCommandSettings : CommandSettings
     [Description("Port to run the dev server on.")]
     [DefaultValue(5000)]
     public int Port { get; set; }
-} 
+
+    [CommandOption("--link-validation <MODE>")]
+    [Description("Link validation mode: strict or relaxed")]
+    public LinkValidation LinkValidation { get; set; } = LinkValidation.Relaxed;
+}

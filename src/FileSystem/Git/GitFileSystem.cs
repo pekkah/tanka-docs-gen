@@ -2,12 +2,12 @@
 
 namespace Tanka.FileSystem.Git;
 
-public class GitFileSystemRoot: GitBranchFileSystem
+public class GitFileSystemRoot : GitBranchFileSystem
 {
     private readonly Repository _repo;
 
     public GitFileSystemRoot(Repository repository)
-        :base(repository, repository.Head)
+        : base(repository, repository.Head)
     {
         _repo = repository;
     }
@@ -30,13 +30,13 @@ public class GitFileSystemRoot: GitBranchFileSystem
 
     public static Repository DiscoverRepo(string startingPath)
     {
-    var repoRoot = Repository.Discover(startingPath);
-    if (string.IsNullOrEmpty(repoRoot))
+        var repoRoot = Repository.Discover(startingPath);
+        if (string.IsNullOrEmpty(repoRoot))
             throw new InvalidOperationException(
             $"Could not discover Git repository starting from " +
             $"path '{startingPath}'.");
 
-    return new Repository(repoRoot);
+        return new Repository(repoRoot);
     }
 
     public FileSystemPath Path => _repo.Info.Path;

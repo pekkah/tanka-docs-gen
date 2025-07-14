@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Tanka.DocsTool.Navigation
 {
-    public readonly struct Xref: IEquatable<Xref>
+    public readonly struct Xref : IEquatable<Xref>
     {
         public Xref(string? version, string? sectionId, string path, IReadOnlyDictionary<string, string>? query = null)
         {

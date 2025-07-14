@@ -42,10 +42,10 @@ namespace Tanka.DocsTool.UI
             {
                 var preprocessorPipe = BuildPreProcessors(section);
                 var router = new DocsSiteRouter(_site, section);
-                var renderer = await BuildMarkdownService(section, router);
+                var renderer = await BuildMarkdownService(section, router, buildContext);
 
                 var menu = await ComposeMenu(section, buildContext);
-                
+
                 await ComposeAssets(section, router, buildContext);
                 await ComposePages(section, menu, router, renderer, preprocessorPipe, buildContext);
             }
@@ -63,9 +63,9 @@ namespace Tanka.DocsTool.UI
             return builder.Build();
         }
 
-        private Task<DocsMarkdownService> BuildMarkdownService(Section section, DocsSiteRouter router)
+        private Task<DocsMarkdownService> BuildMarkdownService(Section section, DocsSiteRouter router, BuildContext buildContext)
         {
-            var context = new DocsMarkdownRenderingContext(_site, section, router);
+            var context = new DocsMarkdownRenderingContext(_site, section, router, buildContext);
             var builder = new MarkdownPipelineBuilder();
             builder.Use(new DisplayLinkExtension(context));
 
@@ -115,7 +115,7 @@ namespace Tanka.DocsTool.UI
                 .ToLowerInvariant();
 
             //todo: better management of assets
-            return new []
+            return new[]
             {
                 ".js",
                 ".css",
@@ -130,7 +130,7 @@ namespace Tanka.DocsTool.UI
             Section section,
             IReadOnlyCollection<NavigationItem> menu,
             DocsSiteRouter router,
-            DocsMarkdownService renderer, 
+            DocsMarkdownService renderer,
             Func<FileSystemPath, PipeReader, Task<PipeReader>> preprocessorPipe,
             BuildContext buildContext)
         {
@@ -227,7 +227,7 @@ namespace Tanka.DocsTool.UI
 
                     // override context so each navigation file is rendered in the context of the owning section
                     var router = new DocsSiteRouter(_site, targetSection);
-                    var renderer = new DocsMarkdownService(new DocsMarkdownRenderingContext(_site, targetSection, router));
+                    var renderer = new DocsMarkdownService(new DocsMarkdownRenderingContext(_site, targetSection, router, buildContext));
                     var builder = new NavigationBuilder(renderer, router);
                     var fileItems = builder.Add(new string[]
                         {

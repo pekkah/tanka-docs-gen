@@ -21,15 +21,15 @@ public class ConfigurableFileSecurityFilter
     {
         _config = config ?? new FileFilterConfiguration();
         _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<ConfigurableFileSecurityFilter>.Instance;
-        
-        var regexOptions = _config.CaseSensitive 
-            ? RegexOptions.Compiled 
+
+        var regexOptions = _config.CaseSensitive
+            ? RegexOptions.Compiled
             : RegexOptions.IgnoreCase | RegexOptions.Compiled;
 
         // Initialize base security patterns
         _excludePatterns = new List<Regex>();
         _includePatterns = new List<Regex>();
-        
+
         if (_config.EnableSecurityFiltering)
         {
             InitializeDefaultSecurityPatterns(regexOptions);
@@ -62,7 +62,7 @@ public class ConfigurableFileSecurityFilter
 
         // Initialize extension and directory sets
         var comparer = _config.CaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
-        
+
         _excludeExtensions = new HashSet<string>(comparer);
         _excludeDirectories = new HashSet<string>(comparer);
         _includeDirectories = new HashSet<string>(comparer);

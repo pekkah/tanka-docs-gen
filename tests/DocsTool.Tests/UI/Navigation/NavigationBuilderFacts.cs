@@ -27,7 +27,7 @@ namespace Tanka.DocsTool.Tests.UI.Navigation
             source.Path.Returns(new FileSystemPath(""));
 
             var section = new Section(new ContentItem(
-                    source, "tanka/section" , Substitute.For<IReadOnlyFile>()),
+                    source, "tanka/section", Substitute.For<IReadOnlyFile>()),
                 new SectionDefinition()
                 {
                     Id = "sectionId"
@@ -41,17 +41,18 @@ namespace Tanka.DocsTool.Tests.UI.Navigation
                 });
 
             var site = new Site(
-                new SiteDefinition(), 
+                new SiteDefinition(),
                 new Dictionary<string, Dictionary<string, Section>>()
-            {
-                ["TEST"] = new Dictionary<string, Section>()
                 {
-                    [section.Id] = section
-                }
-            });
+                    ["TEST"] = new Dictionary<string, Section>()
+                    {
+                        [section.Id] = section
+                    }
+                });
             _router = new DocsSiteRouter(site, section);
+            var buildContext = new BuildContext(new SiteDefinition(), "/test");
             _mdService = new DocsMarkdownService(
-                new DocsMarkdownRenderingContext(site, section, _router));
+                new DocsMarkdownRenderingContext(site, section, _router, buildContext));
 
             _sut = new NavigationBuilder(_mdService, _router);
         }
@@ -71,7 +72,7 @@ namespace Tanka.DocsTool.Tests.UI.Navigation
 ";
 
             /* When */
-            var menu = _sut.Add(new [] 
+            var menu = _sut.Add(new[]
             {
                 md
             }).Build();

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace Tanka.DocsTool.Navigation
 {
-    public readonly struct NavigationItem: IEquatable<NavigationItem>
+    public readonly struct NavigationItem : IEquatable<NavigationItem>
     {
         public NavigationItem(
-            DisplayLink link, 
+            DisplayLink link,
             IReadOnlyCollection<NavigationItem> children)
         {
             DisplayLink = link;

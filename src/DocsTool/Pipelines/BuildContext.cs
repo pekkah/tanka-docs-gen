@@ -8,8 +8,10 @@ public record BuildContext(SiteDefinition SiteDefinition, FileSystemPath WorkPat
     private readonly List<Error> _errors = new();
     private readonly List<Error> _warnings = new();
 
+    public LinkValidation LinkValidation { get; set; } = LinkValidation.Strict;
+
     public IReadOnlyCollection<Error> Errors => _errors.AsReadOnly();
-    
+
     public IReadOnlyCollection<Error> Warnings => _warnings.AsReadOnly();
 
     public bool HasErrors => _errors.Count > 0;

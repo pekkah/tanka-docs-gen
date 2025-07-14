@@ -28,8 +28,8 @@ public class InitCommand : AsyncCommand<InitCommandSettings>
             _console.MarkupLine("[bold green]Initializing Tanka Docs project...[/]");
 
             // Resolve output directory
-            var outputDir = string.IsNullOrEmpty(settings.OutputDir) 
-                ? Directory.GetCurrentDirectory() 
+            var outputDir = string.IsNullOrEmpty(settings.OutputDir)
+                ? Directory.GetCurrentDirectory()
                 : Path.GetFullPath(settings.OutputDir);
 
             _console.MarkupLine($"[dim]Output directory: {outputDir}[/]");
@@ -100,9 +100,9 @@ public class InitCommand : AsyncCommand<InitCommandSettings>
                 if (!settings.ConfigOnly)
                 {
                     _console.MarkupLine("[bold]Extracting UI bundle...[/]");
-                    
+
                     var uiBundlePath = Path.Combine(outputDir, "ui-bundle");
-                    
+
                     try
                     {
                         ZipExtractor.ExtractUiBundleToDirectory(uiBundlePath, settings.Force);
@@ -155,7 +155,7 @@ public class InitCommand : AsyncCommand<InitCommandSettings>
 
                 // Success summary
                 _console.MarkupLine("[bold green]✓ Initialization completed![/]");
-                
+
                 if (createdFiles.Any())
                 {
                     _console.MarkupLine($"[dim]Created {createdFiles.Count} files/directories[/]");
@@ -166,7 +166,7 @@ public class InitCommand : AsyncCommand<InitCommandSettings>
                 {
                     _console.WriteLine();
                     _console.MarkupLine("[bold]Next steps:[/]");
-                    
+
                     if (!settings.UiBundleOnly)
                     {
                         _console.MarkupLine("1. Review and customize your configuration:");
@@ -205,4 +205,4 @@ public class InitCommand : AsyncCommand<InitCommandSettings>
             return -1;
         }
     }
-} 
+}

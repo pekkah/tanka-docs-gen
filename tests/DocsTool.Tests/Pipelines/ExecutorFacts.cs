@@ -19,7 +19,7 @@ namespace Tanka.DocsTool.Tests.Pipelines
 
         public string GitRootPath { get; set; }
 
-        [Fact(Skip ="Refactor so this runs on memory")]
+        [Fact(Skip = "Refactor so this runs on memory")]
         public async Task Execute()
         {
             /* Given */
@@ -32,7 +32,7 @@ namespace Tanka.DocsTool.Tests.Pipelines
                 {
                     ["HEAD"] = new BranchDefinition()
                     {
-                        InputPath = new[] { "ui-bundle", "docs-v2", "src"}
+                        InputPath = new[] { "ui-bundle", "docs-v2", "src" }
                     }
                 },
                 Tags = new Dictionary<string, BranchDefinition>()
@@ -58,7 +58,7 @@ namespace Tanka.DocsTool.Tests.Pipelines
                 );
 
             await executor.Execute(new PipelineBuilder(services)
-                .UseDefault(), 
+                .UseDefault(),
                 site,
                 GitRootPath);
 
