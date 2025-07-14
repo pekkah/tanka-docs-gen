@@ -81,10 +81,14 @@ namespace Tanka.DocsTool.UI
         public string? GenerateRoute(Xref xref, BuildContext buildContext, ContentItem? contentItem = null)
         {
             var targetSection = Site.GetSectionByXref(xref, Section);
+            var targetItem = targetSection?.GetContentItem(xref.Path);
 
-            if (targetSection == null)
+            if (targetSection == null || targetItem == null)
             {
-                var message = $"Broken xref reference: {xref} - section not found";
+                var message = targetSection == null
+                    ? $"Broken xref reference: {xref} - section not found"
+                    : $"Broken xref reference: {xref} - content item not found";
+                
                 if (buildContext.LinkValidation == LinkValidation.Strict)
                     buildContext.Add(new Error(message, contentItem));
                 else

@@ -41,7 +41,7 @@ internal static class AnsiConsoleExtensions
         if (!string.IsNullOrEmpty(filePath))
             console.MarkupLine($"[red]Error:[/] In {Markup.Escape(filePath)}: {Markup.Escape(message)}");
         else
-            console.MarkupLine($"[red]Error:[/] {Markup.Escape(message)}");
+            console.WriteError(message);
     }
 
     public static void WriteWarning(this IAnsiConsole console, string message)
@@ -54,7 +54,7 @@ internal static class AnsiConsoleExtensions
         if (!string.IsNullOrEmpty(filePath))
             console.MarkupLine($"[yellow]Warning:[/] In {Markup.Escape(filePath)}: {Markup.Escape(message)}");
         else
-            console.MarkupLine($"[yellow]Warning:[/] {Markup.Escape(message)}");
+            console.WriteWarning(message);
     }
 
     public static void WriteBuildFailure(this IAnsiConsole console)
