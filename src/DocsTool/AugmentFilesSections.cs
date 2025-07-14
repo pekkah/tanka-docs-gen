@@ -30,11 +30,11 @@ public class AugmentFilesSections : IMiddleware
 
         // Find sections with type: files and augment catalog with working directory content
         var filesSections = context.Sections?.Where(s => s.Definition.Type?.ToLowerInvariant() == "files").ToList();
-        
+
         if (filesSections?.Any() == true)
         {
             _logger.LogInformation($"Found {filesSections.Count} files sections, augmenting with working directory content");
-            
+
             await _console.Progress()
                 .Columns(
                     new TaskDescriptionColumn(),
@@ -80,7 +80,7 @@ public class FilesSectionAugmenter
         foreach (var section in filesSections)
         {
             var task = progress.AddTask($"Files section: {section.Id}@{section.Version}", maxValue: 0);
-            
+
             try
             {
                 await AugmentSectionWithWorkingDirectoryContent(catalog, section, task);
@@ -111,13 +111,13 @@ public class FilesSectionAugmenter
         // Stream content items directly from working directory
         var contentItems = CollectWorkingDirectoryContent(sectionDirectory, section, task);
         await catalog.Add(contentItems);
-        
+
         _console.LogInformation($"Augmented files section '{section.Id}' with working directory content");
     }
 
     private async IAsyncEnumerable<ContentItem> CollectWorkingDirectoryContent(
-        IReadOnlyDirectory directory, 
-        Section section, 
+        IReadOnlyDirectory directory,
+        Section section,
         ProgressTask task)
     {
         await foreach (var node in directory.Enumerate())
@@ -136,11 +136,11 @@ public class FilesSectionAugmenter
                     var contentSource = new FileSystemContentSource(_fileSystem, section.Version, section.Path);
                     var contentType = _classifier.Classify(file);
                     var contentItem = new ContentItem(contentSource, contentType, file);
-                    
+
                     task.Increment(1);
                     yield return contentItem;
                     break;
-                    
+
                 case IReadOnlyDirectory subDirectory:
                     // Apply security filtering to directories
                     if (_securityFilter.ShouldExclude(subDirectory))

@@ -14,7 +14,7 @@ namespace Tanka.DocsTool.Tests.Markdown
         {
             // Given - Create a DocsMarkdownService
             var service = new DocsMarkdownService(new Markdig.MarkdownPipelineBuilder());
-            
+
             // Create markdown content with emojis (reproducing the original issue)
             var markdownContent = @"---
 title: Test Page
@@ -33,32 +33,32 @@ Content includes:
             // Create input stream (simulating processedStream in PageComposer)
             await using var inputStream = new MemoryStream(Encoding.UTF8.GetBytes(markdownContent));
             await using var outputStream = new MemoryStream();
-            
+
             // When - Call RenderPage (this should reproduce the "Cannot access a closed Stream" error)
             var exception = await Record.ExceptionAsync(async () =>
             {
                 await service.RenderPage(inputStream, outputStream);
             });
-            
+
             // Then - Should not throw any exception
             Assert.Null(exception);
-            
+
             // Verify output was generated
             Assert.True(outputStream.Length > 0);
-            
+
             // Verify we can still read from the input stream after RenderPage
             inputStream.Position = 0;
             using var reader = new StreamReader(inputStream, Encoding.UTF8);
             var content = await reader.ReadToEndAsync();
             Assert.Contains("Test Page", content);
         }
-        
+
         [Fact]
         public async Task RenderPage_SimulatePageComposerScenario_ShouldHandleStreamLifetime()
         {
             // Given - Simulate the exact scenario from PageComposer.ComposePartialHtmlPage
             var service = new DocsMarkdownService(new Markdig.MarkdownPipelineBuilder());
-            
+
             var markdownContent = @"---
 title: Architecture Overview
 ---
@@ -73,13 +73,13 @@ System design includes:
 
             Exception? caughtException = null;
             string contentPreview = "";
-            
+
             // When - Simulate the exact flow from PageComposer
             await using var processedStream = new MemoryStream(Encoding.UTF8.GetBytes(markdownContent));
             processedStream.Position = 0;
-            
+
             await using var outputStream = new MemoryStream();
-            
+
             try
             {
                 var frontmatter = await service.RenderPage(processedStream, outputStream);
@@ -90,7 +90,7 @@ System design includes:
             catch (Exception e)
             {
                 caughtException = e;
-                
+
                 // Simulate the error handling code from PageComposer that tries to read the stream
                 try
                 {
@@ -107,11 +107,11 @@ System design includes:
                     contentPreview = $"[Debug failed: {debugEx.Message}]";
                 }
             }
-            
+
             // Then - Should not have any exception
             if (caughtException != null)
             {
-                Assert.True(false, $"Unexpected exception: {caughtException.Message}. Content preview: {contentPreview}");
+                Assert.Fail($"Unexpected exception: {caughtException.Message}. Content preview: {contentPreview}");
             }
         }
     }

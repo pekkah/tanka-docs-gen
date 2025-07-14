@@ -46,7 +46,7 @@ public class SectionCollector
     private async Task CollectSection(Catalog catalog, ContentItem contentItem, BuildContext context)
     {
         _console.LogInformation($"Collect({contentItem})");
-        
+
         var definitionResult = await contentItem.TryParseYaml<SectionDefinition>();
 
         if (definitionResult.IsFailure)
@@ -58,7 +58,7 @@ public class SectionCollector
         }
 
         var definition = definitionResult.Value;
-        
+
         // default to doc type
         if (string.IsNullOrEmpty(definition.Type))
             definition.Type = "doc";
@@ -68,7 +68,7 @@ public class SectionCollector
 
         var sectionItems = CollectSectionItems(
             definition,
-            catalog, 
+            catalog,
             contentItem);
 
         var sectionDirectoryPath = contentItem
@@ -93,10 +93,10 @@ public class SectionCollector
 
         var contentItems = catalog.GetContentItems(
             contentItem.Version,
-            new[] {"**"},
+            new[] { "**" },
             $"{sectionDirectoryPath}/**/*");
 
-        var includes = definition.Includes ?? new[] {"**/*"};
+        var includes = definition.Includes ?? new[] { "**/*" };
         var includeGlobs = includes.Select(Glob.Parse)
             .ToList();
 

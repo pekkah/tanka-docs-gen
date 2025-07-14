@@ -56,9 +56,9 @@ namespace Tanka.DocsTool.Extensions
 
                         if (beforePosition.Length > 0)
                         {
-                            var memory = writer.GetMemory((int) beforePosition.Length);
+                            var memory = writer.GetMemory((int)beforePosition.Length);
                             beforePosition.CopyTo(memory.Span);
-                            writer.Advance((int) beforePosition.Length);
+                            writer.Advance((int)beforePosition.Length);
                             await writer.FlushAsync();
                         }
 
@@ -99,14 +99,14 @@ namespace Tanka.DocsTool.Extensions
         }
 
         private bool TryReadInclude(
-            ReadResult readResult, 
-            out SequencePosition start, 
+            ReadResult readResult,
+            out SequencePosition start,
             out SequencePosition end,
-            [NotNullWhen(true)]out IncludeDirective? include)
+            [NotNullWhen(true)] out IncludeDirective? include)
         {
             var reader = new SequenceReader<byte>(readResult.Buffer);
 
-            while (reader.TryReadTo(out ReadOnlySpan<byte> beforeHash, (byte) '#', (byte) '\\', false))
+            while (reader.TryReadTo(out ReadOnlySpan<byte> beforeHash, (byte)'#', (byte)'\\', false))
             {
                 start = reader.Position;
 

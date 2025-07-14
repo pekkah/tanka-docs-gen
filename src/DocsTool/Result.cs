@@ -32,10 +32,10 @@ namespace Tanka.DocsTool
 
         public static implicit operator Result<T>(T value) => new Result<T>(value);
         public static implicit operator Result<T>(string error) => new Result<T>(error);
-        
+
         public static Result<T> Success(T value) => new(value);
         public static Result<T> Failure(string error) => new(error);
-        
+
         public T GetValueOrDefault(T defaultValue) => IsSuccess ? _value : defaultValue;
     }
 
@@ -44,4 +44,4 @@ namespace Tanka.DocsTool
         public static Result<T> Success<T>(T value) => Result<T>.Success(value);
         public static Result<T> Failure<T>(string error) => Result<T>.Failure(error);
     }
-} 
+}

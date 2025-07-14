@@ -15,7 +15,7 @@ public class WebSocketService : IDisposable
     public async Task Handle(WebSocket webSocket, CancellationToken cancellationToken = default)
     {
         if (_disposed) return;
-        
+
         var socketId = Guid.NewGuid();
         _sockets.TryAdd(socketId, webSocket);
 
@@ -52,15 +52,15 @@ public class WebSocketService : IDisposable
     public async Task SendReload(CancellationToken cancellationToken = default)
     {
         if (_disposed || cancellationToken.IsCancellationRequested) return;
-        
+
         var message = Encoding.UTF8.GetBytes("reload");
         var socketsToRemove = new List<Guid>();
-        
+
         foreach (var kvp in _sockets)
         {
             var socketId = kvp.Key;
             var socket = kvp.Value;
-            
+
             try
             {
                 if (socket.State == WebSocketState.Open)
@@ -82,19 +82,19 @@ public class WebSocketService : IDisposable
                 break;
             }
         }
-        
+
         // Clean up invalid sockets
         foreach (var socketId in socketsToRemove)
         {
             _sockets.TryRemove(socketId, out _);
         }
     }
-    
+
     public void Dispose()
     {
         if (_disposed) return;
         _disposed = true;
-        
+
         // Close all remaining WebSocket connections
         foreach (var socket in _sockets.Values)
         {
@@ -112,7 +112,7 @@ public class WebSocketService : IDisposable
                 // Ignore exceptions during cleanup
             }
         }
-        
+
         _sockets.Clear();
     }
-} 
+}

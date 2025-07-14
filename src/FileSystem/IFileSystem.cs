@@ -13,7 +13,7 @@ namespace Tanka.FileSystem
         public IAsyncEnumerable<IFileSystemNode> Enumerate(FileSystemPath path);
     }
 
-    public interface IFileSystem: IReadOnlyFileSystem
+    public interface IFileSystem : IReadOnlyFileSystem
     {
         public ValueTask<IFile> GetOrCreateFile(FileSystemPath path);
 
@@ -32,7 +32,7 @@ namespace Tanka.FileSystem
         Task<IDirectory?> GetDirectory(FileSystemPath path);
     }
 
-    public interface IFile: IReadOnlyFile
+    public interface IFile : IReadOnlyFile
     {
         ValueTask<Stream> OpenWrite();
     }

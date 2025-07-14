@@ -18,4 +18,4 @@ public static class PathResolver
 
         return (currentPath, configFilePath);
     }
-} 
+}

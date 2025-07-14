@@ -17,18 +17,18 @@ public static class TemplateProcessor
     {
         if (string.IsNullOrWhiteSpace(template))
             return template;
-            
+
         var result = template;
-        
+
         foreach (var variable in variables)
         {
             var placeholder = $"{{{{{variable.Key}}}}}";
             result = result.Replace(placeholder, variable.Value);
         }
-        
+
         return result;
     }
-    
+
     /// <summary>
     /// Creates variable dictionary for template processing based on provided values.
     /// </summary>
@@ -37,8 +37,8 @@ public static class TemplateProcessor
     /// <param name="outputPath">Custom output path (optional)</param>
     /// <returns>Dictionary of template variables</returns>
     public static Dictionary<string, string> CreateVariables(
-        string projectName, 
-        string defaultBranch, 
+        string projectName,
+        string defaultBranch,
         string? outputPath = null)
     {
         var variables = new Dictionary<string, string>
@@ -46,15 +46,15 @@ public static class TemplateProcessor
             ["PROJECT_NAME"] = projectName,
             ["DEFAULT_BRANCH"] = defaultBranch
         };
-        
+
         if (!string.IsNullOrWhiteSpace(outputPath))
         {
             variables["OUTPUT_PATH"] = outputPath;
         }
-        
+
         return variables;
     }
-    
+
     /// <summary>
     /// Processes the default production configuration template.
     /// </summary>
@@ -68,7 +68,7 @@ public static class TemplateProcessor
         var variables = CreateVariables(projectName, defaultBranch, outputPath);
         return ProcessTemplate(template, variables);
     }
-    
+
     /// <summary>
     /// Processes the default WIP configuration template.
     /// </summary>
@@ -81,7 +81,7 @@ public static class TemplateProcessor
         var variables = CreateVariables(projectName, "HEAD", outputPath); // WIP always uses HEAD
         return ProcessTemplate(template, variables);
     }
-    
+
     /// <summary>
     /// Derives a project name from the current directory name.
     /// </summary>
@@ -90,14 +90,14 @@ public static class TemplateProcessor
     {
         var currentDir = Directory.GetCurrentDirectory();
         var dirName = Path.GetFileName(currentDir);
-        
+
         if (string.IsNullOrWhiteSpace(dirName))
             return "Documentation Project";
-            
+
         // Sanitize the directory name for use as a project name
         return SanitizeProjectName(dirName);
     }
-    
+
     /// <summary>
     /// Sanitizes a project name to be suitable for documentation titles.
     /// </summary>
@@ -107,21 +107,21 @@ public static class TemplateProcessor
     {
         if (string.IsNullOrWhiteSpace(name))
             return "Documentation Project";
-            
+
         // Replace common separators with spaces and title case
         var sanitized = name
             .Replace("-", " ")
             .Replace("_", " ")
             .Replace(".", " ");
-            
+
         // Title case each word
         var words = sanitized.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var titleCased = words.Select(word => 
+        var titleCased = words.Select(word =>
             char.ToUpperInvariant(word[0]) + word[1..].ToLowerInvariant());
-            
+
         return string.Join(" ", titleCased);
     }
-    
+
     /// <summary>
     /// Finds all placeholder variables in a template.
     /// </summary>
@@ -131,17 +131,17 @@ public static class TemplateProcessor
     {
         if (string.IsNullOrWhiteSpace(template))
             return new List<string>();
-            
+
         var regex = new Regex(@"\{\{(\w+)\}\}", RegexOptions.Compiled);
         var matches = regex.Matches(template);
-        
+
         return matches
             .Cast<Match>()
             .Select(m => m.Groups[1].Value)
             .Distinct()
             .ToList();
     }
-    
+
     /// <summary>
     /// Validates that all required variables are provided for a template.
     /// </summary>
@@ -152,9 +152,9 @@ public static class TemplateProcessor
     {
         var requiredVariables = FindVariablesInTemplate(template);
         var providedVariables = variables.Keys.ToHashSet();
-        
+
         return requiredVariables
             .Where(variable => !providedVariables.Contains(variable))
             .ToList();
     }
-} 
+}

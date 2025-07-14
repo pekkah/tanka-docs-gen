@@ -56,7 +56,7 @@ public class BuildSiteCommand : AsyncCommand<BuildSiteCommand.Settings>
 
             if (siteDefinitionResult.IsFailure)
             {
-                _console.MarkupLine($"[red]Error:[/] Could not load configuration '{configFilePath}': {siteDefinitionResult.Error}");
+                _console.WriteError($"Could not load configuration '{configFilePath}': {siteDefinitionResult.Error}");
                 return -1;
             }
 
@@ -105,18 +105,18 @@ public class BuildSiteCommand : AsyncCommand<BuildSiteCommand.Settings>
             {
                 if (warning.ContentItem != null)
                 {
-                    _console.MarkupLine($"[yellow]Warning:[/] In {Markup.Escape(warning.ContentItem.File.Path.ToString())}: {Markup.Escape(warning.Message)}");
+                    _console.WriteWarning(warning.Message, warning.ContentItem.File.Path.ToString());
                 }
                 else
                 {
-                    _console.MarkupLine($"[yellow]Warning:[/] {Markup.Escape(warning.Message)}");
+                    _console.WriteWarning(warning.Message);
                 }
             }
-            
+
             // report errors
             if (buildContext.HasErrors)
             {
-                _console.MarkupLine("[red]Build failed with errors:[/]");
+                _console.WriteBuildFailure();
                 foreach (var error in buildContext.Errors)
                 {
                     if (error.ContentItem != null)
@@ -161,5 +161,9 @@ public class BuildSiteCommand : AsyncCommand<BuildSiteCommand.Settings>
         [CommandOption("--base <BASE>")]
         [Description("Set the base href meta for the generated html pages.")]
         public string? Base { get; set; }
+
+        [CommandOption("--link-validation <MODE>")]
+        [Description("Link validation mode: strict or relaxed")]
+        public LinkValidation LinkValidation { get; set; } = LinkValidation.Strict;
     }
 }

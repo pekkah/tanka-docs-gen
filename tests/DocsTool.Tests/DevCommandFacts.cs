@@ -1,9 +1,9 @@
-using Spectre.Console.Testing;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Spectre.Console.Testing;
 using Tanka.DocsTool.Definitions;
 using Tanka.DocsTool.UI;
 using Xunit;
@@ -80,4 +80,4 @@ public class DevCommandFacts
             File.Delete(tempFile);
         }
     }
-} 
+}

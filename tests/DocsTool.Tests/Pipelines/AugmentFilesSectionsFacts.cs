@@ -80,7 +80,7 @@ namespace Tanka.DocsTool.Tests.Pipelines
 
             var sectionDirectory = Substitute.For<IDirectory>();
             _fileSystem.GetDirectory(Arg.Any<FileSystemPath>()).Returns(Task.FromResult<IDirectory?>(sectionDirectory));
-            
+
             var mockFile = Substitute.For<IReadOnlyFile>();
             mockFile.Path.Returns(new FileSystemPath("test.md"));
             sectionDirectory.Enumerate().Returns(CreateAsyncEnumerable(mockFile));

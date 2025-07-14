@@ -10,10 +10,12 @@ namespace Tanka.DocsTool.Markdown
     public class DisplayLinkInlineParser : InlineParser
     {
         private readonly DocsSiteRouter _router;
+        private readonly DocsMarkdownRenderingContext? _context;
 
         public DisplayLinkInlineParser(DocsMarkdownRenderingContext context)
         {
             _router = context.Router;
+            _context = context;
             OpeningCharacters = "[".ToCharArray();
         }
 
@@ -70,9 +72,26 @@ namespace Tanka.DocsTool.Markdown
                 if (link.Link.IsXref)
                 {
                     var xref = link.Link.Xref!.Value;
-                    link = new DisplayLink(
-                        link.Title,
-                        new Link(_router.FullyQualify(xref)));
+
+                    if (_context?.BuildContext != null)
+                    {
+                        var fullyQualifiedXref = _router.FullyQualify(xref, _context.BuildContext);
+
+                        if (fullyQualifiedXref != null)
+                        {
+                            link = new DisplayLink(
+                                link.Title,
+                                new Link(fullyQualifiedXref.Value));
+                        }
+                        // If xref validation failed, keep the original link for placeholder generation in renderer
+                    }
+                    else
+                    {
+                        // Fallback to old behavior if no BuildContext available
+                        link = new DisplayLink(
+                            link.Title,
+                            new Link(_router.FullyQualify(xref)));
+                    }
                 }
 
                 processor.Inline = new DisplayLinkInline

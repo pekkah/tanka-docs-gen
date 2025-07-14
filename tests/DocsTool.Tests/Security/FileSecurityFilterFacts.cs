@@ -107,7 +107,7 @@ public class FileSecurityFilterFacts
         /* Given */
         var config = new FileFilterConfiguration();
         config.ExcludePatterns.Add(@".*\.secret$");
-        
+
         var filter = new ConfigurableFileSecurityFilter(config);
         var secretFile = CreateMockFile("data.secret");
         var normalFile = CreateMockFile("data.txt");
@@ -127,7 +127,7 @@ public class FileSecurityFilterFacts
         /* Given */
         var config = new FileFilterConfiguration();
         config.IncludePatterns.Add(@"allowed\.env$");
-        
+
         var filter = new ConfigurableFileSecurityFilter(config);
         var allowedEnvFile = CreateMockFile("allowed.env");
         var normalEnvFile = CreateMockFile(".env");
@@ -145,8 +145,8 @@ public class FileSecurityFilterFacts
     public void ConfigurableFilter_WithSecurityDisabled_AllowsAllFiles()
     {
         /* Given */
-        var config = new FileFilterConfiguration 
-        { 
+        var config = new FileFilterConfiguration
+        {
             EnableSecurityFiltering = false,
             IncludeHiddenFiles = true // Need to also allow hidden files to test .env
         };
@@ -179,8 +179,8 @@ public class FileSecurityFilterFacts
     public void ConfigurableFilter_WithHiddenFilesEnabled_AllowsHiddenFiles()
     {
         /* Given */
-        var config = new FileFilterConfiguration 
-        { 
+        var config = new FileFilterConfiguration
+        {
             IncludeHiddenFiles = true,
             EnableSecurityFiltering = false // Disable security to focus on hidden file behavior
         };
@@ -201,7 +201,7 @@ public class FileSecurityFilterFacts
         var config = new FileFilterConfiguration();
         config.ExcludeExtensions.Add("custom");
         config.ExcludeExtensions.Add(".special");
-        
+
         var filter = new ConfigurableFileSecurityFilter(config);
         var customFile = CreateMockFile("file.custom");
         var specialFile = CreateMockFile("file.special");
@@ -225,7 +225,7 @@ public class FileSecurityFilterFacts
         var config = new FileFilterConfiguration();
         config.ExcludeDirectories.Add("custom-build");
         config.IncludeDirectories.Add("important-secrets"); // Should override exclusion
-        
+
         var filter = new ConfigurableFileSecurityFilter(config);
         var customBuildDir = CreateMockDirectory("custom-build");
         var importantSecretsDir = CreateMockDirectory("important-secrets");

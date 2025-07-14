@@ -7,7 +7,7 @@ namespace Tanka.DocsTool.Pipelines
     {
         private readonly SiteDefinition _definition;
 
-        private readonly Dictionary<string, Dictionary<string, Section>> _sectionsByVersion 
+        private readonly Dictionary<string, Dictionary<string, Section>> _sectionsByVersion
         = new Dictionary<string, Dictionary<string, Section>>();
 
         public SiteBuilder(SiteDefinition definition)

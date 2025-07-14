@@ -15,6 +15,11 @@ public class PipelineExecutor
         FileSystemPath workPath)
     {
         var context = new BuildContext(siteDefinition, workPath);
+
+        // Set link validation mode from command settings
+        if (Options is BuildSiteCommand.Settings buildSettings)
+            context.LinkValidation = buildSettings.LinkValidation;
+
         var pipeline = pipelineBuilder.Build();
         await pipeline(context);
         return context;

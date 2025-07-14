@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Tanka.FileSystem.Tests.Git
 {
-    public class GitFileSystemFacts: IDisposable
+    public class GitFileSystemFacts : IDisposable
     {
         public readonly GitFileSystemRoot RootFs;
 
@@ -28,7 +28,7 @@ namespace Tanka.FileSystem.Tests.Git
             /* Given */
             var fs = RootFs.Head();
             var canEnumerate = false;
-            
+
             /* When */
             await foreach (var node in fs.Enumerate(""))
             {

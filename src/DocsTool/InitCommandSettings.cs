@@ -39,4 +39,4 @@ public class InitCommandSettings : CommandSettings
     [CommandOption("--project-name <NAME>")]
     [Description("Specify project name (default: derive from directory name).")]
     public string? ProjectName { get; set; }
-} 
+}

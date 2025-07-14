@@ -25,5 +25,5 @@ public static class DefaultPipeline
         services.AddSingleton<BuildUi>();
 
         return services;
-    } 
+    }
 }

@@ -62,7 +62,7 @@ namespace Tanka.DocsTool.Markdown
             var yaml = frontmatterBlock?.Lines.ToString();
             if (string.IsNullOrEmpty(yaml))
                 return null;
-            
+
             var result = yaml.TryParseYaml<PageFrontmatter>();
             return result.IsSuccess ? result.Value : null;
         }
