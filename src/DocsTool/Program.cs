@@ -39,4 +39,4 @@ app.Configure(config =>
     config.AddCommand<InitCommand>("init");
 });
 
-await app.RunAsync(args);
+return await app.RunAsync(args);
