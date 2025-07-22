@@ -64,24 +64,25 @@ namespace Tanka.DocsTool.Markdown
                 return false;
 
             // Use GenerateAssetRoute for semantic clarity and track cross-section assets
+            var xref = xrefLink.Xref!.Value;
             string? resolvedUrl;
             if (_context?.BuildContext != null)
             {
-                resolvedUrl = _context.Router.GenerateAssetRoute(xrefLink.Xref!.Value, _context.BuildContext);
+                resolvedUrl = _context.Router.GenerateAssetRoute(xref, _context.BuildContext);
                 
                 // Track cross-section assets for copying (thread-safe)
-                var targetSection = _context.Router.Site.GetSectionByXref(xrefLink.Xref!.Value, _context.Section);
-                var targetItem = targetSection?.GetContentItem(xrefLink.Xref!.Value.Path);
+                var targetSection = _context.Router.Site.GetSectionByXref(xref, _context.Section);
+                var targetItem = targetSection?.GetContentItem(xref.Path);
                 
                 if (targetSection != null && targetItem != null && 
-                    AssetConfiguration.IsAsset(xrefLink.Xref!.Value.Path, targetSection.Definition))
+                    AssetConfiguration.IsAsset(xref.Path, targetSection.Definition))
                 {
-                    _context.BuildContext.TrackXrefAsset(xrefLink.Xref!.Value, _context.Section, targetSection, targetItem);
+                    _context.BuildContext.TrackXrefAsset(xref, _context.Section, targetSection, targetItem);
                 }
             }
             else
             {
-                resolvedUrl = _context.Router.GenerateAssetRoute(xrefLink.Xref!.Value);
+                resolvedUrl = _context.Router.GenerateAssetRoute(xref);
             }
 
             // Render the image

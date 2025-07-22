@@ -64,31 +64,13 @@ namespace Tanka.DocsTool.UI
         /// </summary>
         public async Task ProcessSectionAssets(Section section, DocsSiteRouter router, BuildContext buildContext)
         {
-            var tasks = section.ContentItems
-                .Where(ci => IsAsset(ci.Key, ci.Value, section))
-                .Select(async item =>
-                {
-                    try
-                    {
-                        var outputPath = router.GenerateAssetRoute(new Xref(section.Version, section.Id, item.Key));
-                        if (outputPath == null)
-                        {
-                            buildContext.Add(new Error($"Could not generate output path for asset '{item.Key}'.", item.Value));
-                            return;
-                        }
-
-                        // Thread-safe deduplication
-                        if (!_copiedAssets.TryAdd(outputPath, true)) return;
-
-                        await CopyAsset(item.Value, outputPath, buildContext);
-                    }
-                    catch (Exception ex)
-                    {
-                        buildContext.Add(new Error($"Failed to copy section asset '{item.Key}': {ex.Message}", item.Value));
-                    }
-                });
-
-            await Task.WhenAll(tasks);
+            await ProcessAssets(
+                section.ContentItems.Where(ci => IsAsset(ci.Key, ci.Value, section)),
+                section,
+                router,
+                buildContext,
+                "section"
+            );
         }
 
         /// <summary>
@@ -96,31 +78,51 @@ namespace Tanka.DocsTool.UI
         /// </summary>
         public async Task ProcessUiBundleAssets(Section uiBundle, DocsSiteRouter router, BuildContext buildContext)
         {
-            var tasks = uiBundle.ContentItems
-                .Where(ci => IsAsset(ci.Key, ci.Value, uiBundle))
-                .Select(async item =>
+            await ProcessAssets(
+                uiBundle.ContentItems.Where(ci => IsAsset(ci.Key, ci.Value, uiBundle)),
+                uiBundle,
+                router,
+                buildContext,
+                "UI bundle"
+            );
+        }
+
+        /// <summary>
+        /// Common asset processing logic for sections and UI bundles
+        /// </summary>
+        private async Task ProcessAssets(
+            IEnumerable<KeyValuePair<FileSystemPath, ContentItem>> assets,
+            Section section,
+            DocsSiteRouter router,
+            BuildContext buildContext,
+            string assetTypeDescription)
+        {
+            var tasks = assets.Select(async item =>
+            {
+                try
                 {
-                    try
+                    var outputPath = router.GenerateAssetRoute(new Xref(section.Version, section.Id, item.Key));
+                    if (outputPath == null)
                     {
-                        var outputPath = router.GenerateAssetRoute(new Xref(uiBundle.Version, uiBundle.Id, item.Key));
-                        if (outputPath == null)
-                        {
-                            buildContext.Add(new Error($"Could not generate output path for UI bundle asset '{item.Key}'.", item.Value));
-                            return;
-                        }
-
-                        // Thread-safe deduplication
-                        if (!_copiedAssets.TryAdd(outputPath, true)) return;
-
-                        await CopyAsset(item.Value, outputPath, buildContext);
-                        
-                        _logger.LogDebug("Copied UI bundle asset {Path} to {OutputPath}", item.Key, outputPath);
+                        buildContext.Add(new Error($"Could not generate output path for {assetTypeDescription} asset '{item.Key}'.", item.Value));
+                        return;
                     }
-                    catch (Exception ex)
+
+                    // Thread-safe deduplication
+                    if (!_copiedAssets.TryAdd(outputPath, true)) return;
+
+                    await CopyAsset(item.Value, outputPath, buildContext);
+                    
+                    if (assetTypeDescription == "UI bundle")
                     {
-                        buildContext.Add(new Error($"Failed to copy UI bundle asset '{item.Key}': {ex.Message}", item.Value));
+                        _logger.LogDebug("Copied {AssetType} asset {Path} to {OutputPath}", assetTypeDescription, item.Key, outputPath);
                     }
-                });
+                }
+                catch (Exception ex)
+                {
+                    buildContext.Add(new Error($"Failed to copy {assetTypeDescription} asset '{item.Key}': {ex.Message}", item.Value));
+                }
+            });
 
             await Task.WhenAll(tasks);
         }

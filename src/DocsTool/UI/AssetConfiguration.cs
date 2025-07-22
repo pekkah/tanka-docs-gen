@@ -12,7 +12,7 @@ namespace Tanka.DocsTool.UI
         /// <summary>
         /// Default asset file extensions supported by the system
         /// </summary>
-        public static readonly string[] DefaultAssetExtensions = {
+        public static readonly IReadOnlySet<string> DefaultAssetExtensions = new HashSet<string>(new[] {
             // Web assets  
             ".js", ".css", ".woff", ".woff2", ".ttf", ".eot",
             
@@ -30,16 +30,16 @@ namespace Tanka.DocsTool.UI
             
             // Data
             ".json", ".xml", ".csv", ".yaml", ".yml"
-        };
+        }, StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Get asset extensions for a section, falling back to defaults if not specified
         /// </summary>
         /// <param name="sectionDefinition">Section definition that may contain custom asset extensions</param>
-        /// <returns>Array of asset extensions to use for the section</returns>
-        public static string[] GetAssetExtensions(SectionDefinition? sectionDefinition = null)
+        /// <returns>Collection of asset extensions to use for the section</returns>
+        public static IEnumerable<string> GetAssetExtensions(SectionDefinition? sectionDefinition = null)
         {
-            return sectionDefinition?.AssetExtensions ?? DefaultAssetExtensions;
+            return (IEnumerable<string>)sectionDefinition?.AssetExtensions ?? DefaultAssetExtensions;
         }
 
         /// <summary>
@@ -50,8 +50,19 @@ namespace Tanka.DocsTool.UI
         /// <returns>True if the file should be treated as an asset</returns>
         public static bool IsAsset(string filePath, SectionDefinition? sectionDefinition = null)
         {
-            var extension = Path.GetExtension(filePath).ToLowerInvariant();
-            return GetAssetExtensions(sectionDefinition).Contains(extension);
+            var extension = Path.GetExtension(filePath);
+            if (string.IsNullOrEmpty(extension)) return false;
+
+            var extensions = GetAssetExtensions(sectionDefinition);
+            
+            // For section-specific extensions (string[]), use case-insensitive comparison
+            if (sectionDefinition?.AssetExtensions != null)
+            {
+                return extensions.Contains(extension, StringComparer.OrdinalIgnoreCase);
+            }
+            
+            // For default extensions (HashSet with OrdinalIgnoreCase), use direct Contains
+            return DefaultAssetExtensions.Contains(extension);
         }
     }
 }
