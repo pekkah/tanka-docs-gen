@@ -101,7 +101,7 @@ $env:GIT_DIR = $gitDirPath
 Write-Host "Setting GIT_DIR environment variable to: $env:GIT_DIR"
 
 "Running published DocsTool..."
-dotnet ./temp/DocsTool/Tanka.DocsGen.dll build -f tanka-docs-wip.yml --output $DocsOutput --base $Basepath
+dotnet ./temp/DocsTool/Tanka.DocsGen.dll build --output $DocsOutput --base $Basepath
 EnsureLastExitCode("DocsTool execution failed")
 
 "----------------------------------------"
