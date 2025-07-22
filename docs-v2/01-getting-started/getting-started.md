@@ -274,6 +274,26 @@ Link between pages and sections:
 - [Advanced Section](xref://advanced-section:some-page.md)
 ```
 
+### Adding Images and Assets
+
+Include images in your documentation:
+
+```markdown
+<!-- Image in the same section -->
+![Architecture Diagram](xref://architecture.png)
+
+<!-- Image from another section -->  
+![Company Logo](xref://branding:logo.svg)
+
+<!-- Traditional relative path also works -->
+![Local Image](./images/screenshot.jpg)
+```
+
+Assets (images, PDFs, etc.) are automatically copied to the output directory. Supported formats include:
+- **Images**: `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, `.webp`, `.bmp`, `.ico`, `.tiff`
+- **Documents**: `.pdf`, `.doc`, `.docx`, `.txt`
+- **Fonts**: `.woff`, `.woff2`, `.ttf`, `.eot`
+
 ### Versioning
 
 Configure multiple versions using Git branches and tags:

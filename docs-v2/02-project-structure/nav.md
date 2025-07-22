@@ -1,3 +1,4 @@
 - [File System Structure](xref://file-system.md)
+- [Asset Handling](xref://assets.md)
 - [Main Configuration (tanka-docs.yml)](xref://tanka-docs-yml.md)
 - [Section Configuration (tanka-docs-section.yml)](xref://tanka-docs-section.md) 

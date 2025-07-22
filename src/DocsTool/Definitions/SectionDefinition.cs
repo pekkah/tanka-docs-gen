@@ -18,5 +18,11 @@ namespace Tanka.DocsTool.Definitions
         public Dictionary<string, Dictionary<string, object>> Extensions { get; set; } = new Dictionary<string, Dictionary<string, object>>();
 
         public string[]? Includes { get; set; }
+
+        /// <summary>
+        /// File extensions that should be treated as assets and copied to output.
+        /// If not specified, uses default asset extensions from AssetConfiguration.
+        /// </summary>
+        public string[]? AssetExtensions { get; set; }
     }
 }

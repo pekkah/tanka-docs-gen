@@ -1,4 +1,7 @@
-﻿using Tanka.DocsTool.Catalogs;
+﻿using System.Collections.Concurrent;
+using Tanka.DocsTool.Catalogs;
+using Tanka.DocsTool.Navigation;
+using Tanka.DocsTool.UI;
 using Tanka.FileSystem.Git;
 
 namespace Tanka.DocsTool.Pipelines;
@@ -43,4 +46,19 @@ public record BuildContext(SiteDefinition SiteDefinition, FileSystemPath WorkPat
     public IReadOnlyCollection<Section> Sections { get; set; }
 
     public Site? Site { get; set; }
+
+    private readonly ConcurrentBag<XrefAssetReference> _trackedAssets = new();
+
+    /// <summary>
+    /// Thread-safe method to track xref assets during parallel page processing
+    /// </summary>
+    public void TrackXrefAsset(Xref xref, Section sourceSection, Section targetSection, ContentItem targetItem)
+    {
+        _trackedAssets.Add(new XrefAssetReference(xref, sourceSection, targetSection, targetItem));
+    }
+
+    /// <summary>
+    /// Get all tracked assets (thread-safe)
+    /// </summary>
+    public IReadOnlyCollection<XrefAssetReference> GetTrackedAssets() => _trackedAssets.ToList();
 }

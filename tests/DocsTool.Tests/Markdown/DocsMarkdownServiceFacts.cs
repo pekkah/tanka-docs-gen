@@ -1,8 +1,16 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using NSubstitute;
+using Tanka.DocsTool.Catalogs;
+using Tanka.DocsTool.Definitions;
 using Tanka.DocsTool.Markdown;
+using Tanka.DocsTool.Navigation;
+using Tanka.DocsTool.Pipelines;
+using Tanka.DocsTool.UI;
+using Tanka.FileSystem;
 using Xunit;
 
 namespace Tanka.DocsTool.Tests.Markdown
@@ -113,6 +121,140 @@ System design includes:
             {
                 Assert.Fail($"Unexpected exception: {caughtException.Message}. Content preview: {contentPreview}");
             }
+        }
+
+        [Fact]
+        public async Task RenderPage_XrefImage_ShouldResolveToActualPath()
+        {
+            // Given - Set up real site and sections for xref resolution (based on NavigationBuilderFacts pattern)
+            var source = Substitute.For<IContentSource>();
+            source.Version.Returns("HEAD");
+            source.Path.Returns(new FileSystemPath("visual-tests"));
+
+            var currentSectionFile = Substitute.For<IReadOnlyFile>();
+            currentSectionFile.Path.Returns((FileSystemPath)"visual-tests/tanka-docs-section.yml");
+
+            var currentSection = new Section(new ContentItem(
+                    source, "tanka/section", currentSectionFile),
+                new SectionDefinition()
+                {
+                    Id = "current"
+                }, new Dictionary<FileSystemPath, ContentItem>());
+
+            var targetSectionFile = Substitute.For<IReadOnlyFile>();
+            targetSectionFile.Path.Returns((FileSystemPath)"visual-tests/tanka-docs-section.yml");
+
+            var imageFile = Substitute.For<IReadOnlyFile>();
+            imageFile.Path.Returns((FileSystemPath)"visual-tests/Snapshots/Graphics/PorterDuffVisual.PorterDuff_BasicModes_Demonstration.verified.png");
+
+            var targetSection = new Section(new ContentItem(
+                    source, "tanka/section", targetSectionFile),
+                new SectionDefinition()
+                {
+                    Id = "visual-tests"
+                }, new Dictionary<FileSystemPath, ContentItem>()
+                {
+                    ["Snapshots/Graphics/PorterDuffVisual.PorterDuff_BasicModes_Demonstration.verified.png"] = 
+                        new ContentItem(source, "image/png", imageFile)
+                });
+
+            var site = new Site(
+                new SiteDefinition(),
+                new Dictionary<string, Dictionary<string, Section>>()
+                {
+                    ["HEAD"] = new Dictionary<string, Section>()
+                    {
+                        ["current"] = currentSection,
+                        ["visual-tests"] = targetSection
+                    }
+                });
+
+            var router = new DocsSiteRouter(site, currentSection);
+            var buildContext = new BuildContext(new SiteDefinition(), "/test");
+            var context = new DocsMarkdownRenderingContext(site, currentSection, router, buildContext);
+            
+            var service = new DocsMarkdownService(context);
+
+            var markdownContent = @"# Test Page
+
+![Basic Porter-Duff Modes](xref://visual-tests:Snapshots/Graphics/PorterDuffVisual.PorterDuff_BasicModes_Demonstration.verified.png)
+
+This should render with resolved image path.
+";
+
+            // When - Render the markdown
+            await using var inputStream = new MemoryStream(Encoding.UTF8.GetBytes(markdownContent));
+            
+            var (html, frontmatter) = await service.RenderPage(inputStream);
+
+            // Then - The xref:// URL should be resolved to actual path
+            // Based on DocsSiteRouter.GenerateRoute: targetSection.Version + "/" + targetSection.Path / path
+            // Should be: HEAD/[empty_dir]/Snapshots/Graphics/...png 
+            Assert.Contains("Snapshots/Graphics/PorterDuffVisual.PorterDuff_BasicModes_Demonstration.verified.png", html);
+            Assert.DoesNotContain("xref://visual-tests:", html);
+            Assert.Contains("<img src=\"", html);
+            Assert.Contains("class=\"img-fluid\"", html);
+            Assert.Contains("alt=\"Basic Porter-Duff Modes\"", html);
+        }
+
+        [Fact]
+        public async Task RenderPage_XrefImageBroken_ShouldHandleGracefullyInRelaxedMode()
+        {
+            // Given - Set up site with no target section (broken xref scenario)
+            var source = Substitute.For<IContentSource>();
+            source.Version.Returns("HEAD");
+            source.Path.Returns(new FileSystemPath("current"));
+
+            var currentSectionFile2 = Substitute.For<IReadOnlyFile>();
+            currentSectionFile2.Path.Returns((FileSystemPath)"current/tanka-docs-section.yml");
+            
+            var currentSection = new Section(new ContentItem(
+                    source, "tanka/section", currentSectionFile2),
+                new SectionDefinition()
+                {
+                    Id = "current"
+                }, new Dictionary<FileSystemPath, ContentItem>());
+
+            // Empty site - no visual-tests section exists
+            var site = new Site(
+                new SiteDefinition(),
+                new Dictionary<string, Dictionary<string, Section>>()
+                {
+                    ["HEAD"] = new Dictionary<string, Section>()
+                    {
+                        ["current"] = currentSection
+                        // Note: no "non-existent" section = broken xref
+                    }
+                });
+
+            var router = new DocsSiteRouter(site, currentSection);
+            var buildContext = new BuildContext(new SiteDefinition(), "/test")
+            {
+                LinkValidation = LinkValidation.Relaxed
+            };
+            var context = new DocsMarkdownRenderingContext(site, currentSection, router, buildContext);
+            
+            var service = new DocsMarkdownService(context);
+
+            var markdownContent = @"# Test Page
+
+![Broken Image](xref://non-existent:broken.png)
+
+This should render with broken xref placeholder.
+";
+
+            // When - Render the markdown
+            await using var inputStream = new MemoryStream(Encoding.UTF8.GetBytes(markdownContent));
+            
+            var (html, frontmatter) = await service.RenderPage(inputStream);
+
+            // Then - Should generate broken xref placeholder
+            Assert.Contains("#broken-xref-", html);
+            Assert.Contains("class=\"broken-xref-image\"", html);
+            Assert.Contains("data-original-xref=", html);
+            Assert.Contains("data-original-xref=\"xref://non-existent:broken.png\"", html);
+            // xref URL should NOT appear in the main src attribute (only in data-original-xref)
+            Assert.DoesNotContain("src=\"xref://non-existent:", html);
         }
     }
 }

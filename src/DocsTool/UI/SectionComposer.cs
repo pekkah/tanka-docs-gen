@@ -25,14 +25,16 @@ namespace Tanka.DocsTool.UI
         private readonly IFileSystem _cache;
         private readonly IFileSystem _output;
         private readonly IUiBundle _uiBundle;
+        private readonly AssetProcessor _assetProcessor;
         private ILogger<SectionComposer> _logger;
 
-        public SectionComposer(Site site, IFileSystem cache, IFileSystem output, IUiBundle uiBundle)
+        public SectionComposer(Site site, IFileSystem cache, IFileSystem output, IUiBundle uiBundle, AssetProcessor assetProcessor)
         {
             _site = site;
             _cache = cache;
             _output = output;
             _uiBundle = uiBundle;
+            _assetProcessor = assetProcessor;
             _logger = Infra.LoggerFactory.CreateLogger<SectionComposer>();
         }
 
@@ -46,8 +48,11 @@ namespace Tanka.DocsTool.UI
 
                 var menu = await ComposeMenu(section, buildContext);
 
-                await ComposeAssets(section, router, buildContext);
+                // Process pages first to track all xref asset references
                 await ComposePages(section, menu, router, renderer, preprocessorPipe, buildContext);
+                
+                // Process regular section assets using unified processor
+                await _assetProcessor.ProcessSectionAssets(section, router, buildContext);
             }
             catch (Exception ex)
             {
@@ -72,59 +77,6 @@ namespace Tanka.DocsTool.UI
             return Task.FromResult(new DocsMarkdownService(builder));
         }
 
-        private async Task ComposeAssets(Section section, DocsSiteRouter router, BuildContext buildContext)
-        {
-            // compose assets from sections
-            foreach (var (relativePath, assetItem) in section.ContentItems.Where(ci => IsAsset(ci.Key, ci.Value)))
-            {
-                try
-                {
-                    // open file streams
-                    await using var inputStream = await assetItem.File.OpenRead();
-
-                    // create output dir for page
-                    var outputPath = router.GenerateRoute(new Xref(assetItem.Version, section.Id, relativePath));
-                    if (outputPath == null)
-                    {
-                        buildContext.Add(new Error($"Could not generate output path for asset '{relativePath}'.", assetItem));
-                        continue;
-                    }
-
-                    await _output.GetOrCreateDirectory(Path.GetDirectoryName(outputPath));
-
-                    // create output file
-                    var outputFile = await _output.GetOrCreateFile(outputPath);
-                    await using var outputStream = await outputFile.OpenWrite();
-
-                    await inputStream.CopyToAsync(outputStream);
-                }
-                catch (Exception ex)
-                {
-                    buildContext.Add(new Error($"Failed to compose asset '{relativePath}': {ex.Message}", assetItem));
-                }
-            }
-        }
-
-        private bool IsAsset(FileSystemPath relativePath, ContentItem contentItem)
-        {
-            if (IsPage(relativePath, contentItem))
-                return false;
-
-            var extension = relativePath.GetExtension()
-                .ToString()
-                .ToLowerInvariant();
-
-            //todo: better management of assets
-            return new[]
-            {
-                ".js",
-                ".css",
-                ".png",
-                ".jpg",
-                ".gif",
-                ".zip"
-            }.Contains(extension);
-        }
 
         private async Task ComposePages(
             Section section,

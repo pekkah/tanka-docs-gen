@@ -106,5 +106,18 @@ namespace Tanka.DocsTool.UI
 
             return targetSection.Version + "/" + targetSection.Path / path;
         }
+
+        /// <summary>
+        /// Generates route for asset files (delegates to GenerateRoute for consistency)
+        /// Provides semantic separation for future asset-specific routing changes
+        /// </summary>
+        public string? GenerateAssetRoute(Xref xref) => GenerateRoute(xref);
+
+        /// <summary>
+        /// Generates route for asset files (delegates to GenerateRoute for consistency)
+        /// Provides semantic separation for future asset-specific routing changes
+        /// </summary>
+        public string? GenerateAssetRoute(Xref xref, BuildContext buildContext, ContentItem? contentItem = null) 
+            => GenerateRoute(xref, buildContext, contentItem);
     }
 }

@@ -44,30 +44,6 @@ namespace Tanka.DocsTool.UI
             }
         }
 
-        public async Task PrepareAssets(DocsSiteRouter router)
-        {
-            foreach (var (path, contentItem) in _uiBundle.GetContentItems(new FileSystemPath[]
-            {
-                "**/*.js",
-                "**/*.css",
-                "**/*.png",
-                "**/*.jpg",
-                "**/*.gif"
-            }))
-            {
-                var xref = new Xref(_uiBundle.Version, _uiBundle.Id, path);
-                FileSystemPath route = router.GenerateRoute(xref)
-                    ?? throw new InvalidOperationException($"Could not generate route for '{xref}'.");
-
-                await using var inputStream = await contentItem.File.OpenRead();
-
-                await _output.GetOrCreateDirectory(route.GetDirectoryPath());
-                var outputFile = await _output.GetOrCreateFile(route);
-                var outputStream = await outputFile.OpenWrite();
-
-                await inputStream.CopyToAsync(outputStream);
-            }
-        }
 
         public IPageRenderer GetPageRenderer(string template, DocsSiteRouter router)
         {
