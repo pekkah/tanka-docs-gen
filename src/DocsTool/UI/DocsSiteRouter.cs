@@ -35,11 +35,16 @@ namespace Tanka.DocsTool.UI
         public Xref? FullyQualify(Xref xref, BuildContext buildContext, ContentItem? contentItem = null)
         {
             // Check for HEAD version which is not allowed in xref links
+            // Exception: HEAD is allowed if it's actually configured as a version in the site
             if (xref.Version?.Equals("HEAD", StringComparison.OrdinalIgnoreCase) == true)
             {
-                var message = $"Invalid xref reference: {xref} - HEAD version is not allowed. Use a specific version or omit the version to use the current context.";
-                buildContext.Add(new Error(message, contentItem));
-                return null;
+                // Check if HEAD is a valid version in the current site configuration
+                if (!Site.Versions.Contains("HEAD"))
+                {
+                    var message = $"Invalid xref reference: {xref} - HEAD version is not allowed. Use a specific version or omit the version to use the current context.";
+                    buildContext.Add(new Error(message, contentItem));
+                    return null;
+                }
             }
 
             var targetSection = Site.GetSectionByXref(xref, Section);
@@ -89,11 +94,16 @@ namespace Tanka.DocsTool.UI
         public string? GenerateRoute(Xref xref, BuildContext buildContext, ContentItem? contentItem = null)
         {
             // Check for HEAD version which is not allowed in xref links
+            // Exception: HEAD is allowed if it's actually configured as a version in the site
             if (xref.Version?.Equals("HEAD", StringComparison.OrdinalIgnoreCase) == true)
             {
-                var message = $"Invalid xref reference: {xref} - HEAD version is not allowed. Use a specific version or omit the version to use the current context.";
-                buildContext.Add(new Error(message, contentItem));
-                return $"#broken-xref-{xref.ToString().GetHashCode()}";
+                // Check if HEAD is a valid version in the current site configuration
+                if (!Site.Versions.Contains("HEAD"))
+                {
+                    var message = $"Invalid xref reference: {xref} - HEAD version is not allowed. Use a specific version or omit the version to use the current context.";
+                    buildContext.Add(new Error(message, contentItem));
+                    return $"#broken-xref-{xref.ToString().GetHashCode()}";
+                }
             }
 
             var targetSection = Site.GetSectionByXref(xref, Section);

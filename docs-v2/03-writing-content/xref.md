@@ -86,27 +86,33 @@ When you reference an image using `xref://` syntax:
 
 ## Important Restrictions
 
-### HEAD Version Not Allowed
+### HEAD Version Restriction
 
-The `HEAD` version is **not allowed** in xref links. This restriction ensures that documentation builds are reproducible and stable across different environments.
+The `HEAD` version in xref links is restricted to ensure documentation builds are reproducible and stable. HEAD is only allowed when it's explicitly configured as a version in your `tanka-docs.yml` file (typically only used for development builds).
 
-**Invalid (will cause build error):**
+**Production builds (HEAD not configured):**
 ```markdown
-[Link](xref://section@HEAD:file.md)
-![Image](xref://section@HEAD:image.png)
+# These will cause build errors in production
+[Link](xref://section@HEAD:file.md)       ❌
+![Image](xref://section@HEAD:image.png)   ❌
+
+# Use these instead
+[Link](xref://section@master:file.md)      ✅
+[Link](xref://section@1.0.0:file.md)       ✅
+[Link](xref://section:file.md)             ✅ (uses current context)
 ```
 
-**Valid alternatives:**
-```markdown
-# Use a specific version
-[Link](xref://section@master:file.md)
-[Link](xref://section@1.0.0:file.md)
-
-# Or omit the version to use the current context
-[Link](xref://section:file.md)
+**Development builds (with HEAD configured in tanka-docs-wip.yml):**
+```yaml
+branches:
+  HEAD:
+    input_path:
+      - docs
 ```
 
-The build will fail with an error message if you attempt to use `HEAD` as a version in any xref link:
+When HEAD is configured as above, `xref://section@HEAD:file.md` references will work normally.
+
+**Error message when HEAD is not configured:**
 ```
 Invalid xref reference: xref://section@HEAD:file.md - HEAD version is not allowed. 
 Use a specific version or omit the version to use the current context.
