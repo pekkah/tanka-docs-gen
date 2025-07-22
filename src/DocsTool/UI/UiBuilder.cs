@@ -29,13 +29,24 @@ namespace Tanka.DocsTool.UI
                 var task = tasks[version];
                 task.MaxValue = sections.Count;
 
+                var assetProcessor = new AssetProcessor(site, _output);
+                
+                // Process UI bundle assets first (using first section as context for version resolution)
+                var uiBundleRef = LinkParser.Parse("xref://ui-bundle:tanka-docs-section.yml").Xref!.Value;
+                var uiBundle = sections.Count > 0 ? site.GetSectionByXref(uiBundleRef, sections[0]) : null;
+                
+                if (uiBundle != null)
+                {
+                    var uiBundleRouter = new DocsSiteRouter(site, uiBundle);
+                    await assetProcessor.ProcessUiBundleAssets(uiBundle, uiBundleRouter, buildContext);
+                }
+
                 // compose doc sections
                 foreach (var section in sections)
                 {
                     try
                     {
                         _console.LogInformation($"Building: {section}");
-                        var uiBundleRef = LinkParser.Parse("xref://ui-bundle:tanka-docs-section.yml").Xref!.Value;
                         var uiContent = site.GetSectionByXref(uiBundleRef, section);
 
                         if (uiContent == null)
@@ -45,10 +56,10 @@ namespace Tanka.DocsTool.UI
                             continue;
                         }
 
-                        var uiBundle = new HandlebarsUiBundle(site, uiContent, _output);
-                        await uiBundle.Initialize(CancellationToken.None);
+                        var handlebarsUiBundle = new HandlebarsUiBundle(site, uiContent, _output);
+                        await handlebarsUiBundle.Initialize(CancellationToken.None);
 
-                        var composer = new SectionComposer(site, _cache, _output, uiBundle);
+                        var composer = new SectionComposer(site, _cache, _output, handlebarsUiBundle, assetProcessor);
                         await composer.ComposeSection(section, buildContext);
 
                         _console.LogInformation($"Built: {section}");
@@ -61,6 +72,9 @@ namespace Tanka.DocsTool.UI
 
                     task.Increment(1);
                 }
+
+                // After all sections in version processed, copy cross-section assets
+                await assetProcessor.ProcessTrackedXrefAssets(buildContext);
 
                 task.StopTask();
             }
