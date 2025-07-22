@@ -4,6 +4,8 @@ title: Quick Start Guide
 
 # Quick Start Guide
 
+![Tanka Docs Generator](xref://root:tanka-logo.svg)
+
 This guide will walk you through setting up your first Tanka Docs project from scratch. By the end, you'll have a working documentation site that you can build and preview locally.
 
 ## Prerequisites
