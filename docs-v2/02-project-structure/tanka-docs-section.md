@@ -63,6 +63,22 @@ All files within the same directory as the `tanka-docs-section.yml` file (and it
       - "**/*.cs"
     ```
 
+#### `asset_extensions`
+
+-   **Purpose:** Specifies which file extensions should be treated as assets and copied to the output directory. When specified, this overrides the default asset extensions for this section only.
+-   **Type:** `List of Strings`
+-   **Required:** No
+-   **Default:** Uses comprehensive built-in list including images, fonts, documents, and web assets
+-   **Example:**
+    ```yaml
+    asset_extensions:
+      - ".png"
+      - ".jpg"
+      - ".svg"
+      - ".pdf"
+      - ".custom"
+    ```
+
 #### `extensions`
 
 -   **Purpose:** Configures extensions specific to this section. The structure is dependent on the extension being used.
@@ -79,4 +95,10 @@ nav:
   - xref://nav.md
 includes:
   - "**/*.puml"
+asset_extensions:
+  - ".png"
+  - ".jpg"
+  - ".svg"
+  - ".pdf"
+  - ".puml"
 ```
