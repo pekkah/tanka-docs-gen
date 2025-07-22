@@ -225,4 +225,90 @@ public class DocsSiteRouterLinkValidationFacts
         Assert.NotNull(result);
         Assert.Equal("#broken-xref-xref---section-v1.0-path-with-special-chars.md", result);
     }
+
+    [Fact]
+    public void FullyQualify_HeadVersion_NotConfigured_ShouldAddError()
+    {
+        // Given - HEAD is not in the list of configured versions
+        var xref = new Xref("HEAD", "test-section", "existing-file.md");
+
+        // When
+        var result = _router.FullyQualify(xref, _strictBuildContext);
+
+        // Then
+        Assert.Null(result);
+        Assert.True(_strictBuildContext.HasErrors);
+        Assert.Single(_strictBuildContext.Errors);
+        Assert.Contains("HEAD version is not allowed", _strictBuildContext.Errors.First().Message);
+    }
+
+    [Fact]
+    public void GenerateRoute_HeadVersion_NotConfigured_ShouldReturnPlaceholder()
+    {
+        // Given - HEAD is not in the list of configured versions
+        var xrefUpperCase = new Xref("HEAD", "test-section", "existing-file.md");
+        var xrefLowerCase = new Xref("head", "test-section", "existing-file.md");
+
+        // When - Test both upper and lower case
+        var resultUpper = _router.GenerateRoute(xrefUpperCase, _strictBuildContext);
+        var resultLower = _router.GenerateRoute(xrefLowerCase, _relaxedBuildContext);
+
+        // Then - Both should return placeholders and add errors
+        Assert.NotNull(resultUpper);
+        Assert.NotNull(resultLower);
+        Assert.StartsWith("#broken-xref-", resultUpper);
+        Assert.StartsWith("#broken-xref-", resultLower);
+
+        // Both contexts should have errors (HEAD is always an error when not configured)
+        Assert.True(_strictBuildContext.HasErrors);
+        Assert.Contains("HEAD version is not allowed", _strictBuildContext.Errors.First().Message);
+        
+        Assert.True(_relaxedBuildContext.HasErrors);
+        Assert.Contains("HEAD version is not allowed", _relaxedBuildContext.Errors.First().Message);
+    }
+
+    [Fact]
+    public void FullyQualify_HeadVersion_WhenConfigured_ShouldSucceed()
+    {
+        // Given - Create a site with HEAD as a valid version
+        var headSource = Substitute.For<IContentSource>();
+        headSource.Version.Returns("HEAD");
+        headSource.Path.Returns(new FileSystemPath(""));
+
+        var headContentItems = new Dictionary<FileSystemPath, ContentItem>
+        {
+            ["test-file.md"] = new ContentItem(headSource, "text/markdown", Substitute.For<IReadOnlyFile>())
+        };
+
+        var headSection = new Section(
+            new ContentItem(headSource, "tanka/section", Substitute.For<IReadOnlyFile>()),
+            new SectionDefinition { Id = "head-section" },
+            headContentItems
+        );
+
+        var versionSections = new Dictionary<string, Section> 
+        { 
+            { "test-section", _section },
+            { "head-section", headSection }
+        };
+        var allSections = new Dictionary<string, Dictionary<string, Section>> 
+        { 
+            { "TEST", new Dictionary<string, Section> { { "test-section", _section } } },
+            { "HEAD", versionSections }
+        };
+        var siteWithHead = new Site(new SiteDefinition(), allSections);
+        var routerWithHead = new DocsSiteRouter(siteWithHead, headSection);
+
+        var xref = new Xref("HEAD", "head-section", "test-file.md");
+
+        // When
+        var result = routerWithHead.FullyQualify(xref, _strictBuildContext);
+
+        // Then - Should succeed without errors
+        Assert.NotNull(result);
+        Assert.Equal("head-section", result.Value.SectionId);
+        Assert.Equal("HEAD", result.Value.Version);
+        Assert.False(_strictBuildContext.HasErrors);
+        Assert.Empty(_strictBuildContext.Warnings);
+    }
 }

@@ -84,4 +84,38 @@ When you reference an image using `xref://` syntax:
 **Supported Image Formats:**
 - `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, `.webp`, `.bmp`, `.ico`, `.tiff`
 
+## Important Restrictions
+
+### HEAD Version Restriction
+
+The `HEAD` version in xref links is restricted to ensure documentation builds are reproducible and stable. HEAD is only allowed when it's explicitly configured as a version in your `tanka-docs.yml` file (typically only used for development builds).
+
+**Production builds (HEAD not configured):**
+```markdown
+# These will cause build errors in production
+[Link](xref://section@HEAD:file.md)       ❌
+![Image](xref://section@HEAD:image.png)   ❌
+
+# Use these instead
+[Link](xref://section@master:file.md)      ✅
+[Link](xref://section@1.0.0:file.md)       ✅
+[Link](xref://section:file.md)             ✅ (uses current context)
+```
+
+**Development builds (with HEAD configured in tanka-docs-wip.yml):**
+```yaml
+branches:
+  HEAD:
+    input_path:
+      - docs
+```
+
+When HEAD is configured as above, `xref://section@HEAD:file.md` references will work normally.
+
+**Error message when HEAD is not configured:**
+```
+Invalid xref reference: xref://section@HEAD:file.md - HEAD version is not allowed. 
+Use a specific version or omit the version to use the current context.
+```
+
 This comprehensive format ensures that all variations are documented with clear explanations and examples.
