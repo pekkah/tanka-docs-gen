@@ -190,7 +190,7 @@
             </nav>
             <main class="col-md-6 ms-sm-auto col-lg-7 px-md-4 py-3 content d-flex flex-column">
                 <!-- Mobile navigation controls -->
-                <div class="d-md-none mb-3">
+                <div class="d-lg-none mb-3">
                     <button id="sidebar-toggle" class="btn btn-outline-primary btn-sm me-2" type="button">
                         <svg width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
@@ -471,30 +471,34 @@
             const sidebar = document.getElementById('sidebar');
             
             if (sidebarToggle && sidebar) {
+                // SVG content constants to avoid duplication
+                const menuButtonContent = `<svg width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+                </svg><span class="ms-1">Menu</span>`;
+                const closeButtonContent = `<svg width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
+                    <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                </svg><span class="ms-1">Close</span>`;
+
                 // Update sidebar toggle button appearance
                 const updateSidebarToggleButton = (isCollapsed) => {
-                    if (isCollapsed) {
-                        sidebarToggle.innerHTML = `<svg width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
-                        </svg><span class="ms-1">Menu</span>`;
-                    } else {
-                        sidebarToggle.innerHTML = `<svg width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
-                            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
-                        </svg><span class="ms-1">Close</span>`;
-                    }
+                    sidebarToggle.innerHTML = isCollapsed ? menuButtonContent : closeButtonContent;
+                };
+
+                // Reusable function to collapse sidebar
+                const collapseSidebar = () => {
+                    sidebar.classList.remove('show');
+                    sidebar.classList.add('collapse');
+                    updateSidebarToggleButton(true);
                 };
 
                 // Toggle sidebar on button click
                 sidebarToggle.addEventListener('click', () => {
-                    const isCollapsed = sidebar.classList.contains('collapse');
-                    if (isCollapsed) {
+                    if (sidebar.classList.contains('collapse')) {
                         sidebar.classList.remove('collapse');
                         sidebar.classList.add('show');
                         updateSidebarToggleButton(false);
                     } else {
-                        sidebar.classList.remove('show');
-                        sidebar.classList.add('collapse');
-                        updateSidebarToggleButton(true);
+                        collapseSidebar();
                     }
                 });
 
@@ -504,9 +508,7 @@
                     link.addEventListener('click', () => {
                         // Only auto-close on mobile
                         if (window.innerWidth < MOBILE_BREAKPOINT) {
-                            sidebar.classList.remove('show');
-                            sidebar.classList.add('collapse');
-                            updateSidebarToggleButton(true);
+                            collapseSidebar();
                         }
                     });
                 });
