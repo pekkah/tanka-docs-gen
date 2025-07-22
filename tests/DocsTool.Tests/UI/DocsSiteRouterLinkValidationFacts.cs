@@ -225,4 +225,45 @@ public class DocsSiteRouterLinkValidationFacts
         Assert.NotNull(result);
         Assert.Equal("#broken-xref-xref---section-v1.0-path-with-special-chars.md", result);
     }
+
+    [Fact]
+    public void FullyQualify_HeadVersion_ShouldAddError()
+    {
+        // Given
+        var xref = new Xref("HEAD", "test-section", "existing-file.md");
+
+        // When
+        var result = _router.FullyQualify(xref, _strictBuildContext);
+
+        // Then
+        Assert.Null(result);
+        Assert.True(_strictBuildContext.HasErrors);
+        Assert.Single(_strictBuildContext.Errors);
+        Assert.Contains("HEAD version is not allowed", _strictBuildContext.Errors.First().Message);
+    }
+
+    [Fact]
+    public void GenerateRoute_HeadVersion_ShouldReturnPlaceholder()
+    {
+        // Given
+        var xrefUpperCase = new Xref("HEAD", "test-section", "existing-file.md");
+        var xrefLowerCase = new Xref("head", "test-section", "existing-file.md");
+
+        // When - Test both upper and lower case
+        var resultUpper = _router.GenerateRoute(xrefUpperCase, _strictBuildContext);
+        var resultLower = _router.GenerateRoute(xrefLowerCase, _relaxedBuildContext);
+
+        // Then - Both should return placeholders and add errors
+        Assert.NotNull(resultUpper);
+        Assert.NotNull(resultLower);
+        Assert.StartsWith("#broken-xref-", resultUpper);
+        Assert.StartsWith("#broken-xref-", resultLower);
+
+        // Both contexts should have errors (HEAD is always an error, not warning)
+        Assert.True(_strictBuildContext.HasErrors);
+        Assert.Contains("HEAD version is not allowed", _strictBuildContext.Errors.First().Message);
+        
+        Assert.True(_relaxedBuildContext.HasErrors);
+        Assert.Contains("HEAD version is not allowed", _relaxedBuildContext.Errors.First().Message);
+    }
 }

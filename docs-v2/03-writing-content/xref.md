@@ -84,4 +84,32 @@ When you reference an image using `xref://` syntax:
 **Supported Image Formats:**
 - `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, `.webp`, `.bmp`, `.ico`, `.tiff`
 
+## Important Restrictions
+
+### HEAD Version Not Allowed
+
+The `HEAD` version is **not allowed** in xref links. This restriction ensures that documentation builds are reproducible and stable across different environments.
+
+**Invalid (will cause build error):**
+```markdown
+[Link](xref://section@HEAD:file.md)
+![Image](xref://section@HEAD:image.png)
+```
+
+**Valid alternatives:**
+```markdown
+# Use a specific version
+[Link](xref://section@master:file.md)
+[Link](xref://section@1.0.0:file.md)
+
+# Or omit the version to use the current context
+[Link](xref://section:file.md)
+```
+
+The build will fail with an error message if you attempt to use `HEAD` as a version in any xref link:
+```
+Invalid xref reference: xref://section@HEAD:file.md - HEAD version is not allowed. 
+Use a specific version or omit the version to use the current context.
+```
+
 This comprehensive format ensures that all variations are documented with clear explanations and examples.
