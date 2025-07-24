@@ -45,12 +45,20 @@
             padding-top: 1rem;
         }
 
-        /* Ensure offcanvas works properly on mobile */
+        /* Offcanvas customization */
+        .offcanvas-md {
+            --bs-offcanvas-transition: transform .15s ease-in-out; /* Faster animation */
+        }
+        
+        /* Remove extra whitespace above content on mobile */
         @media (max-width: 767.98px) {
-            /* Hide sidebar and TOC by default on mobile */
-            .sidebar.offcanvas-md:not(.show),
-            .toc-sidebar.offcanvas-md:not(.show) {
-                visibility: hidden;
+            .content {
+                padding-top: 1rem !important;
+            }
+            
+            /* Hide mobile control buttons when offcanvas is shown */
+            .offcanvas-md.show ~ .content .d-lg-none {
+                display: none !important;
             }
         }
 
@@ -263,7 +271,7 @@
                 if (!mainContent) return;
                 
                 const headings = mainContent.querySelectorAll('h2, h3');
-                const tocNav = toc.querySelector('.nav');
+                const tocNav = toc.querySelector('.offcanvas-body .nav') || toc.querySelector('.nav');
                 
                 if (!tocNav) return;
                 
@@ -483,7 +491,7 @@
             
             // Auto-close TOC when TOC links are clicked
             if (toc) {
-                const tocNav = toc.querySelector('.nav');
+                const tocNav = toc.querySelector('.offcanvas-body .nav') || toc.querySelector('.nav');
                 if (tocNav) {
                     tocNav.addEventListener('click', (e) => {
                         if (e.target.tagName === 'A' && window.innerWidth < MOBILE_BREAKPOINT) {
