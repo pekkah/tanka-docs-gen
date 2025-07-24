@@ -45,34 +45,12 @@
             padding-top: 1rem;
         }
 
-        /* Mobile TOC styling - single responsive TOC */
-        @media (max-width: 991.98px) {
-            .toc-sidebar {
-                position: static !important;
-                height: auto !important;
-                max-height: 300px;
-                overflow-y: auto;
-                background-color: #f8f9fa;
-                border: 1px solid #dee2e6;
-                border-radius: 0.375rem;
-                margin-bottom: 1rem;
-                padding: 1rem;
-                /* Move TOC to mobile position - above content */
-                order: -1;
-                display: block !important; /* Override Bootstrap d-none d-lg-block */
-            }
-
-            .toc-sidebar.collapsed {
-                display: none !important;
-            }
-
-            .toc-sidebar .toc-title {
-                display: none; /* Hide desktop title on mobile */
-            }
-
-            /* Adjust main content layout for mobile */
-            .content {
-                order: 0;
+        /* Ensure offcanvas works properly on mobile */
+        @media (max-width: 767.98px) {
+            /* Hide sidebar and TOC by default on mobile */
+            .sidebar.offcanvas-md:not(.show),
+            .toc-sidebar.offcanvas-md:not(.show) {
+                visibility: hidden;
             }
         }
 
@@ -185,13 +163,19 @@
     </nav>
     <div class="container-fluid">
         <div class="row">
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                {{>partials/Navigation.hbs}}
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar offcanvas-md offcanvas-start" tabindex="-1">
+                <div class="offcanvas-header d-md-none">
+                    <h5 class="offcanvas-title">Navigation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    {{>partials/Navigation.hbs}}
+                </div>
             </nav>
             <main class="col-md-6 ms-sm-auto col-lg-7 px-md-4 py-3 content d-flex flex-column">
                 <!-- Mobile navigation controls -->
                 <div class="d-lg-none mb-3">
-                    <button id="sidebar-toggle" class="btn btn-outline-primary btn-sm me-2" type="button">
+                    <button class="btn btn-outline-primary btn-sm me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar">
                         <svg width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
                         </svg>
@@ -200,7 +184,7 @@
                 </div>
                 <!-- Mobile TOC toggle button -->
                 <div class="d-lg-none mb-3">
-                    <button id="toc-toggle" class="btn btn-outline-secondary btn-sm toc-toggle mb-2" type="button">
+                    <button class="btn btn-outline-secondary btn-sm toc-toggle mb-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#toc" aria-controls="toc">
                         <svg width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
                         </svg>
@@ -210,9 +194,15 @@
                 {{{PageHtml}}}
             </main>
             <!-- Single responsive TOC -->
-            <nav id="toc" class="col-md-3 col-lg-3 d-none d-lg-block toc-sidebar collapsed">
-                <strong class="d-block h6 my-2 pb-2 border-bottom toc-title">On this page</strong>
-                <nav class="nav flex-column"></nav>
+            <nav id="toc" class="col-md-3 col-lg-3 d-none d-lg-block toc-sidebar offcanvas-md offcanvas-end" tabindex="-1">
+                <div class="offcanvas-header d-md-none">
+                    <h5 class="offcanvas-title">On this page</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#toc" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <strong class="d-block h6 my-2 pb-2 border-bottom toc-title d-none d-md-block">On this page</strong>
+                    <nav class="nav flex-column"></nav>
+                </div>
             </nav>
         </div>
     </div>
@@ -466,52 +456,41 @@
                 }
             }
 
-            // Mobile sidebar toggle functionality
-            const sidebarToggle = document.getElementById('sidebar-toggle');
+            // Auto-close offcanvas menus when navigation links are clicked on mobile
             const sidebar = document.getElementById('sidebar');
+            const toc = document.getElementById('toc');
             
-            if (sidebarToggle && sidebar) {
-                // SVG content constants to avoid duplication
-                const menuButtonContent = `<svg width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
-                </svg><span class="ms-1">Menu</span>`;
-                const closeButtonContent = `<svg width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 16 16">
-                    <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
-                </svg><span class="ms-1">Close</span>`;
-
-                // Update sidebar toggle button appearance
-                const updateSidebarToggleButton = (isCollapsed) => {
-                    sidebarToggle.innerHTML = isCollapsed ? menuButtonContent : closeButtonContent;
-                };
-
-                // Reusable function to collapse sidebar
-                const collapseSidebar = () => {
-                    sidebar.classList.remove('show');
-                    sidebar.classList.add('collapse');
-                    updateSidebarToggleButton(true);
-                };
-
-                // Toggle sidebar on button click
-                sidebarToggle.addEventListener('click', () => {
-                    if (sidebar.classList.contains('collapse')) {
-                        sidebar.classList.remove('collapse');
-                        sidebar.classList.add('show');
-                        updateSidebarToggleButton(false);
-                    } else {
-                        collapseSidebar();
-                    }
-                });
-
-                // Auto-close sidebar when navigation links are clicked on mobile
+            // Function to close offcanvas
+            const closeOffcanvas = (element) => {
+                const bsOffcanvas = bootstrap.Offcanvas.getInstance(element);
+                if (bsOffcanvas) {
+                    bsOffcanvas.hide();
+                }
+            };
+            
+            // Auto-close sidebar when navigation links are clicked
+            if (sidebar) {
                 const sidebarLinks = sidebar.querySelectorAll('a.nav-link');
                 sidebarLinks.forEach(link => {
                     link.addEventListener('click', () => {
                         // Only auto-close on mobile
                         if (window.innerWidth < MOBILE_BREAKPOINT) {
-                            collapseSidebar();
+                            closeOffcanvas(sidebar);
                         }
                     });
                 });
+            }
+            
+            // Auto-close TOC when TOC links are clicked
+            if (toc) {
+                const tocNav = toc.querySelector('.nav');
+                if (tocNav) {
+                    tocNav.addEventListener('click', (e) => {
+                        if (e.target.tagName === 'A' && window.innerWidth < MOBILE_BREAKPOINT) {
+                            closeOffcanvas(toc);
+                        }
+                    });
+                }
             }
 
             if (window.location.hostname !== 'localhost') {
