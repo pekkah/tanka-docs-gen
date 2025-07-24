@@ -52,8 +52,8 @@
         
         /* Remove extra whitespace above content on mobile */
         @media (max-width: 767.98px) {
-            .content {
-                padding-top: 1rem !important;
+            main.content {
+                padding-top: 1rem;
             }
             
             /* Hide mobile control buttons when offcanvas is shown */
@@ -271,7 +271,7 @@
                 if (!mainContent) return;
                 
                 const headings = mainContent.querySelectorAll('h2, h3');
-                const tocNav = toc.querySelector('.offcanvas-body .nav') || toc.querySelector('.nav');
+                const tocNav = toc.querySelector('.offcanvas-body .nav');
                 
                 if (!tocNav) return;
                 
@@ -465,8 +465,7 @@
             }
 
             // Auto-close offcanvas menus when navigation links are clicked on mobile
-            const sidebar = document.getElementById('sidebar');
-            const toc = document.getElementById('toc');
+            // Reuse already declared sidebar and toc variables
             
             // Function to close offcanvas
             const closeOffcanvas = (element) => {
@@ -491,7 +490,7 @@
             
             // Auto-close TOC when TOC links are clicked
             if (toc) {
-                const tocNav = toc.querySelector('.offcanvas-body .nav') || toc.querySelector('.nav');
+                const tocNav = toc.querySelector('.offcanvas-body .nav');
                 if (tocNav) {
                     tocNav.addEventListener('click', (e) => {
                         if (e.target.tagName === 'A' && window.innerWidth < MOBILE_BREAKPOINT) {
