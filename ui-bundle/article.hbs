@@ -73,18 +73,117 @@
             overflow-y: auto;
             padding-top: 1rem;
         }
+        
+        .toc-sidebar .offcanvas-body {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+        
+        .toc-sidebar .toc-title {
+            margin-bottom: 1rem;
+            flex-shrink: 0;
+        }
 
-        /* Offcanvas customization */
+        /* Responsive offcanvas for md breakpoint */
         @media (max-width: 767.98px) {
-            .offcanvas-start {
-                width: 280px;
-            }
-            .offcanvas-end {
-                width: 300px;
+            .offcanvas-md {
+                position: fixed;
+                bottom: 0;
+                z-index: 1045;
+                display: flex;
+                flex-direction: column;
+                max-width: 100%;
+                visibility: hidden;
+                background-color: var(--bs-body-bg);
+                background-clip: padding-box;
+                outline: 0;
+                transition: transform .15s ease-in-out;
             }
             
-            .offcanvas {
-                --bs-offcanvas-transition: transform .15s ease-in-out; /* Faster animation */
+            .offcanvas-md.offcanvas-start {
+                top: 0;
+                left: 0;
+                width: 280px;
+                border-right: 1px solid var(--bs-border-color);
+                transform: translateX(-100%);
+            }
+            
+            .offcanvas-md.offcanvas-end {
+                top: 0;
+                right: 0;
+                width: 300px;
+                border-left: 1px solid var(--bs-border-color);
+                transform: translateX(100%);
+            }
+            
+            .offcanvas-md.showing,
+            .offcanvas-md.show {
+                transform: none;
+            }
+            
+            .offcanvas-md.show {
+                visibility: visible;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .offcanvas-md {
+                position: static !important;
+                z-index: auto !important;
+                flex-grow: 1 !important;
+                visibility: visible !important;
+                background-color: transparent !important;
+                border: 0 !important;
+                transform: none !important;
+                transition: none !important;
+            }
+        }
+        
+        /* Responsive offcanvas for lg breakpoint */
+        @media (max-width: 991.98px) {
+            .offcanvas-lg {
+                position: fixed;
+                bottom: 0;
+                z-index: 1045;
+                display: flex;
+                flex-direction: column;
+                max-width: 100%;
+                visibility: hidden;
+                background-color: var(--bs-body-bg);
+                background-clip: padding-box;
+                outline: 0;
+                transition: transform .15s ease-in-out;
+            }
+            
+            .offcanvas-lg.offcanvas-end {
+                top: 0;
+                right: 0;
+                width: 300px;
+                border-left: 1px solid var(--bs-border-color);
+                transform: translateX(100%);
+            }
+            
+            .offcanvas-lg.showing,
+            .offcanvas-lg.show {
+                transform: none;
+            }
+            
+            .offcanvas-lg.show {
+                visibility: visible;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .offcanvas-lg {
+                position: static !important;
+                z-index: auto !important;
+                flex-grow: 1 !important;
+                visibility: visible !important;
+                background-color: transparent !important;
+                border: 0 !important;
+                transform: none !important;
+                transition: none !important;
             }
         }
         
@@ -95,7 +194,7 @@
             }
             
             /* Hide mobile control buttons when offcanvas is shown */
-            .offcanvas.show ~ .content .d-md-none {
+            .offcanvas-md.show ~ .content .d-md-none {
                 display: none !important;
             }
         }
@@ -138,11 +237,18 @@
             font-family: var(--bs-body-font-family);
         }
         
+        .toc-sidebar .nav {
+            flex-direction: column !important;
+            width: 100%;
+        }
+        
         .toc-sidebar .nav-link {
             font-size: 0.8rem;
             color: var(--bs-secondary-color);
             padding-top: 0.25rem;
             padding-bottom: 0.25rem;
+            display: block;
+            width: 100%;
         }
 
         .toc-sidebar .nav-link:hover {
@@ -284,8 +390,8 @@
     </nav>
     <div class="container-fluid">
         <div class="row g-0">
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar offcanvas offcanvas-start" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="true" aria-label="Main navigation">
-                <div class="offcanvas-header d-md-none">
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar offcanvas-md offcanvas-start" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="true" aria-label="Main navigation">
+                <div class="offcanvas-header d-lg-none">
                     <h5 class="offcanvas-title">Navigation</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Close"></button>
                 </div>
@@ -293,7 +399,7 @@
                     {{>partials/Navigation.hbs}}
                 </div>
             </nav>
-            <main class="col-md-6 ms-md-auto col-lg-7 px-md-4 py-3 content d-flex flex-column" role="main">
+            <main class="col-md-9 col-lg-7 px-md-4 py-3 content d-flex flex-column" role="main">
                 <!-- Mobile navigation controls -->
                 <div class="d-md-none mb-3">
                     <button class="btn btn-sm btn-outline-primary me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar">
@@ -312,8 +418,8 @@
                 {{{PageHtml}}}
             </main>
             <!-- Single responsive TOC -->
-            <nav id="toc" class="col-md-3 col-lg-3 d-none d-md-block toc-sidebar offcanvas offcanvas-end" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="true" aria-label="Table of contents">
-                <div class="offcanvas-header d-md-none">
+            <nav id="toc" class="col-lg-3 d-none d-lg-block toc-sidebar offcanvas-lg offcanvas-end" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="true" aria-label="Table of contents">
+                <div class="offcanvas-header d-lg-none">
                     <h5 class="offcanvas-title">On this page</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#toc" aria-label="Close"></button>
                 </div>
