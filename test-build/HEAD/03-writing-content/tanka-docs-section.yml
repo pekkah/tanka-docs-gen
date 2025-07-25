@@ -1,0 +1,5 @@
+id: writing-content
+title: "Writing Content"
+index_page: xref://writing-content:index.md
+nav:
+  - xref://nav.md 

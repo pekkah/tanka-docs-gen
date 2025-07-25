@@ -1,43 +1,14 @@
-<!DOCTYPE html>
-<html lang="en" data-bs-theme="auto">
+﻿<!DOCTYPE html>
+<html lang="en">
 
 <head>
-    <base href="{{Site.BasePath}}">
-    <title>{{ Page.Title }} - {{ Site.Title }}</title>
+    <base href="/">
+    <title>Command Line Interface Reference - Tanka Docs Generator - WIP</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    
-    <!-- Color mode toggler -->
-    <script>
-        (() => {
-            'use strict'
-            
-            const getStoredTheme = () => localStorage.getItem('theme')
-            const setStoredTheme = theme => localStorage.setItem('theme', theme)
-            
-            const getPreferredTheme = () => {
-                const storedTheme = getStoredTheme()
-                if (storedTheme) {
-                    return storedTheme
-                }
-                
-                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-            }
-            
-            const setTheme = theme => {
-                if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    document.documentElement.setAttribute('data-bs-theme', 'dark')
-                } else {
-                    document.documentElement.setAttribute('data-bs-theme', theme)
-                }
-            }
-            
-            setTheme(getPreferredTheme())
-        })()
-    </script>
     
     <!-- Noto Color Emoji font for cross-platform emoji support -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
@@ -61,8 +32,8 @@
             top: 56px; /* Height of navbar */
             height: calc(100vh - 56px);
             overflow-y: auto;
-            background-color: var(--bs-secondary-bg);
-            border-right: 1px solid var(--bs-border-color);
+            background-color: #f8f9fa;
+            border-right: 1px solid #dee2e6;
             padding-top: 1rem;
         }
 
@@ -73,88 +44,20 @@
             overflow-y: auto;
             padding-top: 1rem;
         }
-        
-        .toc-sidebar .offcanvas-body {
-            display: flex;
-            flex-direction: column;
-            padding: 1rem;
-        }
-        
-        .toc-sidebar .toc-title {
-            margin-bottom: 1rem;
-            flex-shrink: 0;
-        }
 
-        /* Responsive offcanvas for md breakpoint */
-        @media (max-width: 767.98px) {
-            .offcanvas-md {
-                position: fixed;
-                bottom: 0;
-                z-index: 1045;
-                display: flex;
-                flex-direction: column;
-                max-width: 100%;
-                visibility: hidden;
-                background-color: var(--bs-body-bg);
-                background-clip: padding-box;
-                outline: 0;
-                transition: transform .15s ease-in-out;
-            }
-            
-            .offcanvas-md.offcanvas-start {
-                top: 0;
-                left: 0;
-                width: 280px;
-                border-right: 1px solid var(--bs-border-color);
-                transform: translateX(-100%);
-            }
-            
-            .offcanvas-md.offcanvas-end {
-                top: 0;
-                right: 0;
-                width: 300px;
-                border-left: 1px solid var(--bs-border-color);
-                transform: translateX(100%);
-            }
-            
-            .offcanvas-md.showing,
-            .offcanvas-md.show {
-                transform: none;
-            }
-            
-            .offcanvas-md.show {
-                visibility: visible;
-            }
+        /* Offcanvas customization */
+        .offcanvas-md {
+            --bs-offcanvas-transition: transform .15s ease-in-out; /* Faster animation */
         }
-        
-        @media (min-width: 768px) {
-            .offcanvas-md {
-                position: static !important;
-                z-index: auto !important;
-                flex-grow: 1 !important;
-                visibility: visible !important;
-                background-color: transparent !important;
-                border: 0 !important;
-                transform: none !important;
-                transition: none !important;
-            }
-        }
-        
-        @media (min-width: 992px) {
-            #toc {
-                display: block !important;
-            }
-        }
-        
         
         /* Remove extra whitespace above content on mobile */
         @media (max-width: 767.98px) {
             main.content {
-                padding-top: 0.5rem !important;
+                padding-top: 1rem;
             }
             
             /* Hide mobile control buttons when offcanvas is shown */
-            .offcanvas-md.show ~ .content .d-md-none {
+            .offcanvas-md.show ~ .content .d-lg-none {
                 display: none !important;
             }
         }
@@ -171,19 +74,12 @@
 
         .sidebar .nav-link {
             font-size: 0.9rem;
-            color: var(--bs-body-color);
-            border-radius: 0.375rem;
+            color: #495057;
         }
 
-        .sidebar .nav-link.active {
-            background-color: var(--bs-primary);
-            color: white;
+        .sidebar .nav-link.active, .sidebar .nav-link:hover {
+            color: rgb(var(--bs-link-color-rgb));
             font-weight: 500;
-        }
-        
-        .sidebar .nav-link:hover {
-            color: var(--bs-link-color);
-            background-color: var(--bs-tertiary-bg);
         }
 
         /* Ensure emojis render properly in navigation */
@@ -197,53 +93,28 @@
             font-family: var(--bs-body-font-family);
         }
         
-        .toc-sidebar .nav {
-            flex-direction: column !important;
-            width: 100%;
-        }
-        
         .toc-sidebar .nav-link {
             font-size: 0.8rem;
-            color: var(--bs-secondary-color);
+            color: #6c757d;
             padding-top: 0.25rem;
             padding-bottom: 0.25rem;
-            display: block;
-            width: 100%;
         }
 
         .toc-sidebar .nav-link:hover {
-            color: var(--bs-body-color);
+            color: #212529;
         }
 
         .toc-sidebar .nav-link.active {
             font-weight: 600;
-            color: var(--bs-body-color);
-            border-left: 2px solid var(--bs-link-color);
+            color: #212529; /* Darker text for readability */
+            border-left: 2px solid rgb(var(--bs-link-color-rgb));
         }
 
         blockquote {
             font-size: 1rem;
-            border-left: 4px solid var(--bs-border-color);
+            border-left: 4px solid #adb5bd;
             padding-left: 1rem;
-            color: var(--bs-secondary-color);
-        }
-        
-        /* Focus visible for better accessibility */
-        .btn:focus-visible,
-        .nav-link:focus-visible,
-        .dropdown-item:focus-visible {
-            outline: 2px solid var(--bs-primary);
-            outline-offset: 2px;
-        }
-        
-        /* Smooth transitions for theme switching */
-        body {
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        
-        .sidebar,
-        .toc-sidebar {
-            transition: background-color 0.3s ease, border-color 0.3s ease;
+            color: #6c757d;
         }
 
         .content h1, .content h2, .content h3, .content h4, .content h5, .content h6 {
@@ -260,88 +131,47 @@
         pre code.hljs {
             border-radius: 0.3rem;
         }
-        
-        /* Theme switcher styles */
-        .theme-icon-active {
-            display: inline-block !important;
-        }
     </style>
 </head>
 
 <body>
-    <!-- SVG Icons for theme switcher -->
-    <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
-        <symbol id="check2" viewBox="0 0 16 16">
-            <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
-        </symbol>
-        <symbol id="circle-half" viewBox="0 0 16 16">
-            <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
-        </symbol>
-        <symbol id="moon-stars-fill" viewBox="0 0 16 16">
-            <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
-            <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
-        </symbol>
-        <symbol id="sun-fill" viewBox="0 0 16 16">
-            <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
-        </symbol>
-    </svg>
-    <nav class="navbar navbar-expand-lg sticky-top" data-bs-theme="dark" style="background-color: var(--bs-primary);">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom sticky-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">{{Site.Title}}</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <a class="navbar-brand" href="#">Tanka Docs Generator - WIP</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    {{#sections Section.Version}}
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{#xref IndexPage}}{{url}}{{/xref}}">{{Title}}</a>
+                            <a class="nav-link" href="HEAD/index.html">Home</a>
                         </li>
-                    {{/sections}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="HEAD/01-getting-started/getting-started.html">Getting Started</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="HEAD/02-project-structure/index.html">Project Structure</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="HEAD/03-writing-content/index.html">Writing Content</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="HEAD/04-advanced/index.html">Advanced Features</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="HEAD/05-customization/index.html">UI Customization</a>
+                        </li>
                 </ul>
-                <ul class="navbar-nav">
-                    {{#if Site.Definition.Homepage.Enabled}}
+                <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{Site.Definition.Homepage.Url}}" target="{{Site.Definition.Homepage.Target}}" rel="noopener">{{Site.Definition.Homepage.Text}}</a>
-                    </li>
-                    {{/if}}
-                    <li class="nav-item dropdown">
-                        <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme (auto)">
-                            <svg class="bi my-1 theme-icon-active" width="16" height="16"><use href="#circle-half"></use></svg>
-                            <span class="d-lg-none ms-2" id="bd-theme-text">Toggle theme</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
-                            <li>
-                                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
-                                    <svg class="bi me-2 opacity-50 theme-icon" width="16" height="16"><use href="#sun-fill"></use></svg>
-                                    Light
-                                    <svg class="bi ms-auto d-none" width="16" height="16"><use href="#check2"></use></svg>
-                                </button>
-                            </li>
-                            <li>
-                                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
-                                    <svg class="bi me-2 opacity-50 theme-icon" width="16" height="16"><use href="#moon-stars-fill"></use></svg>
-                                    Dark
-                                    <svg class="bi ms-auto d-none" width="16" height="16"><use href="#check2"></use></svg>
-                                </button>
-                            </li>
-                            <li>
-                                <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto" aria-pressed="true">
-                                    <svg class="bi me-2 opacity-50 theme-icon" width="16" height="16"><use href="#circle-half"></use></svg>
-                                    Auto
-                                    <svg class="bi ms-auto d-none" width="16" height="16"><use href="#check2"></use></svg>
-                                </button>
-                            </li>
-                        </ul>
+                        <a class="nav-link" href="https://github.com/pekkah/tanka-docs-gen" target="_blank" rel="noopener">GitHub</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            {{Section.Version}}
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            HEAD
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            {{#versions}}
-                                <li><a class="dropdown-item" href="{{../Site.BasePath}}{{Version}}">{{Version}}</a></li>
-                            {{/versions}}
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+                                <li><a class="dropdown-item" href="/HEAD">HEAD</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -349,42 +179,430 @@
         </div>
     </nav>
     <div class="container-fluid">
-        <div class="row g-0">
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar offcanvas-md offcanvas-start" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="true" aria-label="Main navigation">
-                <div class="offcanvas-header d-lg-none">
+        <div class="row">
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar offcanvas-md offcanvas-start" tabindex="-1">
+                <div class="offcanvas-header d-md-none">
                     <h5 class="offcanvas-title">Navigation</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Close"></button>
                 </div>
                 <div class="offcanvas-body">
-                    {{>partials/Navigation.hbs}}
+    <nav class="nav flex-column">
+<li class="nav-item">
+    <div class="d-flex justify-content-between align-items-center">
+        <a class="nav-link" href=HEAD/04-advanced/tags-and-branches.html>Versioning with Git</a>
+    </div>
+</li>    </nav>
+    <nav class="nav flex-column">
+<li class="nav-item">
+    <div class="d-flex justify-content-between align-items-center">
+        <a class="nav-link" href=HEAD/04-advanced/cli-reference.html>CLI Reference</a>
+    </div>
+</li>    </nav>
+    <nav class="nav flex-column">
+<li class="nav-item">
+    <div class="d-flex justify-content-between align-items-center">
+        <a class="nav-link" href=HEAD/04-advanced/troubleshooting.html>Troubleshooting</a>
+    </div>
+</li>    </nav>
                 </div>
             </nav>
-            <main class="col-md-9 col-lg-7 px-md-4 py-3 content d-flex flex-column" role="main">
-                <!-- Mobile and medium screen navigation controls -->
-                <div class="mb-3">
-                    <button class="btn btn-sm btn-outline-primary me-2 d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar">
+            <main class="col-md-6 ms-sm-auto col-lg-7 px-md-4 py-3 content d-flex flex-column">
+                <!-- Mobile navigation controls -->
+                <div class="d-lg-none mb-3">
+                    <button class="btn btn-outline-primary btn-sm me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar">
                         <svg width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
                         </svg>
                         <span class="ms-1">Menu</span>
                     </button>
-                    <button class="btn btn-sm btn-outline-secondary toc-toggle d-none d-md-block d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#toc" aria-controls="toc">
+                </div>
+                <!-- Mobile TOC toggle button -->
+                <div class="d-lg-none mb-3">
+                    <button class="btn btn-outline-secondary btn-sm toc-toggle mb-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#toc" aria-controls="toc">
                         <svg width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
                         </svg>
                         <span class="ms-1">On this page</span>
                     </button>
                 </div>
-                {{{PageHtml}}}
+                <h1 id="command-line-interface-reference">Command Line Interface Reference</h1>
+<p>Tanka Docs provides a command-line interface (CLI) that allows you to build and manage your documentation projects. The tool can be run directly from source or installed as a local .NET Global Tool.</p>
+<h2 id="installation">Installation</h2>
+<p>Install Tanka Docs as a .NET global tool:</p>
+<pre><code class="language-bash"># Install from NuGet (recommended)
+dotnet tool install --global Tanka.DocsGen
+</code></pre>
+<p><strong>Alternative installation from source (for development):</strong></p>
+<pre><code class="language-bash"># Clone and build from source
+git clone https://github.com/pekkah/tanka-docs-gen.git
+cd tanka-docs-gen
+dotnet pack -c Release -o ./artifacts
+dotnet tool install --global --add-source ./artifacts Tanka.DocsGen
+</code></pre>
+<p>To update to the latest version:</p>
+<pre><code class="language-bash"># Update from NuGet
+dotnet tool update --global Tanka.DocsGen
+
+# Or update from source (if installed from source)
+git pull
+dotnet pack -c Release -o ./artifacts
+dotnet tool update --global --add-source ./artifacts Tanka.DocsGen
+</code></pre>
+<h2 id="commands">Commands</h2>
+<h3 id="tanka-docs-init"><code>tanka-docs init</code></h3>
+<p>Initialize a new Tanka Docs project with default configuration and UI templates.</p>
+<p><strong>Syntax:</strong></p>
+<pre><code class="language-bash">tanka-docs init [options]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table class="table">
+<thead>
+<tr>
+<th>Option</th>
+<th>Short</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--force</code></td>
+<td><code>-f</code></td>
+<td>Overwrite existing files without prompting</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>--ui-bundle-only</code></td>
+<td></td>
+<td>Only extract UI bundle, skip configuration file creation</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>--config-only</code></td>
+<td></td>
+<td>Only create configuration files, skip UI bundle extraction</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>--no-wip</code></td>
+<td></td>
+<td>Skip creating <code>tanka-docs-wip.yml</code> (create only main configuration)</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>--branch &lt;BRANCH&gt;</code></td>
+<td></td>
+<td>Specify default branch name (default: auto-detect from git)</td>
+<td>Auto-detected</td>
+</tr>
+<tr>
+<td><code>--output-dir &lt;PATH&gt;</code></td>
+<td></td>
+<td>Specify output directory (default: current directory)</td>
+<td>Current directory</td>
+</tr>
+<tr>
+<td><code>--quiet</code></td>
+<td><code>-q</code></td>
+<td>Skip post-creation configuration guidance (for automation)</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>--project-name &lt;NAME&gt;</code></td>
+<td></td>
+<td>Specify project name (default: derive from directory name)</td>
+<td>Auto-derived</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Prerequisites:</strong></p>
+<ul>
+<li>Must be run in a Git repository (use <code>git init</code> first if needed)</li>
+<li>Requires .NET 9+ and the Tanka Docs global tool to be installed</li>
+</ul>
+<p><strong>Examples:</strong></p>
+<pre><code class="language-bash"># Basic initialization in current directory
+tanka-docs init
+
+# Initialize with custom project name
+tanka-docs init --project-name &quot;My Documentation Site&quot;
+
+# Initialize with specific branch
+tanka-docs init --branch main
+
+# Only create configuration files (useful if you have custom UI)
+tanka-docs init --config-only
+
+# Only extract UI bundle (useful for UI customization)
+tanka-docs init --ui-bundle-only
+
+# Force overwrite existing files
+tanka-docs init --force
+
+# Quiet mode for automation scripts
+tanka-docs init --quiet --project-name &quot;Auto-Generated Docs&quot;
+
+# Initialize in a specific directory
+tanka-docs init --output-dir ./my-docs-project
+</code></pre>
+<p><strong>Generated Files:</strong></p>
+<p>The init command creates the following structure:</p>
+<pre><code>./
+├── tanka-docs.yml          # Production configuration
+├── tanka-docs-wip.yml      # Development/WIP configuration
+└── ui-bundle/              # Customizable UI templates
+    ├── article.hbs         # Main page template
+    ├── tanka-docs-section.yml
+    └── partials/
+        ├── Navigation.hbs
+        └── NavigationItem.hbs
+</code></pre>
+<p><strong>Configuration Templates:</strong></p>
+<ul>
+<li><strong><code>tanka-docs.yml</code></strong>: Production configuration using the detected Git branch for stable builds</li>
+<li><strong><code>tanka-docs-wip.yml</code></strong>: Development configuration using <code>HEAD</code> for work-in-progress content</li>
+</ul>
+<h3 id="tanka-docs-build"><code>tanka-docs build</code></h3>
+<p>The primary command for generating static documentation from your source files.</p>
+<p><strong>Syntax:</strong></p>
+<pre><code class="language-bash">tanka-docs build [options]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table class="table">
+<thead>
+<tr>
+<th>Option</th>
+<th>Short</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--debug</code></td>
+<td></td>
+<td>Enable verbose output for troubleshooting</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>--file &lt;FILE&gt;</code></td>
+<td><code>-f</code></td>
+<td>Path to the <code>tanka-docs.yml</code> configuration file</td>
+<td><code>./tanka-docs.yml</code></td>
+</tr>
+<tr>
+<td><code>--output &lt;OUTPUT&gt;</code></td>
+<td><code>-o</code></td>
+<td>Output directory for generated site</td>
+<td>From config file</td>
+</tr>
+<tr>
+<td><code>--build &lt;BUILD&gt;</code></td>
+<td><code>-b</code></td>
+<td>Build/cache directory for intermediate files</td>
+<td>From config file</td>
+</tr>
+<tr>
+<td><code>--base &lt;BASE&gt;</code></td>
+<td></td>
+<td>Base href for generated HTML pages (useful for subdirectory deployments)</td>
+<td>From config file</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<pre><code class="language-bash"># Basic build using default configuration
+tanka-docs build
+
+# Build with custom configuration file
+tanka-docs build -f ./custom-config.yml
+
+# Build with custom output directory
+tanka-docs build -o ./custom-output
+
+# Build with debug output
+tanka-docs build --debug
+
+# Build for deployment to subdirectory
+tanka-docs build --base &quot;/my-docs/&quot;
+
+# Combine multiple options
+tanka-docs build -f ./config.yml -o ./dist --debug
+</code></pre>
+<h3 id="tanka-docs-dev"><code>tanka-docs dev</code></h3>
+<p>Development server mode for live preview during documentation writing.</p>
+<p><strong>Syntax:</strong></p>
+<pre><code class="language-bash">tanka-docs dev [options]
+</code></pre>
+<p><strong>Options:</strong></p>
+<table class="table">
+<thead>
+<tr>
+<th>Option</th>
+<th>Short</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--file &lt;FILE&gt;</code></td>
+<td><code>-f</code></td>
+<td>Path to the <code>tanka-docs.yml</code> configuration file</td>
+<td><code>./tanka-docs.yml</code></td>
+</tr>
+<tr>
+<td><code>--port &lt;PORT&gt;</code></td>
+<td><code>-p</code></td>
+<td>Port to run the development server on</td>
+<td><code>5000</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<pre><code class="language-bash"># Run dev server with default settings
+tanka-docs dev
+
+# Run dev server on a custom port
+tanka-docs dev --port 8080
+
+# Use a custom configuration file
+tanka-docs dev -f ./custom-config.yml
+</code></pre>
+<p><strong>Features:</strong></p>
+<ul>
+<li><strong>Live reload</strong>: WebSocket-based automatic browser refresh when files change</li>
+<li><strong>File watching</strong>: Monitors all input directories and configuration files</li>
+<li><strong>Development server</strong>: Built-in HTTP server for preview</li>
+<li><strong>Concurrent build protection</strong>: Prevents multiple builds from running simultaneously</li>
+<li><strong>Real-time feedback</strong>: Shows build status and errors in the console</li>
+</ul>
+<h2 id="configuration-file-resolution">Configuration File Resolution</h2>
+<p>When you run commands like <code>tanka-docs build</code> or <code>tanka-docs dev</code>, the tool looks for configuration files in the following order:</p>
+<ol>
+<li><strong>Explicit path</strong>: If you specify <code>-f</code> or <code>--file</code>, it uses that exact path</li>
+<li><strong>Current directory</strong>: Looks for <code>tanka-docs.yml</code> in the current working directory</li>
+<li><strong>Error</strong>: If no configuration file is found, the command fails with an error</li>
+</ol>
+<p><strong>Note</strong>: Use <code>tanka-docs init</code> to create default configuration files if you don't have them yet.</p>
+<h2 id="exit-codes">Exit Codes</h2>
+<table class="table">
+<thead>
+<tr>
+<th>Code</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code></td>
+<td>Success</td>
+</tr>
+<tr>
+<td><code>-1</code></td>
+<td>General error (configuration not found, build failed, etc.)</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td>Command-specific error</td>
+</tr>
+</tbody>
+</table>
+<h2 id="common-usage-patterns">Common Usage Patterns</h2>
+<h3 id="new-project-setup">New Project Setup</h3>
+<pre><code class="language-bash"># Create a new project from scratch
+mkdir my-docs &amp;&amp; cd my-docs
+git init
+tanka-docs init
+
+# Create documentation content
+mkdir docs
+echo &quot;# Welcome&quot; &gt; docs/index.md
+git add . &amp;&amp; git commit -m &quot;Initial docs&quot;
+
+# Start development
+tanka-docs dev
+</code></pre>
+<h3 id="local-development">Local Development</h3>
+<pre><code class="language-bash"># Build and output to default location
+tanka-docs build
+
+# Build with debug output to see detailed logs
+tanka-docs build --debug
+
+# Use WIP configuration for development
+tanka-docs dev -f tanka-docs-wip.yml
+</code></pre>
+<h3 id="cicd-integration">CI/CD Integration</h3>
+<pre><code class="language-bash"># Build for production deployment
+tanka-docs build --output ./dist --base &quot;/docs/&quot;
+
+# Build with custom configuration for different environments
+tanka-docs build -f ./config/production.yml -o ./dist
+</code></pre>
+<h3 id="multiple-configurations">Multiple Configurations</h3>
+<pre><code class="language-bash"># Development build
+tanka-docs build -f ./config/dev.yml -o ./dev-output
+
+# Production build
+tanka-docs build -f ./config/prod.yml -o ./prod-output --base &quot;/api-docs/&quot;
+</code></pre>
+<h2 id="working-directory">Working Directory</h2>
+<p>The tool uses the directory containing the configuration file as the working directory for resolving relative paths. This means:</p>
+<ul>
+<li>If you specify <code>-f ./config/tanka-docs.yml</code>, the working directory becomes <code>./config/</code></li>
+<li>All relative paths in the configuration are resolved relative to this directory</li>
+<li>Source paths, output paths, and other file references are resolved from this base</li>
+</ul>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="common-issues">Common Issues</h3>
+<p><strong>Configuration file not found:</strong></p>
+<pre><code class="language-bash">Could not load configuration: 'tanka-docs.yml'
+</code></pre>
+<ul>
+<li>Ensure the configuration file exists</li>
+<li>Use <code>tanka-docs init</code> to create default configuration files</li>
+<li>Check the file path if using <code>-f</code> option</li>
+<li>Verify you're in the correct directory</li>
+</ul>
+<p><strong>Build failures:</strong></p>
+<ul>
+<li>Use <code>--debug</code> flag to get detailed error information</li>
+<li>Check that all referenced files and directories exist</li>
+<li>Verify the syntax of your configuration files</li>
+</ul>
+<p><strong>Permission errors:</strong></p>
+<ul>
+<li>Ensure you have write permissions to the output directory</li>
+<li>Check that the build directory is writable</li>
+</ul>
+<h3 id="getting-help">Getting Help</h3>
+<pre><code class="language-bash"># Show available commands and options
+tanka-docs --help
+
+# Show help for specific command
+tanka-docs init --help
+tanka-docs build --help
+tanka-docs dev --help
+</code></pre>
+<h2 id="environment-variables">Environment Variables</h2>
+<p>Currently, Tanka Docs does not use environment variables for configuration. All settings must be specified through command-line options or configuration files.</p>
+<h2 id="performance-tips">Performance Tips</h2>
+<ul>
+<li>Use <code>--debug</code> sparingly in production builds as it generates more output</li>
+<li>Consider using a dedicated build directory (separate from output) for better performance</li>
+<li>Ensure your Git repository is clean and has proper tags/branches for version detection</li>
+</ul>
+
             </main>
             <!-- Single responsive TOC -->
-            <nav id="toc" class="col-lg-3 toc-sidebar offcanvas-md offcanvas-end" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="true" aria-label="Table of contents" style="display: none">
-                <div class="offcanvas-header d-lg-none">
+            <nav id="toc" class="col-md-3 col-lg-3 d-none d-lg-block toc-sidebar offcanvas-md offcanvas-end" tabindex="-1">
+                <div class="offcanvas-header d-md-none">
                     <h5 class="offcanvas-title">On this page</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#toc" aria-label="Close"></button>
                 </div>
                 <div class="offcanvas-body">
-                    <strong class="d-block h6 my-2 pb-2 border-bottom toc-title">On this page</strong>
+                    <strong class="d-block h6 my-2 pb-2 border-bottom toc-title d-none d-md-block">On this page</strong>
                     <nav class="nav flex-column"></nav>
                 </div>
             </nav>
@@ -440,7 +658,7 @@
             const SCROLL_OFFSET = 100;
             const SCROLL_THROTTLE_MS = 25; // Optimized from 10ms
             const SCROLL_NAVIGATION_TIMEOUT_MS = 200;
-            const MOBILE_BREAKPOINT = 768; // Bootstrap md breakpoint
+            const MOBILE_BREAKPOINT = 992;
             
             if (toc) {
                 const mainContent = document.querySelector('.content');
@@ -705,80 +923,6 @@
             }
             connect();
         })();
-        
-        // Theme switcher functionality
-        (() => {
-            'use strict'
-            
-            const getStoredTheme = () => localStorage.getItem('theme')
-            const setStoredTheme = theme => localStorage.setItem('theme', theme)
-            
-            const getPreferredTheme = () => {
-                const storedTheme = getStoredTheme()
-                if (storedTheme) {
-                    return storedTheme
-                }
-                
-                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-            }
-            
-            const setTheme = theme => {
-                if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    document.documentElement.setAttribute('data-bs-theme', 'dark')
-                } else {
-                    document.documentElement.setAttribute('data-bs-theme', theme)
-                }
-            }
-            
-            const showActiveTheme = (theme, focus = false) => {
-                const themeSwitcher = document.querySelector('#bd-theme')
-                
-                if (!themeSwitcher) {
-                    return
-                }
-                
-                const themeSwitcherText = document.querySelector('#bd-theme-text')
-                const activeThemeIcon = document.querySelector('.theme-icon-active use')
-                const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
-                const svgOfActiveBtn = btnToActive.querySelector('svg use').getAttribute('href')
-                
-                document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
-                    element.classList.remove('active')
-                    element.setAttribute('aria-pressed', 'false')
-                })
-                
-                btnToActive.classList.add('active')
-                btnToActive.setAttribute('aria-pressed', 'true')
-                activeThemeIcon.setAttribute('href', svgOfActiveBtn)
-                const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`
-                themeSwitcher.setAttribute('aria-label', themeSwitcherLabel)
-                
-                if (focus) {
-                    themeSwitcher.focus()
-                }
-            }
-            
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-                const storedTheme = getStoredTheme()
-                if (storedTheme !== 'light' && storedTheme !== 'dark') {
-                    setTheme(getPreferredTheme())
-                }
-            })
-            
-            window.addEventListener('DOMContentLoaded', () => {
-                showActiveTheme(getPreferredTheme())
-                
-                document.querySelectorAll('[data-bs-theme-value]')
-                    .forEach(toggle => {
-                        toggle.addEventListener('click', () => {
-                            const theme = toggle.getAttribute('data-bs-theme-value')
-                            setStoredTheme(theme)
-                            setTheme(theme)
-                            showActiveTheme(theme, true)
-                        })
-                    })
-            })
-        })()
     </script>
 </body>
 </html>
