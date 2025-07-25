@@ -1,43 +1,14 @@
-<!DOCTYPE html>
-<html lang="en" data-bs-theme="auto">
+﻿<!DOCTYPE html>
+<html lang="en">
 
 <head>
-    <base href="{{Site.BasePath}}">
-    <title>{{ Page.Title }} - {{ Site.Title }}</title>
+    <base href="/">
+    <title>Troubleshooting Guide - Tanka Docs Generator - WIP</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    
-    <!-- Color mode toggler -->
-    <script>
-        (() => {
-            'use strict'
-            
-            const getStoredTheme = () => localStorage.getItem('theme')
-            const setStoredTheme = theme => localStorage.setItem('theme', theme)
-            
-            const getPreferredTheme = () => {
-                const storedTheme = getStoredTheme()
-                if (storedTheme) {
-                    return storedTheme
-                }
-                
-                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-            }
-            
-            const setTheme = theme => {
-                if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    document.documentElement.setAttribute('data-bs-theme', 'dark')
-                } else {
-                    document.documentElement.setAttribute('data-bs-theme', theme)
-                }
-            }
-            
-            setTheme(getPreferredTheme())
-        })()
-    </script>
     
     <!-- Noto Color Emoji font for cross-platform emoji support -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
@@ -61,8 +32,8 @@
             top: 56px; /* Height of navbar */
             height: calc(100vh - 56px);
             overflow-y: auto;
-            background-color: var(--bs-secondary-bg);
-            border-right: 1px solid var(--bs-border-color);
+            background-color: #f8f9fa;
+            border-right: 1px solid #dee2e6;
             padding-top: 1rem;
         }
 
@@ -75,27 +46,18 @@
         }
 
         /* Offcanvas customization */
-        @media (max-width: 767.98px) {
-            .offcanvas-start {
-                width: 280px;
-            }
-            .offcanvas-end {
-                width: 300px;
-            }
-            
-            .offcanvas {
-                --bs-offcanvas-transition: transform .15s ease-in-out; /* Faster animation */
-            }
+        .offcanvas-md {
+            --bs-offcanvas-transition: transform .15s ease-in-out; /* Faster animation */
         }
         
         /* Remove extra whitespace above content on mobile */
         @media (max-width: 767.98px) {
             main.content {
-                padding-top: 0.5rem !important;
+                padding-top: 1rem;
             }
             
             /* Hide mobile control buttons when offcanvas is shown */
-            .offcanvas.show ~ .content .d-md-none {
+            .offcanvas-md.show ~ .content .d-lg-none {
                 display: none !important;
             }
         }
@@ -112,19 +74,12 @@
 
         .sidebar .nav-link {
             font-size: 0.9rem;
-            color: var(--bs-body-color);
-            border-radius: 0.375rem;
+            color: #495057;
         }
 
-        .sidebar .nav-link.active {
-            background-color: var(--bs-primary);
-            color: white;
+        .sidebar .nav-link.active, .sidebar .nav-link:hover {
+            color: rgb(var(--bs-link-color-rgb));
             font-weight: 500;
-        }
-        
-        .sidebar .nav-link:hover {
-            color: var(--bs-link-color);
-            background-color: var(--bs-tertiary-bg);
         }
 
         /* Ensure emojis render properly in navigation */
@@ -140,44 +95,26 @@
         
         .toc-sidebar .nav-link {
             font-size: 0.8rem;
-            color: var(--bs-secondary-color);
+            color: #6c757d;
             padding-top: 0.25rem;
             padding-bottom: 0.25rem;
         }
 
         .toc-sidebar .nav-link:hover {
-            color: var(--bs-body-color);
+            color: #212529;
         }
 
         .toc-sidebar .nav-link.active {
             font-weight: 600;
-            color: var(--bs-body-color);
-            border-left: 2px solid var(--bs-link-color);
+            color: #212529; /* Darker text for readability */
+            border-left: 2px solid rgb(var(--bs-link-color-rgb));
         }
 
         blockquote {
             font-size: 1rem;
-            border-left: 4px solid var(--bs-border-color);
+            border-left: 4px solid #adb5bd;
             padding-left: 1rem;
-            color: var(--bs-secondary-color);
-        }
-        
-        /* Focus visible for better accessibility */
-        .btn:focus-visible,
-        .nav-link:focus-visible,
-        .dropdown-item:focus-visible {
-            outline: 2px solid var(--bs-primary);
-            outline-offset: 2px;
-        }
-        
-        /* Smooth transitions for theme switching */
-        body {
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        
-        .sidebar,
-        .toc-sidebar {
-            transition: background-color 0.3s ease, border-color 0.3s ease;
+            color: #6c757d;
         }
 
         .content h1, .content h2, .content h3, .content h4, .content h5, .content h6 {
@@ -194,88 +131,47 @@
         pre code.hljs {
             border-radius: 0.3rem;
         }
-        
-        /* Theme switcher styles */
-        .theme-icon-active {
-            display: inline-block !important;
-        }
     </style>
 </head>
 
 <body>
-    <!-- SVG Icons for theme switcher -->
-    <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
-        <symbol id="check2" viewBox="0 0 16 16">
-            <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
-        </symbol>
-        <symbol id="circle-half" viewBox="0 0 16 16">
-            <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
-        </symbol>
-        <symbol id="moon-stars-fill" viewBox="0 0 16 16">
-            <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
-            <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
-        </symbol>
-        <symbol id="sun-fill" viewBox="0 0 16 16">
-            <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
-        </symbol>
-    </svg>
-    <nav class="navbar navbar-expand-lg sticky-top" data-bs-theme="dark" style="background-color: var(--bs-primary);">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom sticky-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">{{Site.Title}}</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <a class="navbar-brand" href="#">Tanka Docs Generator - WIP</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    {{#sections Section.Version}}
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{#xref IndexPage}}{{url}}{{/xref}}">{{Title}}</a>
+                            <a class="nav-link" href="HEAD/index.html">Home</a>
                         </li>
-                    {{/sections}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="HEAD/01-getting-started/getting-started.html">Getting Started</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="HEAD/02-project-structure/index.html">Project Structure</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="HEAD/03-writing-content/index.html">Writing Content</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="HEAD/04-advanced/index.html">Advanced Features</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="HEAD/05-customization/index.html">UI Customization</a>
+                        </li>
                 </ul>
-                <ul class="navbar-nav">
-                    {{#if Site.Definition.Homepage.Enabled}}
+                <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{Site.Definition.Homepage.Url}}" target="{{Site.Definition.Homepage.Target}}" rel="noopener">{{Site.Definition.Homepage.Text}}</a>
-                    </li>
-                    {{/if}}
-                    <li class="nav-item dropdown">
-                        <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme (auto)">
-                            <svg class="bi my-1 theme-icon-active" width="16" height="16"><use href="#circle-half"></use></svg>
-                            <span class="d-lg-none ms-2" id="bd-theme-text">Toggle theme</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
-                            <li>
-                                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
-                                    <svg class="bi me-2 opacity-50 theme-icon" width="16" height="16"><use href="#sun-fill"></use></svg>
-                                    Light
-                                    <svg class="bi ms-auto d-none" width="16" height="16"><use href="#check2"></use></svg>
-                                </button>
-                            </li>
-                            <li>
-                                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
-                                    <svg class="bi me-2 opacity-50 theme-icon" width="16" height="16"><use href="#moon-stars-fill"></use></svg>
-                                    Dark
-                                    <svg class="bi ms-auto d-none" width="16" height="16"><use href="#check2"></use></svg>
-                                </button>
-                            </li>
-                            <li>
-                                <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto" aria-pressed="true">
-                                    <svg class="bi me-2 opacity-50 theme-icon" width="16" height="16"><use href="#circle-half"></use></svg>
-                                    Auto
-                                    <svg class="bi ms-auto d-none" width="16" height="16"><use href="#check2"></use></svg>
-                                </button>
-                            </li>
-                        </ul>
+                        <a class="nav-link" href="https://github.com/pekkah/tanka-docs-gen" target="_blank" rel="noopener">GitHub</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            {{Section.Version}}
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            HEAD
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            {{#versions}}
-                                <li><a class="dropdown-item" href="{{../Site.BasePath}}{{Version}}">{{Version}}</a></li>
-                            {{/versions}}
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+                                <li><a class="dropdown-item" href="/HEAD">HEAD</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -283,42 +179,420 @@
         </div>
     </nav>
     <div class="container-fluid">
-        <div class="row g-0">
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar offcanvas offcanvas-start" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="true" aria-label="Main navigation">
+        <div class="row">
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar offcanvas-md offcanvas-start" tabindex="-1">
                 <div class="offcanvas-header d-md-none">
                     <h5 class="offcanvas-title">Navigation</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Close"></button>
                 </div>
                 <div class="offcanvas-body">
-                    {{>partials/Navigation.hbs}}
+    <nav class="nav flex-column">
+<li class="nav-item">
+    <div class="d-flex justify-content-between align-items-center">
+        <a class="nav-link" href=HEAD/04-advanced/tags-and-branches.html>Versioning with Git</a>
+    </div>
+</li>    </nav>
+    <nav class="nav flex-column">
+<li class="nav-item">
+    <div class="d-flex justify-content-between align-items-center">
+        <a class="nav-link" href=HEAD/04-advanced/cli-reference.html>CLI Reference</a>
+    </div>
+</li>    </nav>
+    <nav class="nav flex-column">
+<li class="nav-item">
+    <div class="d-flex justify-content-between align-items-center">
+        <a class="nav-link" href=HEAD/04-advanced/troubleshooting.html>Troubleshooting</a>
+    </div>
+</li>    </nav>
                 </div>
             </nav>
-            <main class="col-md-6 ms-md-auto col-lg-7 px-md-4 py-3 content d-flex flex-column" role="main">
+            <main class="col-md-6 ms-sm-auto col-lg-7 px-md-4 py-3 content d-flex flex-column">
                 <!-- Mobile navigation controls -->
-                <div class="d-md-none mb-3">
-                    <button class="btn btn-sm btn-outline-primary me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar">
+                <div class="d-lg-none mb-3">
+                    <button class="btn btn-outline-primary btn-sm me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar">
                         <svg width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
                         </svg>
                         <span class="ms-1">Menu</span>
                     </button>
-                    <button class="btn btn-sm btn-outline-secondary toc-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#toc" aria-controls="toc">
+                </div>
+                <!-- Mobile TOC toggle button -->
+                <div class="d-lg-none mb-3">
+                    <button class="btn btn-outline-secondary btn-sm toc-toggle mb-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#toc" aria-controls="toc">
                         <svg width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
                         </svg>
                         <span class="ms-1">On this page</span>
                     </button>
                 </div>
-                {{{PageHtml}}}
+                <h1 id="troubleshooting-guide">Troubleshooting Guide</h1>
+<p>This guide covers common issues you might encounter when using Tanka Docs and their solutions.</p>
+<h2 id="installation-issues">Installation Issues</h2>
+<h3 id="tool-installation-fails">Tool Installation Fails</h3>
+<p><strong>Error:</strong></p>
+<pre><code>Could not execute because the specified command or file was not found.
+</code></pre>
+<p><strong>Solution:</strong></p>
+<ol>
+<li>Ensure you have .NET 6+ installed:
+<pre><code class="language-bash">dotnet --version
+</code></pre>
+</li>
+<li>If .NET is not installed, download from <a href="https://dotnet.microsoft.com/download">https://dotnet.microsoft.com/download</a></li>
+<li>Retry the installation:
+<pre><code class="language-bash">dotnet tool install --global Tanka.DocsGen
+</code></pre>
+</li>
+</ol>
+<h3 id="permission-errors-during-installation">Permission Errors During Installation</h3>
+<p><strong>Error:</strong></p>
+<pre><code>Access to the path is denied.
+</code></pre>
+<p><strong>Solution:</strong></p>
+<ol>
+<li>On Windows: Run as Administrator</li>
+<li>On macOS/Linux: Use <code>sudo</code> if necessary, or install to user directory:
+<pre><code class="language-bash">dotnet tool install --global Tanka.DocsGen --tool-path ~/.dotnet/tools
+</code></pre>
+</li>
+</ol>
+<h2 id="configuration-issues">Configuration Issues</h2>
+<h3 id="configuration-file-not-found">Configuration File Not Found</h3>
+<p><strong>Error:</strong></p>
+<pre><code>Could not load configuration: 'tanka-docs.yml'
+</code></pre>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p><strong>Check file exists:</strong></p>
+<pre><code class="language-bash">ls -la tanka-docs.yml
+</code></pre>
+</li>
+<li><p><strong>Check current directory:</strong></p>
+<pre><code class="language-bash">pwd
+</code></pre>
+</li>
+<li><p><strong>Specify configuration path:</strong></p>
+<pre><code class="language-bash">tanka-docs build -f path/to/tanka-docs.yml
+</code></pre>
+</li>
+</ol>
+<h3 id="invalid-yaml-syntax">Invalid YAML Syntax</h3>
+<p><strong>Error:</strong></p>
+<pre><code>YamlDotNet.Core.YamlException: Invalid YAML
+</code></pre>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Validate YAML syntax</strong> using online YAML validators</li>
+<li><strong>Check indentation</strong> - YAML is sensitive to spaces/tabs</li>
+<li><strong>Check quotes</strong> - Use consistent quote styles</li>
+<li><strong>Common issues:</strong>
+<ul>
+<li>Mixed tabs and spaces</li>
+<li>Missing colons after keys</li>
+<li>Incorrect list formatting</li>
+</ul>
+</li>
+</ol>
+<p><strong>Example of correct YAML:</strong></p>
+<pre><code class="language-yaml">title: &quot;My Site&quot;
+sources:
+  - name: &quot;local&quot;
+    type: &quot;local&quot;
+    path: &quot;.&quot;
+</code></pre>
+<h2 id="build-issues">Build Issues</h2>
+<h3 id="section-configuration-missing">Section Configuration Missing</h3>
+<p><strong>Error:</strong></p>
+<pre><code>Section configuration not found: tanka-docs-section.yml
+</code></pre>
+<p><strong>Solution:</strong></p>
+<ol>
+<li><strong>Check each section directory</strong> has a <code>tanka-docs-section.yml</code> file</li>
+<li><strong>Verify file name</strong> is exactly <code>tanka-docs-section.yml</code></li>
+<li><strong>Example section configuration:</strong>
+<pre><code class="language-yaml">id: &quot;docs&quot;
+title: &quot;Documentation&quot;
+type: &quot;docs&quot;
+index_page: &quot;index.md&quot;
+</code></pre>
+</li>
+</ol>
+<h3 id="referenced-files-not-found">Referenced Files Not Found</h3>
+<p><strong>Error:</strong></p>
+<pre><code>File not found: installation.md
+</code></pre>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p><strong>Check file exists:</strong></p>
+<pre><code class="language-bash">ls -la docs/installation.md
+</code></pre>
+</li>
+<li><p><strong>Check navigation references:</strong></p>
+<pre><code class="language-yaml">navigation:
+  - title: &quot;Installation&quot;
+    page: &quot;installation.md&quot;  # Must match actual filename
+</code></pre>
+</li>
+<li><p><strong>Check cross-references:</strong></p>
+<pre><code class="language-markdown">[Link](xref://installation.md)  # Must match actual filename
+</code></pre>
+</li>
+</ol>
+<h3 id="include-files-not-found">Include Files Not Found</h3>
+<p><strong>Error:</strong></p>
+<pre><code>Include file not found: src/Program.cs
+</code></pre>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p><strong>Verify include syntax:</strong></p>
+<pre><code class="language-markdown">\#include::xref://src:Program.cs
+</code></pre>
+</li>
+<li><p><strong>Check file exists:</strong></p>
+<pre><code class="language-bash">ls -la src/Program.cs
+</code></pre>
+</li>
+<li><p><strong>Use debug mode</strong> to see detailed processing:</p>
+<pre><code class="language-bash">tanka-docs build --debug
+</code></pre>
+</li>
+</ol>
+<h2 id="git-and-versioning-issues">Git and Versioning Issues</h2>
+<h3 id="git-repository-issues">Git Repository Issues</h3>
+<p><strong>Error:</strong></p>
+<pre><code>LibGit2Sharp.RepositoryNotFoundException: Path does not exist
+</code></pre>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p><strong>Initialize Git repository:</strong></p>
+<pre><code class="language-bash">git init
+git add .
+git commit -m &quot;Initial commit&quot;
+</code></pre>
+</li>
+<li><p><strong>Check Git status:</strong></p>
+<pre><code class="language-bash">git status
+</code></pre>
+</li>
+<li><p><strong>For local-only documentation</strong> (no Git), use local source:</p>
+<pre><code class="language-yaml">sources:
+  - name: &quot;local&quot;
+    type: &quot;local&quot;
+    path: &quot;.&quot;
+</code></pre>
+</li>
+</ol>
+<h3 id="version-detection-issues">Version Detection Issues</h3>
+<p><strong>Error:</strong></p>
+<pre><code>No versions found in repository
+</code></pre>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p><strong>Create at least one tag:</strong></p>
+<pre><code class="language-bash">git tag v1.0.0
+</code></pre>
+</li>
+<li><p><strong>Check existing tags:</strong></p>
+<pre><code class="language-bash">git tag -l
+</code></pre>
+</li>
+<li><p><strong>Use branches for versions:</strong></p>
+<pre><code class="language-bash">git checkout -b docs-v1.0
+</code></pre>
+</li>
+</ol>
+<h2 id="include-directive-issues">Include Directive Issues</h2>
+<h3 id="roslyn-symbol-not-found">Roslyn Symbol Not Found</h3>
+<p><strong>Error:</strong></p>
+<pre><code>Symbol not found: MyNamespace.MyClass.MyMethod
+</code></pre>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p><strong>Check symbol exists</strong> in the specified file</p>
+</li>
+<li><p><strong>Use fully qualified name:</strong></p>
+<pre><code class="language-markdown">\#include::xref://src:MyFile.cs?s=MyNamespace.MyClass.MyMethod
+</code></pre>
+</li>
+<li><p><strong>Check file compiles:</strong></p>
+<pre><code class="language-bash">dotnet build
+</code></pre>
+</li>
+<li><p><strong>List available symbols</strong> in debug mode:</p>
+<pre><code class="language-bash">tanka-docs build --debug
+</code></pre>
+</li>
+</ol>
+<h3 id="escaped-includes-not-working">Escaped Includes Not Working</h3>
+<p><strong>Problem:</strong> Escaped includes still get processed</p>
+<p><strong>Solution:</strong>
+Ensure you're using the correct escape syntax:</p>
+<pre><code class="language-markdown">\#include::xref://src:Program.cs
+</code></pre>
+<p>If this doesn't work, check you're using the latest version of Tanka Docs.</p>
+<h2 id="output-and-deployment-issues">Output and Deployment Issues</h2>
+<h3 id="permission-denied-writing-output">Permission Denied Writing Output</h3>
+<p><strong>Error:</strong></p>
+<pre><code>Access to the path 'gh-pages' is denied.
+</code></pre>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p><strong>Check directory permissions:</strong></p>
+<pre><code class="language-bash">ls -la gh-pages/
+</code></pre>
+</li>
+<li><p><strong>Change permissions if needed:</strong></p>
+<pre><code class="language-bash">chmod -R 755 gh-pages/
+</code></pre>
+</li>
+<li><p><strong>Use different output directory:</strong></p>
+<pre><code class="language-bash">tanka-docs build -o ./my-output
+</code></pre>
+</li>
+</ol>
+<h3 id="generated-links-not-working">Generated Links Not Working</h3>
+<p><strong>Problem:</strong> Links return 404 errors when deployed</p>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p><strong>Set correct base path</strong> for subdirectory deployment:</p>
+<pre><code class="language-bash">tanka-docs build --base &quot;/my-docs/&quot;
+</code></pre>
+</li>
+<li><p><strong>Check server configuration</strong> for static file serving</p>
+</li>
+<li><p><strong>Verify relative paths</strong> in generated HTML</p>
+</li>
+</ol>
+<h2 id="performance-issues">Performance Issues</h2>
+<h3 id="slow-build-times">Slow Build Times</h3>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p><strong>Clean build directory:</strong></p>
+<pre><code class="language-bash">rm -rf _build/
+</code></pre>
+</li>
+<li><p><strong>Reduce processed content:</strong></p>
+<ul>
+<li>Remove unused files from sections</li>
+<li>Use <code>.gitignore</code> patterns in configuration</li>
+</ul>
+</li>
+<li><p><strong>Optimize includes:</strong></p>
+<ul>
+<li>Include specific symbols instead of entire files</li>
+<li>Cache frequently used includes</li>
+</ul>
+</li>
+</ol>
+<h3 id="high-memory-usage">High Memory Usage</h3>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><strong>Process smaller batches</strong> by splitting large sections</li>
+<li><strong>Remove large binary files</strong> from source directories</li>
+<li><strong>Use include directives</strong> instead of copying large files</li>
+</ol>
+<h2 id="debug-mode">Debug Mode</h2>
+<p>For detailed troubleshooting information, always use debug mode:</p>
+<pre><code class="language-bash">tanka-docs build --debug
+</code></pre>
+<p>This provides:</p>
+<ul>
+<li>Detailed processing steps</li>
+<li>File resolution information</li>
+<li>Error stack traces</li>
+<li>Performance timing</li>
+<li>Git repository information</li>
+</ul>
+<h2 id="common-configuration-patterns">Common Configuration Patterns</h2>
+<h3 id="working-directory-issues">Working Directory Issues</h3>
+<p><strong>Problem:</strong> Relative paths not resolving correctly</p>
+<p><strong>Solution:</strong> Understand working directory behavior:</p>
+<ul>
+<li>Working directory = directory containing <code>tanka-docs.yml</code></li>
+<li>All relative paths resolve from working directory</li>
+<li>Use <code>-f</code> option to specify config file location</li>
+</ul>
+<h3 id="multiple-environment-configurations">Multiple Environment Configurations</h3>
+<p><strong>Pattern:</strong> Different configs for dev/prod</p>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-bash"># Development
+tanka-docs build -f config/dev.yml -o ./dev-output
+
+# Production  
+tanka-docs build -f config/prod.yml -o ./dist --base &quot;/docs/&quot;
+</code></pre>
+<h2 id="getting-additional-help">Getting Additional Help</h2>
+<h3 id="enable-detailed-logging">Enable Detailed Logging</h3>
+<pre><code class="language-bash">tanka-docs build --debug &gt; build.log 2&gt;&amp;1
+</code></pre>
+<h3 id="check-version">Check Version</h3>
+<pre><code class="language-bash">tanka-docs --version
+</code></pre>
+<h3 id="update-to-latest-version">Update to Latest Version</h3>
+<pre><code class="language-bash">dotnet tool update --global Tanka.DocsGen
+</code></pre>
+<h3 id="validate-configuration">Validate Configuration</h3>
+<p>Before building, validate your configuration manually:</p>
+<ol>
+<li><strong>Check YAML syntax</strong> with online validators</li>
+<li><strong>Verify all referenced files exist</strong></li>
+<li><strong>Test with minimal configuration</strong> first</li>
+<li><strong>Use relative paths consistently</strong></li>
+</ol>
+<h2 id="error-message-index">Error Message Index</h2>
+<table class="table">
+<thead>
+<tr>
+<th>Error Pattern</th>
+<th>Section</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Could not load configuration</code></td>
+<td>Configuration Issues</td>
+</tr>
+<tr>
+<td><code>File not found</code></td>
+<td>Build Issues</td>
+</tr>
+<tr>
+<td><code>YamlException</code></td>
+<td>Configuration Issues</td>
+</tr>
+<tr>
+<td><code>RepositoryNotFoundException</code></td>
+<td>Git and Versioning Issues</td>
+</tr>
+<tr>
+<td><code>Access denied</code></td>
+<td>Output and Deployment Issues</td>
+</tr>
+<tr>
+<td><code>Symbol not found</code></td>
+<td>Include Directive Issues</td>
+</tr>
+</tbody>
+</table>
+<h2 id="still-need-help">Still Need Help?</h2>
+<p>If you can't resolve your issue with this guide:</p>
+<ol>
+<li><strong>Check the documentation</strong> for the specific feature you're using</li>
+<li><strong>Search existing issues</strong> in the project repository</li>
+<li><strong>Create a minimal reproduction case</strong></li>
+<li><strong>Include the full error message and debug output</strong></li>
+<li><strong>Specify your environment</strong> (OS, .NET version, Tanka Docs version)</li>
+</ol>
+
             </main>
             <!-- Single responsive TOC -->
-            <nav id="toc" class="col-md-3 col-lg-3 d-none d-md-block toc-sidebar offcanvas offcanvas-end" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="true" aria-label="Table of contents">
+            <nav id="toc" class="col-md-3 col-lg-3 d-none d-lg-block toc-sidebar offcanvas-md offcanvas-end" tabindex="-1">
                 <div class="offcanvas-header d-md-none">
                     <h5 class="offcanvas-title">On this page</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#toc" aria-label="Close"></button>
                 </div>
                 <div class="offcanvas-body">
-                    <strong class="d-block h6 my-2 pb-2 border-bottom toc-title">On this page</strong>
+                    <strong class="d-block h6 my-2 pb-2 border-bottom toc-title d-none d-md-block">On this page</strong>
                     <nav class="nav flex-column"></nav>
                 </div>
             </nav>
@@ -374,7 +648,7 @@
             const SCROLL_OFFSET = 100;
             const SCROLL_THROTTLE_MS = 25; // Optimized from 10ms
             const SCROLL_NAVIGATION_TIMEOUT_MS = 200;
-            const MOBILE_BREAKPOINT = 768; // Bootstrap md breakpoint
+            const MOBILE_BREAKPOINT = 992;
             
             if (toc) {
                 const mainContent = document.querySelector('.content');
@@ -639,80 +913,6 @@
             }
             connect();
         })();
-        
-        // Theme switcher functionality
-        (() => {
-            'use strict'
-            
-            const getStoredTheme = () => localStorage.getItem('theme')
-            const setStoredTheme = theme => localStorage.setItem('theme', theme)
-            
-            const getPreferredTheme = () => {
-                const storedTheme = getStoredTheme()
-                if (storedTheme) {
-                    return storedTheme
-                }
-                
-                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-            }
-            
-            const setTheme = theme => {
-                if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    document.documentElement.setAttribute('data-bs-theme', 'dark')
-                } else {
-                    document.documentElement.setAttribute('data-bs-theme', theme)
-                }
-            }
-            
-            const showActiveTheme = (theme, focus = false) => {
-                const themeSwitcher = document.querySelector('#bd-theme')
-                
-                if (!themeSwitcher) {
-                    return
-                }
-                
-                const themeSwitcherText = document.querySelector('#bd-theme-text')
-                const activeThemeIcon = document.querySelector('.theme-icon-active use')
-                const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
-                const svgOfActiveBtn = btnToActive.querySelector('svg use').getAttribute('href')
-                
-                document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
-                    element.classList.remove('active')
-                    element.setAttribute('aria-pressed', 'false')
-                })
-                
-                btnToActive.classList.add('active')
-                btnToActive.setAttribute('aria-pressed', 'true')
-                activeThemeIcon.setAttribute('href', svgOfActiveBtn)
-                const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`
-                themeSwitcher.setAttribute('aria-label', themeSwitcherLabel)
-                
-                if (focus) {
-                    themeSwitcher.focus()
-                }
-            }
-            
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-                const storedTheme = getStoredTheme()
-                if (storedTheme !== 'light' && storedTheme !== 'dark') {
-                    setTheme(getPreferredTheme())
-                }
-            })
-            
-            window.addEventListener('DOMContentLoaded', () => {
-                showActiveTheme(getPreferredTheme())
-                
-                document.querySelectorAll('[data-bs-theme-value]')
-                    .forEach(toggle => {
-                        toggle.addEventListener('click', () => {
-                            const theme = toggle.getAttribute('data-bs-theme-value')
-                            setStoredTheme(theme)
-                            setTheme(theme)
-                            showActiveTheme(theme, true)
-                        })
-                    })
-            })
-        })()
     </script>
 </body>
 </html>

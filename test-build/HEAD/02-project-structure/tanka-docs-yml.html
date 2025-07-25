@@ -1,43 +1,14 @@
-<!DOCTYPE html>
-<html lang="en" data-bs-theme="auto">
+﻿<!DOCTYPE html>
+<html lang="en">
 
 <head>
-    <base href="{{Site.BasePath}}">
-    <title>{{ Page.Title }} - {{ Site.Title }}</title>
+    <base href="/">
+    <title>tanka-docs.yml Configuration - Tanka Docs Generator - WIP</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    
-    <!-- Color mode toggler -->
-    <script>
-        (() => {
-            'use strict'
-            
-            const getStoredTheme = () => localStorage.getItem('theme')
-            const setStoredTheme = theme => localStorage.setItem('theme', theme)
-            
-            const getPreferredTheme = () => {
-                const storedTheme = getStoredTheme()
-                if (storedTheme) {
-                    return storedTheme
-                }
-                
-                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-            }
-            
-            const setTheme = theme => {
-                if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    document.documentElement.setAttribute('data-bs-theme', 'dark')
-                } else {
-                    document.documentElement.setAttribute('data-bs-theme', theme)
-                }
-            }
-            
-            setTheme(getPreferredTheme())
-        })()
-    </script>
     
     <!-- Noto Color Emoji font for cross-platform emoji support -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
@@ -61,8 +32,8 @@
             top: 56px; /* Height of navbar */
             height: calc(100vh - 56px);
             overflow-y: auto;
-            background-color: var(--bs-secondary-bg);
-            border-right: 1px solid var(--bs-border-color);
+            background-color: #f8f9fa;
+            border-right: 1px solid #dee2e6;
             padding-top: 1rem;
         }
 
@@ -75,27 +46,18 @@
         }
 
         /* Offcanvas customization */
-        @media (max-width: 767.98px) {
-            .offcanvas-start {
-                width: 280px;
-            }
-            .offcanvas-end {
-                width: 300px;
-            }
-            
-            .offcanvas {
-                --bs-offcanvas-transition: transform .15s ease-in-out; /* Faster animation */
-            }
+        .offcanvas-md {
+            --bs-offcanvas-transition: transform .15s ease-in-out; /* Faster animation */
         }
         
         /* Remove extra whitespace above content on mobile */
         @media (max-width: 767.98px) {
             main.content {
-                padding-top: 0.5rem !important;
+                padding-top: 1rem;
             }
             
             /* Hide mobile control buttons when offcanvas is shown */
-            .offcanvas.show ~ .content .d-md-none {
+            .offcanvas-md.show ~ .content .d-lg-none {
                 display: none !important;
             }
         }
@@ -112,19 +74,12 @@
 
         .sidebar .nav-link {
             font-size: 0.9rem;
-            color: var(--bs-body-color);
-            border-radius: 0.375rem;
+            color: #495057;
         }
 
-        .sidebar .nav-link.active {
-            background-color: var(--bs-primary);
-            color: white;
+        .sidebar .nav-link.active, .sidebar .nav-link:hover {
+            color: rgb(var(--bs-link-color-rgb));
             font-weight: 500;
-        }
-        
-        .sidebar .nav-link:hover {
-            color: var(--bs-link-color);
-            background-color: var(--bs-tertiary-bg);
         }
 
         /* Ensure emojis render properly in navigation */
@@ -140,44 +95,26 @@
         
         .toc-sidebar .nav-link {
             font-size: 0.8rem;
-            color: var(--bs-secondary-color);
+            color: #6c757d;
             padding-top: 0.25rem;
             padding-bottom: 0.25rem;
         }
 
         .toc-sidebar .nav-link:hover {
-            color: var(--bs-body-color);
+            color: #212529;
         }
 
         .toc-sidebar .nav-link.active {
             font-weight: 600;
-            color: var(--bs-body-color);
-            border-left: 2px solid var(--bs-link-color);
+            color: #212529; /* Darker text for readability */
+            border-left: 2px solid rgb(var(--bs-link-color-rgb));
         }
 
         blockquote {
             font-size: 1rem;
-            border-left: 4px solid var(--bs-border-color);
+            border-left: 4px solid #adb5bd;
             padding-left: 1rem;
-            color: var(--bs-secondary-color);
-        }
-        
-        /* Focus visible for better accessibility */
-        .btn:focus-visible,
-        .nav-link:focus-visible,
-        .dropdown-item:focus-visible {
-            outline: 2px solid var(--bs-primary);
-            outline-offset: 2px;
-        }
-        
-        /* Smooth transitions for theme switching */
-        body {
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        
-        .sidebar,
-        .toc-sidebar {
-            transition: background-color 0.3s ease, border-color 0.3s ease;
+            color: #6c757d;
         }
 
         .content h1, .content h2, .content h3, .content h4, .content h5, .content h6 {
@@ -194,88 +131,47 @@
         pre code.hljs {
             border-radius: 0.3rem;
         }
-        
-        /* Theme switcher styles */
-        .theme-icon-active {
-            display: inline-block !important;
-        }
     </style>
 </head>
 
 <body>
-    <!-- SVG Icons for theme switcher -->
-    <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
-        <symbol id="check2" viewBox="0 0 16 16">
-            <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
-        </symbol>
-        <symbol id="circle-half" viewBox="0 0 16 16">
-            <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
-        </symbol>
-        <symbol id="moon-stars-fill" viewBox="0 0 16 16">
-            <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
-            <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
-        </symbol>
-        <symbol id="sun-fill" viewBox="0 0 16 16">
-            <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
-        </symbol>
-    </svg>
-    <nav class="navbar navbar-expand-lg sticky-top" data-bs-theme="dark" style="background-color: var(--bs-primary);">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom sticky-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">{{Site.Title}}</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <a class="navbar-brand" href="#">Tanka Docs Generator - WIP</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    {{#sections Section.Version}}
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{#xref IndexPage}}{{url}}{{/xref}}">{{Title}}</a>
+                            <a class="nav-link" href="HEAD/index.html">Home</a>
                         </li>
-                    {{/sections}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="HEAD/01-getting-started/getting-started.html">Getting Started</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="HEAD/02-project-structure/index.html">Project Structure</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="HEAD/03-writing-content/index.html">Writing Content</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="HEAD/04-advanced/index.html">Advanced Features</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="HEAD/05-customization/index.html">UI Customization</a>
+                        </li>
                 </ul>
-                <ul class="navbar-nav">
-                    {{#if Site.Definition.Homepage.Enabled}}
+                <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{Site.Definition.Homepage.Url}}" target="{{Site.Definition.Homepage.Target}}" rel="noopener">{{Site.Definition.Homepage.Text}}</a>
-                    </li>
-                    {{/if}}
-                    <li class="nav-item dropdown">
-                        <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme (auto)">
-                            <svg class="bi my-1 theme-icon-active" width="16" height="16"><use href="#circle-half"></use></svg>
-                            <span class="d-lg-none ms-2" id="bd-theme-text">Toggle theme</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
-                            <li>
-                                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
-                                    <svg class="bi me-2 opacity-50 theme-icon" width="16" height="16"><use href="#sun-fill"></use></svg>
-                                    Light
-                                    <svg class="bi ms-auto d-none" width="16" height="16"><use href="#check2"></use></svg>
-                                </button>
-                            </li>
-                            <li>
-                                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
-                                    <svg class="bi me-2 opacity-50 theme-icon" width="16" height="16"><use href="#moon-stars-fill"></use></svg>
-                                    Dark
-                                    <svg class="bi ms-auto d-none" width="16" height="16"><use href="#check2"></use></svg>
-                                </button>
-                            </li>
-                            <li>
-                                <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto" aria-pressed="true">
-                                    <svg class="bi me-2 opacity-50 theme-icon" width="16" height="16"><use href="#circle-half"></use></svg>
-                                    Auto
-                                    <svg class="bi ms-auto d-none" width="16" height="16"><use href="#check2"></use></svg>
-                                </button>
-                            </li>
-                        </ul>
+                        <a class="nav-link" href="https://github.com/pekkah/tanka-docs-gen" target="_blank" rel="noopener">GitHub</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            {{Section.Version}}
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            HEAD
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            {{#versions}}
-                                <li><a class="dropdown-item" href="{{../Site.BasePath}}{{Version}}">{{Version}}</a></li>
-                            {{/versions}}
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
+                                <li><a class="dropdown-item" href="/HEAD">HEAD</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -283,42 +179,187 @@
         </div>
     </nav>
     <div class="container-fluid">
-        <div class="row g-0">
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar offcanvas offcanvas-start" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="true" aria-label="Main navigation">
+        <div class="row">
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar offcanvas-md offcanvas-start" tabindex="-1">
                 <div class="offcanvas-header d-md-none">
                     <h5 class="offcanvas-title">Navigation</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Close"></button>
                 </div>
                 <div class="offcanvas-body">
-                    {{>partials/Navigation.hbs}}
+    <nav class="nav flex-column">
+<li class="nav-item">
+    <div class="d-flex justify-content-between align-items-center">
+        <a class="nav-link" href=HEAD/02-project-structure/file-system.html>File System Structure</a>
+    </div>
+</li>    </nav>
+    <nav class="nav flex-column">
+<li class="nav-item">
+    <div class="d-flex justify-content-between align-items-center">
+        <a class="nav-link" href=HEAD/02-project-structure/assets.html>Asset Handling</a>
+    </div>
+</li>    </nav>
+    <nav class="nav flex-column">
+<li class="nav-item">
+    <div class="d-flex justify-content-between align-items-center">
+        <a class="nav-link" href=HEAD/02-project-structure/tanka-docs-yml.html>Main Configuration (tanka-docs.yml)</a>
+    </div>
+</li>    </nav>
+    <nav class="nav flex-column">
+<li class="nav-item">
+    <div class="d-flex justify-content-between align-items-center">
+        <a class="nav-link" href=HEAD/02-project-structure/tanka-docs-section.html>Section Configuration (tanka-docs-section.yml)</a>
+    </div>
+</li>    </nav>
                 </div>
             </nav>
-            <main class="col-md-6 ms-md-auto col-lg-7 px-md-4 py-3 content d-flex flex-column" role="main">
+            <main class="col-md-6 ms-sm-auto col-lg-7 px-md-4 py-3 content d-flex flex-column">
                 <!-- Mobile navigation controls -->
-                <div class="d-md-none mb-3">
-                    <button class="btn btn-sm btn-outline-primary me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar">
+                <div class="d-lg-none mb-3">
+                    <button class="btn btn-outline-primary btn-sm me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar">
                         <svg width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
                         </svg>
                         <span class="ms-1">Menu</span>
                     </button>
-                    <button class="btn btn-sm btn-outline-secondary toc-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#toc" aria-controls="toc">
+                </div>
+                <!-- Mobile TOC toggle button -->
+                <div class="d-lg-none mb-3">
+                    <button class="btn btn-outline-secondary btn-sm toc-toggle mb-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#toc" aria-controls="toc">
                         <svg width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
                         </svg>
                         <span class="ms-1">On this page</span>
                     </button>
                 </div>
-                {{{PageHtml}}}
+                <h2 id="the-tanka-docs.yml-file">The <code>tanka-docs.yml</code> File</h2>
+<p>The <code>tanka-docs.yml</code> file is the main configuration file for your Tanka Docs site. It resides at the root of your Git repository and tells Tanka Docs how to find your documentation sources, which versions to build, and where to output the generated HTML.</p>
+<p>This file uses YAML syntax.</p>
+<h3 id="top-level-configuration-fields">Top-Level Configuration Fields</h3>
+<p>Here are the supported top-level keys:</p>
+<h4 id="title"><code>title</code></h4>
+<ul>
+<li><strong>Purpose:</strong> Defines the overall title for your documentation site. This title is often used in page headers, browser tabs, and metadata.</li>
+<li><strong>Type:</strong> <code>String</code></li>
+<li><strong>Required:</strong> No</li>
+<li><strong>Default:</strong> <code>Tanka Docs</code></li>
+<li><strong>Example:</strong> <code>My Project Documentation</code></li>
+</ul>
+<h4 id="index_page"><code>index_page</code></h4>
+<ul>
+<li><strong>Purpose:</strong> Defines the root index page of the whole site.</li>
+<li><strong>Type:</strong> <code>xref</code></li>
+<li><strong>Required:</strong> No</li>
+<li><strong>Default:</strong> <code>xref://root@HEAD:index.md</code></li>
+<li><strong>Example:</strong> <code>xref://root@master:index.md</code></li>
+</ul>
+<h4 id="output_path"><code>output_path</code></h4>
+<ul>
+<li><strong>Purpose:</strong> Specifies the directory where Tanka Docs will place the generated HTML site.</li>
+<li><strong>Type:</strong> <code>String</code></li>
+<li><strong>Required:</strong> No</li>
+<li><strong>Default:</strong> <code>output</code></li>
+<li><strong>Example:</strong> <code>gh-pages</code></li>
+</ul>
+<h4 id="build_path"><code>build_path</code></h4>
+<ul>
+<li><strong>Purpose:</strong> Specifies a temporary directory used for building the site.</li>
+<li><strong>Type:</strong> <code>String</code></li>
+<li><strong>Required:</strong> No</li>
+<li><strong>Default:</strong> <code>Path.GetTempPath()</code></li>
+<li><strong>Example:</strong> <code>_build</code></li>
+</ul>
+<h4 id="base_path"><code>base_path</code></h4>
+<ul>
+<li><strong>Purpose:</strong> A base path to prepend to all generated links.</li>
+<li><strong>Type:</strong> <code>String</code></li>
+<li><strong>Required:</strong> No</li>
+<li><strong>Default:</strong> ``</li>
+<li><strong>Example:</strong> <code>/</code></li>
+</ul>
+<h4 id="branches"><code>branches</code></h4>
+<ul>
+<li><strong>Purpose:</strong> An object where each key is a Git branch name (e.g., <code>master</code>, <code>develop</code>). The value for each branch specifies the input paths for documentation within that branch. Tanka Docs will check out these branches to find documentation sections.</li>
+<li><strong>Type:</strong> <code>Object</code></li>
+<li><strong>Required:</strong> No</li>
+<li><strong>Structure:</strong>
+<pre><code class="language-yaml">branches:
+  master: # Branch name
+    input_path: # Paths within this branch
+      - docs-v2
+      - ui-bundle
+  develop:
+    input_path:
+      - docs-v2
+</code></pre>
+<ul>
+<li><code>input_path</code>: (List of Strings) Specifies an array of directory paths within the branch where <code>tanka-docs-section.yml</code> files can be found.</li>
+</ul>
+</li>
+</ul>
+<h4 id="tags"><code>tags</code></h4>
+<ul>
+<li><strong>Purpose:</strong> An object where each key is a Git tag pattern (e.g., <code>v1.*</code>, <code>release-*</code>). The value for each tag pattern specifies the input paths for documentation within tags matching that pattern.</li>
+<li><strong>Type:</strong> <code>Object</code></li>
+<li><strong>Required:</strong> No</li>
+<li><strong>Structure:</strong>
+<pre><code class="language-yaml">tags:
+  '0.8.*': # Tag pattern (quotes needed if it starts with special chars)
+    input_path:
+      - docs-v2
+  '1.*': # Specific tag
+    input_path:
+      - docs-v2
+</code></pre>
+<ul>
+<li><code>input_path</code>: (List of Strings) Specifies an array of directory paths within the tags where <code>tanka-docs-section.yml</code> files can be found.</li>
+</ul>
+</li>
+</ul>
+<h4 id="extensions"><code>extensions</code></h4>
+<ul>
+<li><strong>Purpose:</strong> Configures any extensions or plugins that Tanka Docs might support. The structure under this key would be specific to each extension.</li>
+<li><strong>Type:</strong> <code>Object</code></li>
+<li><strong>Required:</strong> No</li>
+<li><strong>Example:</strong>
+<pre><code class="language-yaml">extensions:
+  my_custom_search:
+    api_key: &quot;YOUR_API_KEY&quot;
+  mermaid_diagrams:
+    version: &quot;8.10.2&quot;
+</code></pre>
+</li>
+</ul>
+<h3 id="example-tanka-docs.yml">Example <code>tanka-docs.yml</code></h3>
+<pre><code class="language-yaml">base_path: &quot;/&quot;
+title: &quot;Tanka Docs Generator&quot;
+index_page: xref://root@master:index.md
+output_path: &quot;gh-pages&quot;
+build_path: &quot;_build&quot;
+branches:
+  master:
+    input_path:
+      - ui-bundle
+      - docs-v2
+      - src
+tags:
+  '1.*':
+    input_path:
+      - ui-bundle
+      - docs-v2
+      - src
+</code></pre>
+<p>This example showcases how to define the site title, output directory, various sources including branches and tags with specific input paths and placeholder extension configurations. Remember that the exact fields and their behavior might vary based on the specific version and capabilities of Tanka Docs.</p>
+<pre><code></code></pre>
+
             </main>
             <!-- Single responsive TOC -->
-            <nav id="toc" class="col-md-3 col-lg-3 d-none d-md-block toc-sidebar offcanvas offcanvas-end" tabindex="-1" data-bs-scroll="true" data-bs-backdrop="true" aria-label="Table of contents">
+            <nav id="toc" class="col-md-3 col-lg-3 d-none d-lg-block toc-sidebar offcanvas-md offcanvas-end" tabindex="-1">
                 <div class="offcanvas-header d-md-none">
                     <h5 class="offcanvas-title">On this page</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#toc" aria-label="Close"></button>
                 </div>
                 <div class="offcanvas-body">
-                    <strong class="d-block h6 my-2 pb-2 border-bottom toc-title">On this page</strong>
+                    <strong class="d-block h6 my-2 pb-2 border-bottom toc-title d-none d-md-block">On this page</strong>
                     <nav class="nav flex-column"></nav>
                 </div>
             </nav>
@@ -374,7 +415,7 @@
             const SCROLL_OFFSET = 100;
             const SCROLL_THROTTLE_MS = 25; // Optimized from 10ms
             const SCROLL_NAVIGATION_TIMEOUT_MS = 200;
-            const MOBILE_BREAKPOINT = 768; // Bootstrap md breakpoint
+            const MOBILE_BREAKPOINT = 992;
             
             if (toc) {
                 const mainContent = document.querySelector('.content');
@@ -639,80 +680,6 @@
             }
             connect();
         })();
-        
-        // Theme switcher functionality
-        (() => {
-            'use strict'
-            
-            const getStoredTheme = () => localStorage.getItem('theme')
-            const setStoredTheme = theme => localStorage.setItem('theme', theme)
-            
-            const getPreferredTheme = () => {
-                const storedTheme = getStoredTheme()
-                if (storedTheme) {
-                    return storedTheme
-                }
-                
-                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-            }
-            
-            const setTheme = theme => {
-                if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    document.documentElement.setAttribute('data-bs-theme', 'dark')
-                } else {
-                    document.documentElement.setAttribute('data-bs-theme', theme)
-                }
-            }
-            
-            const showActiveTheme = (theme, focus = false) => {
-                const themeSwitcher = document.querySelector('#bd-theme')
-                
-                if (!themeSwitcher) {
-                    return
-                }
-                
-                const themeSwitcherText = document.querySelector('#bd-theme-text')
-                const activeThemeIcon = document.querySelector('.theme-icon-active use')
-                const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
-                const svgOfActiveBtn = btnToActive.querySelector('svg use').getAttribute('href')
-                
-                document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
-                    element.classList.remove('active')
-                    element.setAttribute('aria-pressed', 'false')
-                })
-                
-                btnToActive.classList.add('active')
-                btnToActive.setAttribute('aria-pressed', 'true')
-                activeThemeIcon.setAttribute('href', svgOfActiveBtn)
-                const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`
-                themeSwitcher.setAttribute('aria-label', themeSwitcherLabel)
-                
-                if (focus) {
-                    themeSwitcher.focus()
-                }
-            }
-            
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-                const storedTheme = getStoredTheme()
-                if (storedTheme !== 'light' && storedTheme !== 'dark') {
-                    setTheme(getPreferredTheme())
-                }
-            })
-            
-            window.addEventListener('DOMContentLoaded', () => {
-                showActiveTheme(getPreferredTheme())
-                
-                document.querySelectorAll('[data-bs-theme-value]')
-                    .forEach(toggle => {
-                        toggle.addEventListener('click', () => {
-                            const theme = toggle.getAttribute('data-bs-theme-value')
-                            setStoredTheme(theme)
-                            setTheme(theme)
-                            showActiveTheme(theme, true)
-                        })
-                    })
-            })
-        })()
     </script>
 </body>
 </html>
