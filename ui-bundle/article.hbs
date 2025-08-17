@@ -12,30 +12,25 @@
     
     <!-- Color mode toggler -->
     <script>
+        // This minimal script runs early to prevent a "flash of unstyled content" (FOUC) by setting the theme before the page renders.
         (() => {
-            'use strict'
-            
-            const getStoredTheme = () => localStorage.getItem('theme')
-            const setStoredTheme = theme => localStorage.setItem('theme', theme)
-            
+            'use strict';
+            const getStoredTheme = () => localStorage.getItem('theme');
             const getPreferredTheme = () => {
-                const storedTheme = getStoredTheme()
+                const storedTheme = getStoredTheme();
                 if (storedTheme) {
-                    return storedTheme
+                    return storedTheme;
                 }
-                
-                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-            }
-            
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            };
             const setTheme = theme => {
                 if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    document.documentElement.setAttribute('data-bs-theme', 'dark')
+                    document.documentElement.setAttribute('data-bs-theme', 'dark');
                 } else {
-                    document.documentElement.setAttribute('data-bs-theme', theme)
+                    document.documentElement.setAttribute('data-bs-theme', theme);
                 }
-            }
-            
-            setTheme(getPreferredTheme())
+            };
+            setTheme(getPreferredTheme());
         })()
     </script>
     
